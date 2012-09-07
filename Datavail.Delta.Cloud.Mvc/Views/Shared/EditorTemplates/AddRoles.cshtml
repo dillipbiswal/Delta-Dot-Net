@@ -1,0 +1,23 @@
+﻿@model AddRoleModel
+<div id='addrole-container'>
+    @Html.ListBoxFor(model => model.SelectedRoleIds, new MultiSelectList(Model.PotentialRoles, "Id", "Name", Model.SelectedRoleIds), new { @class = "multi-select" }) 
+</div>
+
+<script type="text/javascript">
+    $('.multi-select', "#addrole-container").multiSelect({
+        selectableHeader: "<div id='selectable-header' class='ms-header'><h4>@Model.PotentialRolesHeader</h4><a id='select-all-items' class='fr' href='#'>Select All</a></div>",
+        selectedHeader: "<div id='selected-header' class='ms-header'><h4>@Model.SelectedRolesHeader</h4><a id='remove-all-items' class='fr' href='#'>Remove All</a></div>"
+    });
+
+    $('#select-all-items', "#selectable-header").click(function () {
+        $('.multi-select', "#addrole-container").multiSelect('select_all');
+        return false;
+    });
+
+    $('#remove-all-items', '#selected-header').click(function () {
+        $('.multi-select', "#addrole-container").multiSelect('deselect_all');
+        return false;
+    });
+
+</script>
+

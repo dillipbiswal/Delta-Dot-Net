@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Datavail.Delta.Domain.Server">
+    <Position X="8.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CGEAAAgEAAAACQACAACAAAAAAAAAAAAAACAAAAAEAAA=</HashCode>
+      <FileName>Server.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+      <Property Name="MetricInstances" />
+      <Property Name="ServerGroups" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.ServerGroup">
+    <Position X="8.5" Y="1" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAQAEAAAAQAQAAAAAAAAAADAAAAAAAAA=</HashCode>
+      <FileName>ServerGroup.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Servers" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricConfiguration">
+    <Position X="12" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAQAQACEAAAAACAAAAAAAACAA=</HashCode>
+      <FileName>MetricConfiguration.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricThresholds" />
+      <Property Name="Schedules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricInstance">
+    <Position X="5.5" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAQAAAAAAAAAAABEAABACACAAAgAAAAA=</HashCode>
+      <FileName>MetricInstance.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricThreshold">
+    <Position X="16" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAQoAIIAAAAIAAAAAAAAAAAgAAAQAAAA=</HashCode>
+      <FileName>MetricThreshold.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Schedule">
+    <Position X="12" Y="8.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQIAAAAQAAAIEEAQAQAAIAACIEAAAEAAEAAAA=</HashCode>
+      <FileName>Schedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,13 @@
+﻿@model BreadcrumbModel
+           
+<section class="grid_12 clearfix">
+    <div class="breadCrumb">
+        <ul id="@Model.BreadcrumbModelId" class="breadcrumb">
+            
+            @foreach (var item in Model.BreadcrumbItems)
+            {
+                <li><a href="@item.Address">@item.Title</a></li>                
+            }
+        </ul>
+    </div>
+</section>

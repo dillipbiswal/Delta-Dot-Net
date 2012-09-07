@@ -1,0 +1,96 @@
+﻿@model UserModel
+           
+<div id="useredit-form">
+
+@using (Html.BeginForm())
+{
+    <div id="form-errors-container">
+        <ul></ul>
+    </div>
+    @Html.HiddenFor(x => x.Id)
+    <table>
+        <tr>
+            <td class="form-label">
+                Email Address
+            </td>
+            <td class="form-data">
+                @Html.TextBoxFor(x => x.EmailAddress)
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label">
+                First Name
+            </td>
+            <td class="form-data">
+                @Html.TextBoxFor(x => x.FirstName)
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label">
+                Last Name
+            </td>
+            <td class="form-data">
+                @Html.TextBoxFor(x => x.LastName)
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label">
+                Password
+            </td>
+            <td class="form-data">
+                @Html.PasswordFor(x => x.Password)
+            </td>
+        </tr>
+    </table>
+    <br />
+    @Html.EditorFor(x => x.RoleModel, "AddRoles")    
+}
+</div>
+
+<script type="text/javascript">
+    $(function () {
+
+       
+
+        $("form", "#useredit-form").validate({
+            errorContainer: $("#form-errors-container", "#useredit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#useredit-form")),
+            wrapper: 'li',
+            rules: {
+                EmailAddress: {
+                    required: true,
+                    email: true
+                },
+                FirstName: {
+                    required: true
+                },
+                LastName: {
+                    required: true
+                },
+                Password: {
+                    required: true
+                }
+            },
+            messages: {
+                EmailAddress: {
+                    required: "Please supply an Email Address",
+                    email: "Please Supply a Valid Email Address"
+                },
+                FirstName: {
+                    required: "Please Supply a First Name"
+                },
+                LastName: {
+                    required: "Please Supply a Last Name"
+                },
+                Password: {
+                    required: "Please supply a Password"
+                }
+            }
+        });
+    });
+
+    function resizeUsersTable() {
+        
+    }
+</script>
+

@@ -1,0 +1,35 @@
+﻿@model TableTabListModel
+           
+            <div class="container-table stretch">
+                <header class="toolbar-header">
+                    <ul class="toolbar clearfix f1">
+                        <li>
+                            <h2 class="fl" style="display: inline;">@Model.TabListName</h2>
+                        </li>
+                        @foreach (var toolbarItem in Model.ToolbarItems)
+                        {
+                            Html.RenderPartial("ToolbarItem", toolbarItem);
+                        }
+
+                        @if (Model.IsSearchEnabled)
+                        {
+                            <li class="search fr">
+                                <div class="searchbox" id="@Model.TabListId-search">
+                                    <input type="text" name="@Model.TabListId-search-text" id="@Model.TabListId-search-text" autocomplete="off" placeholder="Search...">
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </header>
+                    @{
+                        Html.RenderPartial("DeltaTable", Model.Table);    
+                    }
+                <script type="text/javascript">
+                    $(function () {
+                        initializeSearch("#" + "@Model.TabListId" + "-search-text", "#" + "@Model.Table.Id");
+                        var addButtonId = $(".add-button", "#" + "@Model.TabListId").attr("id");
+                        setGridAddButton(addButtonId, "@Model.TabListId", "@Model.Table.Id", @Html.Raw(Model.Table.TableAddOptions));
+                    });
+                </script>
+            </div>
+

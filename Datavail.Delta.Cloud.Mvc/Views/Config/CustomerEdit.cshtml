@@ -1,0 +1,60 @@
+﻿@model CustomerModel
+           
+<div id="customeredit-form">
+
+@using (Html.BeginForm())
+{
+    <div id="form-errors-container">
+        <ul></ul>
+    </div>
+    @Html.HiddenFor(x => x.Id)
+    @Html.HiddenFor(x => x.TenantId)
+    <table>
+        <tr>
+            <td class="form-label">
+                Customer Name
+            </td>
+            <td class="form-data">
+                @Html.TextBoxFor(x => x.Name)
+            </td>
+        </tr>
+        @if (!Model.Id.Equals(Guid.Empty))
+        {
+            <tr>
+            <td class="form-label">
+                Id
+            </td>
+            <td class="form-data">
+                @Model.Id.ToString()
+            </td>
+        </tr>
+        }
+        <tr>
+            <td class="form-label">
+                Status
+            </td>
+            <td class="form-data">
+                @Html.EditorFor(x => x.Status)
+            </td>
+        </tr>
+    </table>
+}
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("form", "#customeredit-form").validate({
+            errorContainer: $("#form-errors-container", "#customeredit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#customeredit-form")),
+            wrapper: 'li',
+            rules: {
+                Name: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: "Please supply a Customer name"
+            }
+        });
+    });
+</script>

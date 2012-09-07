@@ -1,0 +1,50 @@
+﻿@model ClusterModel
+           
+<div id="clusteredit-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.CustomerId)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Cluster Name
+                </td>
+                <td class="form-data">
+                   @Html.TextBoxFor(x => x.Name)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Status
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Status)
+                </td>
+            </tr>
+        </table>
+    }
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("form", "#clusteredit-form").validate({
+            errorContainer: $("#form-errors-container", "#clusteredit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#clusteredit-form")),
+            wrapper: 'li',
+            rules: {
+                Name: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: "Please supply a Cluster Name"
+            }
+        });
+    });
+</script>
+

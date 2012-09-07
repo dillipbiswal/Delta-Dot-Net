@@ -1,0 +1,34 @@
+﻿@model MetricInstanceSummaryModel
+           
+<div id="metricinstance-summary-container" class='content-container' style="overflow: auto">
+     <h3>@Model.ParentName</h3>
+     @{
+        Html.RenderPartial("DeltaTable", Model.MetricInstanceTable);
+    }
+</div>
+
+<script type="text/javascript">
+    $("#@Model.TabListId").bind('tabresize', function () {
+        resizeChildToParent("#metricinstance-summary-container", 0);
+        var metricInstanceTableId = "@Model.MetricInstanceTable.Id";
+
+        //Set the width
+        var parentContainerLeft = $("#metricinstance-summary-container").offset().left;
+        var parentContainerRight = parentContainerLeft + $("#metricinstance-summary-container").width();
+        var tableLeft = $("#" + metricInstanceTableId).offset().left;
+        var tableWidth = parentContainerRight - tableLeft;
+
+        $("#" + metricInstanceTableId).jqGrid("setGridWidth", tableWidth);
+
+        //Set the height
+        var parentContainerTop = $("#metricinstance-summary-container").offset().top;
+        var parentContainerBottom = parentContainerTop + $("#metricinstance-summary-container").height();
+        var tableTop = $("#" + metricInstanceTableId).offset().top;
+        var tableHeight = (parentContainerBottom - tableTop);
+        var pagerHeight = $("#" + metricInstanceTableId + "-pager").height();
+
+        $("#" + metricInstanceTableId).jqGrid("setGridHeight", (tableHeight - pagerHeight) - 15);
+    });
+</script>
+
+

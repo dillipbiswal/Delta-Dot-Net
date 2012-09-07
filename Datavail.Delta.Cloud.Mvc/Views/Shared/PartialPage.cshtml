@@ -1,0 +1,67 @@
+﻿@model PartialPageModel
+           
+<div id="@Model.PageId" class="partial-page grid_12 leading">
+    <input type="hidden" value="@Model.ParentType" id="pageparenttype" name="pageparenttype"/>
+     @if (Model.Tabs != null && Model.Tabs.TabList.Count > 0)
+          {
+              @:<div class="container-table grid_7 alpha">
+          }
+          else
+          {
+              @:<div class="container-table grid_12 alpha">
+          }
+    <header class="toolbar-header">
+        <ul class="toolbar clearfix f1">
+            <li>
+                <h2 class="fl partialpageheader" style="display: inline;">@Model.PageHeader</h2>
+            </li>
+            @foreach (var item in Model.ToolbarItems)
+            {
+                Html.RenderPartial("ToolbarItem", item);
+            }
+            <li class="search fr">
+                <div class="searchbox" id="@Model.PageId-search">
+                    <input type="text" name="@Model.PageId-search-text" id="@Model.PageId-search-text" autocomplete="off" placeholder="Search...">
+                </div>
+            </li>
+        </ul>
+    </header>
+    @{
+        Html.RenderPartial("DeltaTable", Model.Table);
+    }
+</div>
+@if (Model.Tabs != null && Model.Tabs.TabList.Count > 0)
+{
+    <div class="container-tabs grid_5 omega">
+        @{
+            Html.RenderPartial("TabList", Model.Tabs);
+        }
+    </div>
+}
+<div id="@Model.PageId-context-menu" class="contextMenu" style="display: none;">
+    <ul>
+        @foreach (var item in Model.ContextMenuItems)
+        {
+            <li id="@item.ContextMenuId" class="@item.ContextMenuClass"><a href="@item.ContextMenuUrl">@item.ContextMenuName</a></li>
+        }
+    </ul>
+</div>
+<script type="text/javascript">
+
+        $(function () {
+            var breadcrumbaddress = "@Model.BreadcrumbAddress";
+
+            //Process the breadcrumb
+            if ($("#content-breadcrumb li a:contains(" + "@Model.ParentName" + ")").size() == 0) {
+                $("li", "#content-breadcrumb").each(function () {
+                    $(this).removeClass("current");
+                });
+                $("#content-breadcrumb").append("<li class='current'><a href='" + breadcrumbaddress + "' title='@Model.BreadcrumbTitle'>" + "@Model.ParentName" + "</a></li>");
+
+                $("#content-breadcrumb:last-child a").click(function () {
+                    $(this).parent().addClass("current").nextAll().remove();
+                });
+            }
+        });
+</script>
+</div> 

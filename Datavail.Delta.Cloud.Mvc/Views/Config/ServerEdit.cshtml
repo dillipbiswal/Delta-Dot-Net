@@ -1,0 +1,95 @@
+﻿@model ServerModel
+<div id="serveredit-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.LastCheckIn)
+        @Html.HiddenFor(x => x.IsVirtual)
+        @Html.HiddenFor( x => x.ClusterId)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Hostname
+                </td>
+                <td class="form-data">
+                    @if (Model.IsVirtual)
+                    {
+                        @Html.TextBoxFor(x => x.Hostname)
+                    }
+                    else
+                    {
+                       @Model.Hostname
+                       @Html.HiddenFor(x => x.Hostname)
+                    }
+                   
+                </td>
+            </tr>
+            @if (!Model.IsVirtual)
+            {
+                <tr>
+                <td class="form-label">
+                    IP Address
+                </td>
+                <td class="form-data">
+                    @Model.IpAddress
+                    @Html.HiddenFor(x => x.IpAddress)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Agent Version
+                </td>
+                <td class="form-data">
+                    @Model.AgentVersion
+                    @Html.HiddenFor(x => x.AgentVersion)
+                </td>
+            </tr>
+            }
+            @if (Model.IsVirtual)
+            {
+                <tr>
+                    <td class="form-label">
+                        Cluster Group
+                    </td>
+                    <td class="form-data">
+                        @Html.TextBoxFor(x => x.ClusterGroupName)
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="form-label">
+                    Status
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Status)
+                </td>
+            </tr>
+        </table>
+    }
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("form", "#serveredit-form").validate({
+            errorContainer: $("#form-errors-container", "#serveredit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#serveredit-form")),
+            wrapper: 'li',
+            rules: {
+                Hostname: {
+                    required: true
+                },
+                ClusterGroupName: {
+                    required: true
+                }
+            },
+            messages: {
+                Hostname: "Please supply a Hostname",
+                ClusterGroupName: "Please supply a Cluster Group Name"
+            }
+        });
+    });
+</script>

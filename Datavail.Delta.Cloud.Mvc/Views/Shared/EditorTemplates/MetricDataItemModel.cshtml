@@ -1,0 +1,105 @@
+﻿@model Datavail.Delta.Cloud.Mvc.Models.Config.MetricDataItemModel
+
+@{
+    var tagNameId = Model.ItemId + "_tagname_" + Model.TagName;
+    var elementClass = "";
+    
+    if(Model.IsRequired)
+    {
+        switch (Model.RenderType)
+        {
+            case Constants.MetricDataRenderType.Text:
+                elementClass = "required";
+                break;
+            case Constants.MetricDataRenderType.SelectList:
+                break;
+            case Constants.MetricDataRenderType.MultipleValues:
+                elementClass = "multivaluerequired";
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+<input name='@tagNameId' id='@tagNameId' type='hidden' value='@Model.TagName'/>
+
+@if (Model.RenderType == Constants.MetricDataRenderType.SelectList)
+{
+    <text>
+    <tr>
+        <td class="form-label">@Model.DisplayName</td>
+        <td class="form-data">
+           <select id='@Model.ItemId' name='@Model.ItemId'>
+                
+                @foreach (var item in @Model.ValueOptions)
+                {
+                    if (item.Value == Model.SelectedValueOption)
+                    {
+                        <option value='@item.Key' selected='selected'>@item.Value</option>                        
+                    }
+                    else
+                    {
+                        <option value='@item.Key'>@item.Value</option>
+                    }
+                }
+           </select>
+        </td>
+    </tr>
+    </text>
+}
+else if (Model.RenderType == Constants.MetricDataRenderType.MultipleValues)
+{
+    <text>
+    <tr class="FormData">
+        <td class="form-label">@Model.DisplayName</td>
+        <td class="form-data">
+            <input name='@Model.ItemId' id='@Model.ItemId' type="text" value='@Model.Value' class='@elementClass'/>
+        </td>
+        <td>
+            <button id='@Model.ItemId-button' class="add-metricdata-value-button small-button" title='Add Value'></button>        
+        </td>
+    </tr>
+    <tr class="FormData">
+        <td colspan=2>
+            <table id='@Model.ItemId-table' class="metricdata-values-table">
+                <tr>
+                    <th style="width: 25%;"> 
+                    
+                    </th>
+                    <th style="width: 75%;">
+                         @Model.DisplayName
+                    </th>
+                </tr>
+
+                @if (Model.Children != null)
+                {
+                    foreach (var child in Model.Children)
+                    {
+                        <tr class="multivalue-item">
+                            <td style="width: 25%;">
+                                <button class='metricdata-value-delete small-button' title='Remove Value'></button>
+                            </td>
+                            <td style="width: 75%;">@child.Value<input type='hidden' id='@child.ItemId' name='@child.ItemId' value='@child.Value'/></td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </td>
+    </tr>
+    </text>
+}
+else
+{
+    <text>
+    <tr class="FormData">
+        <td class="form-label">@Model.DisplayName</td>
+        <td class="form-data">
+            <input name='@Model.ItemId' id='@Model.ItemId' type="text" value='@Model.Value' class='@elementClass'/>
+        </td>
+    </tr>
+    </text>
+}
+
+

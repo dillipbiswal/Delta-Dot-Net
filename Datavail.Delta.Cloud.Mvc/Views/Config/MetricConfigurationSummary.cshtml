@@ -1,0 +1,75 @@
+﻿@model MetricConfigurationSummaryModel
+<div id="metricconfig-summary-container" class='content-container' style="overflow: auto">
+    <h3>@Model.ParentName</h3>
+    <div id='metricconfigsummary-form' class='leading'>
+        @using (Html.BeginForm("MetricConfigurationSummary", "Config"))
+        {
+            @Html.HiddenFor(x => x.ParentId);
+            @Html.HiddenFor(x => x.ParentType);
+            @Html.LabelFor(x => x.MetricId);                              
+            @Html.DropDownListFor(model => model.MetricId, new SelectList(Model.Metrics.OrderBy(x => x.Name), "Id", "Name"));
+        }
+    </div>
+    <div id='metricconfig-container'>
+        @{
+            Html.RenderPartial("MetricConfiguration", Model.MetricConfig);
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#@Model.TabListId").bind('tabresize', function () {
+            resizeMaintenanceConfig();
+        });
+
+        $("form", "#metricconfigsummary-form").submit(function () {
+            $.ajax({
+                data: $(this).serialize(),
+                type: "POST",
+                url: $(this).attr('action'),
+                success: function (data) {
+                    $("#metricconfig-container").removeClass('loading');
+                    $("#metricconfig-container").append(data);
+                    resizeMaintenanceConfig();
+                },
+                error: function () {
+                    alert("Error retrieving metric configuration");
+                }
+            });
+            return false;
+        })
+
+        $("#MetricId").change(function () {
+            $("#metricconfig-container").empty();
+            $("#metricconfig-container").addClass('loading');
+
+            $("form", "#metricconfigsummary-form").submit();
+        });
+    });
+
+    function resizeMaintenanceConfig()
+    {
+        resizeChildToParent("#metricconfig-summary-container", 0);
+        var schedulesTableId = "@Model.MetricConfig.SchedulesTable.Id";
+        var thresholdsTableId = "@Model.MetricConfig.ThresholdsTable.Id"
+
+        //Set the width
+        var parentContainerLeft = $("#metricconfig-summary-container").offset().left;
+        var parentContainerRight = parentContainerLeft + $("#metricconfig-summary-container").width();
+        var tableLeft = $("#" + schedulesTableId).offset().left;
+        var tableWidth = parentContainerRight - tableLeft;
+
+        $("#" + schedulesTableId).jqGrid("setGridWidth", tableWidth);
+        $("#" + thresholdsTableId).jqGrid("setGridWidth", tableWidth);
+
+        //Set the height
+        var schedulesTableTop = $("#schedules-table-container").offset().top;
+        var parentContainerBottom = $("#metricconfig-summary-container").offset().top + $("#metricconfig-summary-container").height();
+        var headerHeight = $(".toolbar-header", "#schedules-table-container").height();
+        var pagerHeight = $("#" + schedulesTableId + "-pager").height();
+        var totalTableHeight = parentContainerBottom - schedulesTableTop - (2 * headerHeight) - (2 * pagerHeight);
+
+        $("#" + schedulesTableId).jqGrid("setGridHeight", (totalTableHeight / 2) - 40);
+        $("#" + thresholdsTableId).jqGrid("setGridHeight", (totalTableHeight / 2) - 40);
+    }
+</script>

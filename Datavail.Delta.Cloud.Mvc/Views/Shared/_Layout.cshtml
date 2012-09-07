@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<!--[if IE 7 ]>   <html lang="en" class="ie7 lte8"> <![endif]-->
+<!--[if IE 8 ]>   <html lang="en" class="ie8 lte8"> <![endif]-->
+<!--[if IE 9 ]>   <html lang="en" class="ie9"> <![endif]-->
+<!--[if gt IE 9]> <html lang="en"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+    <!--[if lte IE 9 ]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+    <!-- iPad Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Adding "maximum-scale=1" fixes the Mobile Safari auto-zoom bug: http://filamentgroup.com/examples/iosScaleBug/ -->
+    <!-- iPad Settings End -->
+    <title>Delta Configuration Portal</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- iOS ICONS -->
+    <link rel="apple-touch-icon" href="touch-icon-iphone.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="touch-icon-ipad.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone4.png" />
+    <link rel="apple-touch-startup-image" href="touch-startup-image.png" />
+    <!-- iOS ICONS END -->
+    <!-- STYLESHEETS -->
+    <link href="@Url.Content("~/Content/css/jquery-ui-1.8.17.custom.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/ui.jqgrid.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/reset.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/grids.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/ui.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/device/general.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Scripts/themes/default/style.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/jquery.qtip.css")" rel="stylesheet" media="screen" />
+    <!--[if !IE]><!-->
+    <link href="@Url.Content("~/Content/css/device/tablet.css")" rel="stylesheet" media="only screen and (min-width: 768px) and (max-width: 991px)" />
+    <link href="@Url.Content("~/Content/css/device/mobile.css")" rel="stylesheet" media="only screen and (max-width: 767px)" />
+    <link href="@Url.Content("~/Content/css/device/wide-mobile.css")" rel="stylesheet" media="only screen and (min-width: 480px) and (max-width: 767px)" />
+    <!--<![endif]-->
+    <link href="@Url.Content("~/Content/css/jquery.uniform.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/jquery.popover.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/jquery.itextsuggest.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/themes/lightblue/style.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/dropdown_style.css")" rel="stylesheet" media="screen" />
+    <link href="@Url.Content("~/Content/css/multi-select.css")" rel="stylesheet" media="screen" />
+    <style type="text/css">
+        #loading-container
+        {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+        #loading-content
+        {
+            width: 800px;
+            text-align: center;
+            margin-left: -400px;
+            height: 50px;
+            margin-top: -25px;
+            line-height: 50px;
+        }
+        #loading-content
+        {
+            font-family: "Helvetica" , "Arial" , sans-serif;
+            font-size: 18px;
+            color: black;
+            text-shadow: 0px 1px 0px white;
+        }
+        #loading-graphic
+        {
+            margin-right: 0.2em;
+            margin-bottom: -2px;
+        }
+        #loading
+        {
+            background-color: #abc4ff;
+            background-image: -moz-radial-gradient(50% 50%, ellipse closest-side, #abc4ff, #87a7ff 100%);
+            background-image: -webkit-radial-gradient(50% 50%, ellipse closest-side, #abc4ff, #87a7ff 100%);
+            background-image: -o-radial-gradient(50% 50%, ellipse closest-side, #abc4ff, #87a7ff 100%);
+            background-image: -ms-radial-gradient(50% 50%, ellipse closest-side, #abc4ff, #87a7ff 100%);
+            background-image: radial-gradient(50% 50%, ellipse closest-side, #abc4ff, #87a7ff 100%);
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 99999;
+        }
+    </style>
+
+    <!-- STYLESHEETS END -->
+    <!--[if lt IE 9]>
+<script src="Scripts/html5.js"></script>
+<script type="text/javascript" src="Scripts/selectivizr.js"></script>
+<![endif]-->
+    <!-- MAIN JAVASCRIPTS -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-1.7.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui-1.8.17.custom.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.uniform.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.easing.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.itextsuggest.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.itextclear.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.hashchange.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.cookie.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.hotkeys.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/js/i18n/grid.locale-en.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/js/jquery.jqGrid.src.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui-timepicker-addon.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/hoverIntent.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.jstree.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.multi-select.js")"></script>
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="Scripts/PIE.js"></script>
+    <script type="text/javascript" src="Scripts/ie.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/global.js")"></script>
+    <!-- MAIN JAVASCRIPTS END -->
+</head>
+<body>
+    <div id="loading">
+        <script type="text/javascript">
+            document.write("<div id='loading-container'><p id='loading-content'>" +
+                           "<img id='loading-graphic' width='16' height='16' src='Content/images/ajax-loader-abc4ff.gif' /> " +
+                           "Loading...</p></div>");
+        </script>
+    </div>
+   
+
+   @RenderBody()
+
+    <!-- LOADING SCRIPT -->
+    <script>
+        $(window).load(function () {
+            $("#loading").fadeOut(function () {
+                $(this).remove();
+                $('body').removeAttr('style');
+            });
+        });
+    </script>
+    <!-- LOADING SCRIPT -->
+</body>
+</html>

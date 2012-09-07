@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AgentConfiguration ServerId="{00000000-0000-0000-0000-000000000000}">
+  <MetricInstance Id="00000000-0000-0000-0000-000000000000" AdapterAssembly="Datavail.Delta.Agent.Plugin.CheckIn" AdapterClass="CheckInPlugin" AdapterVersion="4.0.0000.0" Label="CheckIn" Data="" ScheduleType="0" ScheduleInterval="30" MetricConfigurationId="00000000-0000-0000-0000-000000000000" />
+</AgentConfiguration>

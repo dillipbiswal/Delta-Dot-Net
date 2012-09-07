@@ -1,0 +1,6 @@
+﻿@model MetricConfigurationModel
+@{
+    Html.RenderPartial("DeltaTable", Model.SchedulesTable);
+
+    Html.RenderPartial("DeltaTable", Model.ThresholdsTable); 
+}

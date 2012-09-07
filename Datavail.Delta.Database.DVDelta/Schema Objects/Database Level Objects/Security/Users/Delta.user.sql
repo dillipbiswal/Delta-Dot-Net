@@ -1,0 +1,2 @@
+﻿CREATE USER [DELTA] FOR LOGIN [Delta]
+GO

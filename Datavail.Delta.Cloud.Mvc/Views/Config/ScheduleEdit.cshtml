@@ -1,0 +1,247 @@
+﻿@model ScheduleModel
+           
+<div id="scheduleedit-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul></ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.MetricConfigId)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Schedule to run <span id="interval-prefix">every</span>: 
+                </td>
+                <td class="form-data">
+                    <span class="digits">@Html.TextBoxFor(x => x.Interval)</span> @Html.EditorFor(x => x.ScheduleType)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    On the: 
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.Day)<span class="textbox-suffix">Day</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    On: 
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.DayOfWeek)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    At Time: 
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.Time, new { @readonly = "readonly" })
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    At: 
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.Minute)<span class="textbox-suffix">Minutes past the hour</span>
+                </td>
+            </tr>
+        </table>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("form", "#scheduleedit-form").validate({
+            errorContainer: $("#form-errors-container", "#scheduleedit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#scheduleedit-form")),
+            wrapper: 'li',
+            rules: {
+                Interval: {
+                    required: true
+                },
+                Day: {
+                    required: true
+                },
+                Time: {
+                    required: true
+                },
+                Minute: {
+                    required: true
+                }
+            },
+            messages: {
+                Interval: {
+                    required: "Please supply the an interval"
+                },
+                Day: {
+                    required: "Please supply a value for Day"
+                },
+                Time: {
+                    required: "Please supply a value for Time"
+                },
+                Minute: {
+                    required: "Please supply a value for Minute"
+                }
+            }
+        });
+
+        $('#Time').timepicker({
+            timeFormat: 'h:mm TT',
+        });
+
+        setScheduleElements($("#ScheduleType").val());
+
+        $("#ScheduleType").change(function () {
+            setScheduleElements($(this).val());
+        });
+    });
+
+    function setScheduleElements(comparisonValue) {
+        $("form", "#scheduleedit-form").validate().resetForm();
+        if (comparisonValue == 'Once') {
+            $("#interval-prefix").hide();
+            $("#Interval").attr('disabled', 'disabled');
+            $("#Interval").hide();
+
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Time").attr('disabled', 'disabled');
+            $("#Time").parent().parent().hide();
+
+            $("#Day").attr('disabled', 'disabled');
+            $("#Day").parent().parent().hide();
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+        else if (comparisonValue == 'Seconds' || comparisonValue == 'Minutes') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Minute").val('');
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Time").val('');
+            $("#Time").attr('disabled', 'disabled');
+            $("#Time").parent().parent().hide();
+
+            $("#Day").val('');
+            $("#Day").attr('disabled', 'disabled');
+            $("#Day").parent().parent().hide();
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+        else if (comparisonValue == 'Hours') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Minute").removeAttr('disabled');
+            $("#Minute").parent().parent().show();
+
+            $("#Time").val('');
+            $("#Time").attr('disabled', 'disabled');
+            $("#Time").parent().parent().hide();
+
+            $("#Day").val('');
+            $("#Day").attr('disabled', 'disabled');
+            $("#Day").parent().parent().hide();
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+        else if (comparisonValue == 'Days') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Time").removeAttr('disabled');
+            $("#Time").parent().parent().show();
+
+            $("#Minute").val('');
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Day").val('');
+            $("#Day").attr('disabled', 'disabled');
+            $("#Day").parent().parent().hide();
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+
+        else if (comparisonValue == 'Weeks') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Time").removeAttr('disabled');
+            $("#Time").parent().parent().show();
+
+            $("#DayOfWeek").removeAttr('disabled');
+            $("#DayOfWeek").parent().parent().show();
+
+            $("#Minute").val('');
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Day").val('');
+            $("#Day").attr('disabled', 'disabled');
+            $("#Day").parent().parent().hide();
+        }
+
+        else if (comparisonValue == 'Months') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Time").removeAttr('disabled');
+            $("#Time").parent().parent().show();
+
+            $("#Minute").val('');
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Day").removeAttr('disabled');
+            $("#Day").parent().parent().show();
+            $("#Day").rules("remove", "range");
+            $("#Day").rules("add", {
+                range: [1,31]
+            });
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+
+        else if (comparisonValue == 'Year') {
+            $("#interval-prefix").show();
+            $("#Interval").removeAttr('disabled');
+            $("#Interval").show();
+
+            $("#Minute").val('');
+            $("#Minute").attr('disabled', 'disabled');
+            $("#Minute").parent().parent().hide();
+
+            $("#Time").removeAttr('disabled');
+            $("#Time").parent().parent().show();
+
+            $("#Day").removeAttr('disabled');
+            $("#Day").parent().parent().show();
+            $("#Day").rules("remove", "range");
+            $("#Day").rules("add", {
+                range: [1,365]
+            });
+
+            $("#DayOfWeek").attr('disabled', 'disabled');
+            $("#DayOfWeek").parent().parent().hide();
+        }
+    }
+    
+</script>

@@ -1,0 +1,768 @@
+﻿@model HierarchyModel
+           
+<div id="maintenance-container" class="container_12 leading main-content-page">
+    <div class="container-table grid_4">
+        <header class="toolbar-header">
+        <ul class="toolbar clearfix f1">
+            <li>
+                <h2 class="fl partialpageheader" style="display: inline;">@Model.PageHeader</h2>
+            </li>
+            @foreach (var item in Model.ToolbarItems)
+            {
+                Html.RenderPartial("ToolbarItem", item);
+            }
+            @if (Model.IsSearchEnabled)
+            {
+            <li class="search fr">
+                <div class="searchbox" id="@Model.PageId-search">
+                    <input id="search-hierarchy" autocomplete="off" placeholder="@Model.SearchPlaceholder">
+                </div>
+            </li>
+            }
+            
+        </ul>
+    </header>
+        <div id="hierarchy-container" class="content-container" style="overflow: auto">
+            <div id="maintenance-hierarchy" class="leading">
+            </div>
+                <div id="hierarchy-select-message" class="select-message">@Model.SelectMessage</div>
+        </div>
+    </div>
+    <div id="maintenance-details" class="container-tabs grid_8">
+    </div>
+    <div id="tabs-overlay" class="content-overlay">
+    </div>
+    <script type="text/javascript">
+        $(function () {
+
+            $("div.main-content-page").bind('maincontentresize', function () {
+                resizeChildToParent("#hierarchy-container", 20);
+                resizeChildToParent("#tabs-overlay", 20);
+            });
+
+            //Setup the customer add button
+            setGridAddButton("add-customer-button", "maintenance-container", "Add Customer", 425, function (id) {
+                initializeTree(id);
+            });
+
+            showTabsOverlay();
+
+            //Setup the customer autocomplete
+            $("#search-hierarchy").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: 'Config/CustomerList',
+                        type: 'POST',
+                        dataType: "json",
+                        data: { searchTerm: request.term },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { label: item.name, value: item.name, id: item.id };
+                            }))
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    initializeTree(ui.item.id);
+                },
+                minLength: 2,
+                delay: 75
+            });
+
+            var previousCustomer = $.cookie("customer-tree");
+
+            if (previousCustomer == null) {
+                previousCustomer = "00000000-0000-0000-0000-000000000000";
+            }
+            
+            $("#search-hierarchy").data("id", previousCustomer);
+            initializeTree(previousCustomer);
+        });
+
+        function showTabsOverlay() {
+            var offset = $("#maintenance-details").offset();
+            $("#tabs-overlay").css('top', offset.top);
+            $("#tabs-overlay").css('left', offset.left);
+
+            $("#tabs-overlay").height($("#maintenance-details").height());
+            $("#tabs-overlay").width($("#maintenance-details").width());
+
+            $("#tabs-overlay").css('display', 'block');
+        }
+
+        function hideTabsOverlay() {
+            $("#tabs-overlay").css('display', 'none');
+        }
+
+        function initializeTree(customerid) {
+            
+            $("#hierarchy-select-message").hide();
+            $("#maintenance-hierarchy").jstree("destroy");
+            $("#search-hierarchy").data("id", customerid);
+            $('#maintenance-hierarchy').bind("loaded.jstree", function (event, data) {
+                $('#maintenance-hierarchy').jstree('select_node', 'ul > li:first');
+                var customerId = $("ul > li[rel='Customer']", "#maintenance-hierarchy").attr('id')
+                $.cookie("customer-tree", customerId, {expires: 10});
+            }).bind("refresh.jstree", function (event, data) {
+                $("#hierarchy-container").removeClass("loading");
+            }).bind("select_node.jstree", function (event, data) {
+                var itemType = data.rslt.obj.attr('rel');
+
+                if (itemType == "Customer" || itemType == "ServerGroup" || itemType == "Server" || itemType == "ClusterNode" || itemType == "VirtualServer"
+                || itemType == "DatabaseInstance" || itemType == "Database" || itemType == "MetricInstance") {
+                    updateMaintenanceDetails(data.rslt.obj.attr('id'), data.rslt.obj.attr('rel'))
+                }
+            }).jstree({
+                "json_data": {
+                    "ajax": {
+                        "url": "Config/CustomerHierarchy",
+                        "type": "POST",
+                        "dataType": "text json",
+                        "data": function (n) {
+                            return JSON.stringify({ id: n.attr ? n.attr("id") : customerid,
+                                type: n.attr ? n.attr("rel") : "None"
+                            });
+                        },
+                        "contentType": "application/json charset=utf-8"
+                    }
+                },
+                "themes": {
+                    "theme": "classic",
+                    "dots": false,
+                    "icons": true
+                },
+                "ui": {},
+                "contextmenu": {
+                    items: function (node) {
+                        var nodeType = $(node).attr('rel');
+                        var items = {};
+
+                        switch (nodeType) {
+                            case "Customer":
+                                items = getCustomerContextItems(node);
+                                break;
+                            case "ServerGroup":
+                                items = getServerGroupContextItems(node);
+                                break;
+                            case "ServerGroupFolder":
+                                items = getServerGroupFolderContextItems(node);
+                                break;
+                            case "Cluster":
+                                items = getClusterContextItems(node);
+                                break;
+                            case "ClusterFolder":
+                                items = getClusterFolderContextItems(node);
+                                break;
+                            case "Server":
+                                items = getServerContextItems(node);
+                                break;
+                            case "ServerFolder":
+                                items = getServerFolderContextItems(node);
+                                break;
+                            case "ClusterNode":
+                                items = getClusterNodeContextItems(node);
+                                break;
+                            case "ClusterNodeFolder":
+                                items = getClusterNodeFolderContextItems(node);
+                                break;
+                            case "VirtualServer":
+                                items = getClusterNodeContextItems(node);
+                                break;
+                            case "VirtualServerFolder":
+                                items = getVirtualServerFolderContextItems(node);
+                                break;
+                            case "DatabaseInstance":
+                                items = getInstanceContextItems(node);
+                                break;
+                            case "DatabaseInstanceFolder":
+                                items = getInstanceFolderContextItems(node);
+                                break;
+                            case "Database":
+                                items = getDatabaseContextItems(node);
+                                break;
+                            case "DatabaseFolder":
+                                items = getDatabaseFolderContextItems(node);
+                                break;
+                            case "MetricInstance":
+                                items = getMetricInstanceContextItems(node);
+                                break;
+                            case "MetricInstanceFolder":
+                                items = getMetricInstanceFolderContextItems(node);
+                                break;
+                        }
+                        return items;
+                    },
+                    "select_node": true,
+                    "show_at_node": false
+                },
+                "types": {
+                    "types": {
+                        "Customer": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-1px -19px"
+                            },
+                            "valid_children": ["Cluster", "ServerGroup"]
+                        },
+                        "Cluster": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-1px -37px"
+                            },
+                            "valid_children": ["ClusterNode", "VirtualServer"]
+                        },
+                        "ClusterFolder": {
+                            "valid_children": ["ClusterNode", "VirtualServer"]
+                        },
+                        "ServerGroup": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-37px -19px"
+                            },
+                            "valid_children": ["Server"]
+                        },
+                        "ServerGroupFolder": {
+                            "valid_children": ["Server"]
+                        },
+                        "Server": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-19px -19px"
+                            },
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "ServerFolder": {
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "ClusterNode": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-19px -55px"
+                            },
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "ClusterNodeFolder": {
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "VirtualServer": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-55px -19px"
+                            },
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "VirtualServerFolder": {
+                            "valid_children": ["DatabaseInstance"]
+                        },
+                        "DatabaseInstance": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-37px -37px"
+                            },
+                            "valid_children": ["Database"]
+                        },
+                        "DatabaseInstanceFolder": {
+                            "valid_children": ["Database"]
+                        },
+                        "Database": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-19px -37px"
+                            },
+                            "valid_children": "none"
+                        },
+                        "DatabaseFolder": {
+                            "valid_children": "none"
+                        },
+                        "MetricInstance": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-55px -37px"
+                            },
+                            "valid_children": "none"
+                        },
+                        "MetricInstanceFolder": {
+                            "valid_children": "none"
+                        }
+                    }
+                },
+                "plugins": ["themes", "json_data", "ui", "contextmenu", "cookies", "types"]
+            });
+        }
+
+        function updateMaintenanceDetails(id, type) {
+            var detailId = $("#maintenance-details").data('detailid');
+
+            //Check if the details for this id are loaded currently
+            if (detailId != id) {
+
+                var currrentrequest = $("#maintenance-details").data('currentrequest');
+
+                //kill the current request if it exists
+                if (currrentrequest != null) {
+                    currrentrequest.abort();
+                }
+                
+                showTabsOverlay();
+                $("#maintenance-details").children().not("#tabs-overlay").remove();
+
+                $("#maintenance-details").data('currentrequest', $.ajax({
+                    type: "GET",
+                    url: "Config/MaintenanceDetail?itemid=" + id + "&type=" + type,
+                    success: function (data) {
+                        $("#maintenance-details").children().not("#tabs-overlay").remove();
+                        hideTabsOverlay();
+                        $("#maintenance-details").prepend(data);
+                        $("#maintenance-details").data('detailid', id);
+                    }
+                }));
+            }
+        }
+
+        function getCustomerContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+
+            var items = {
+                addServerItem: {
+                    label: "Add/Remove Servers",
+                    action: function () {
+                        getEditForm("Config/AddCustomerServers?customerid=" + nodeId, "Add Customer Server(s)", 640, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/CustomerEdit?customerid=" + nodeId, "Edit " + nodeName, 450, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Delete",
+                    action: function () {
+                        getDeleteForm("Config/CustomerDelete?customerid=" + nodeId, "Delete Customer", "Delete the selected customer:  " + nodeName + "?", 425, function () {
+                            $("#search-hierarchy").val("").trigger('blur');
+                            initializeTree("00000000-0000-0000-0000-000000000000");
+                        });
+                    },
+                    icon: ""
+                }
+            }
+
+            return items;
+        }
+
+        function getServerGroupContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+
+            var items = {};
+
+            if (nodeName != "Default") {
+                items = {
+                    editItem: {
+                        label: "Edit",
+                        action: function () {
+                            getEditForm("Config/ServerGroupEdit?servergroupid=" + nodeId + "&parentId=" + nodeParentId, "Edit " + nodeName, 425, function () {
+                                $("#hierarchy-container").addClass("loading");
+                                $("#maintenance-hierarchy").jstree("refresh");
+                            });
+                        },
+                        icon: ""
+                    },
+                    deleteItem: {
+                        label: "Delete",
+                        action: function () {
+                            getDeleteForm("Config/ServerGroupDelete?servergroupid=" + nodeId, "Delete Server Group", "Delete the selected group:  " + nodeName + "?", 425, function () {
+                                showTabsOverlay();
+                                initializeTree($("#search-hierarchy").data("id"));
+                            });
+                        },
+                        icon: ""
+                    }
+                }
+            }
+            return items;
+        }
+
+        function getServerGroupFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                addServerGroupItem: {
+                    label: "Add Server Group",
+                    action: function () {
+                        getEditForm("Config/ServerGroupEdit?parentid=" + nodeParentId, "Add Server Group", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getClusterContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/ClusterEdit?clusterid=" + nodeId + "&customerId=" + nodeParentId, "Edit " + nodeName, 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Delete",
+                    action: function () {
+                        getDeleteForm("Config/ClusterDelete?clusterid=" + nodeId, "Delete Cluster", "Delete the selected cluster:  " + nodeName + "?", 425, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+            return items;
+        }
+
+        function getClusterFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                addClusterItem: {
+                    label: "Add Cluster",
+                    action: function () {
+                        getEditForm("Config/ClusterEdit?customerid=" + nodeParentId, "Add Cluster", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getServerContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+            var nodeParentName = $.jstree._reference(node)._get_parent(node).parents("li").attr('name');
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/ServerEdit?serverid=" + nodeId, "Edit Server", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Remove",
+                    action: function () {
+                        getDeleteForm("Config/ServerRemoveServerGroup?servergroupid=" + nodeParentId + "&serverid=" + nodeId, "Remove Server", "Remove the server from the group?", 425, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+
+            //Prevent removal from the default group
+            if(nodeParentName == 'Default')
+            {
+                delete items.deleteItem;
+            }
+
+            return items;
+        }
+
+        function getServerFolderContextItems(node) {
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                addServerItem: {
+                        label: "Add/Remove Servers",
+                        action: function () {
+                            getEditForm("Config/AddServerGroupServers?servergroupid=" + nodeParentId, "Edit " + nodeName, 540, function () {
+                                $("#hierarchy-container").addClass("loading");
+                                $("#maintenance-hierarchy").jstree("refresh");
+                            });
+                        },
+                        icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getClusterNodeContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/ServerEdit?serverid=" + nodeId + "&clusterid=" + nodeParentId, "Edit " + nodeName, 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Remove",
+                    action: function () {
+                        getDeleteForm("Config/ServerRemoveCluster?clusterid=" + nodeParentId + "&serverid=" + nodeId, "Remove Server", "Remove the server from the cluster?", 425, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+            return items;
+        }
+
+        function getClusterNodeFolderContextItems(node) {
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                 addServerItem: {
+                    label: "Add/Remove Nodes",
+                    action: function () {
+                        getEditForm("Config/AddClusterNodes?clusterid=" + nodeParentId, "Edit " + nodeName, 540, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getVirtualServerFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                 addVirtualServerItem: {
+                    label: "Add Virtual Server",
+                    action: function () {
+                        getEditForm("Config/ServerEdit?clusterid=" + nodeParentId, "Add Virtual Server", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getInstanceContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/DatabaseInstanceEdit?instanceid=" + nodeId + "&serverid=" + nodeParentId, "Edit " + nodeName, 465, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Delete",
+                    action: function () {
+                        getDeleteForm("Config/DatabaseInstanceDelete?instanceid=" + nodeId, "Delete Database Instance", "Delete the selected instance:  " + nodeName + "?", 465, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+            return items;
+        }
+
+        function getInstanceFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                addInstanceItem: {
+                    label: "Add Database Instance",
+                    action: function () {
+                        getEditForm("Config/DatabaseInstanceEdit?serverId=" + nodeParentId, "Add Database Instance", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getDatabaseContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        getEditForm("Config/DatabaseEdit?databaseid=" + nodeId + "&databaseinstanceid=" + nodeParentId, "Edit " + nodeName, 465, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Delete",
+                    action: function () {
+                        getDeleteForm("Config/DatabaseDelete?databaseid=" + nodeId, "Delete Database", "Delete the selected database:  " + nodeName + "?", 465, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+            return items;
+        }
+
+        function getDatabaseFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+
+            var items = {
+                addDatabaseItem: {
+                    label: "Add Database",
+                    action: function () {
+                        getEditForm("Config/DatabaseEdit?databaseinstanceid=" + nodeParentId, "Add Database", 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+        function getMetricInstanceContextItems(node) {
+            var nodeId = $(node).attr('id');
+            var nodeName = $(node).attr('name');
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).parents("li").attr('id');
+            var nodeParentName = $.jstree._reference(node)._get_parent(node).parents("li").attr('name');
+            var nodeParentType = $.jstree._reference(node)._get_parent(node).parents("li").attr('rel');
+            var metricParentType = "Server";
+
+            if(nodeParentType == "DatabaseInstance")
+            {
+                metricParentType = "Instance";
+            }
+            else if(nodeParentType == "Database")
+            {
+                metricParentType = "Database"
+            }
+
+            var items = {
+                editItem: {
+                    label: "Edit",
+                    action: function () {
+                        metricInstanceEdit("Config/GetMetricInstanceData?parentId=" + nodeParentId + "&metricinstanceid=" + nodeId + "&parenttype=" + metricParentType, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                deleteItem: {
+                    label: "Delete",
+                    action: function () {
+                        getDeleteForm("Config/DeleteMetricInstance?metricinstanceid=" + nodeId, "Delete Metric Instance", "Delete the selected metric instance:  " + nodeName + "?", 465, function () {
+                            showTabsOverlay();
+                            initializeTree($("#search-hierarchy").data("id"));
+                        });
+                    },
+                    icon: ""
+                }
+            }
+            return items;
+        }
+
+        function getMetricInstanceFolderContextItems(node) {
+            var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
+            var nodeParentType = $.jstree._reference(node)._get_parent(node).attr('rel');
+            var metricParentType = "Server";
+
+            if (nodeParentType == "DatabaseInstance") {
+                metricParentType = "Instance";
+            }
+            else if (nodeParentType == "Database") {
+                metricParentType = "Database"
+            }
+            else if (nodeParentType == "VirtualServer")
+            {
+                metricParentType = "VirtualServer";
+            }
+
+            var items = {
+                addItem: {
+                    label: "Add Metric Instance",
+                    action: function () {
+                        selectMetric("Config/MetricInstanceAdd?parentid=" + nodeParentId + "&type=" + metricParentType, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                            $("#metricinstances-table").trigger("reloadGrid");
+                        },
+                        function () {
+                            alert("Error Creating Metric Instance!!"); 
+                        });
+                    },
+                    icon: ""
+                }
+            };
+
+            return items;
+        }
+
+    </script>
+</div>

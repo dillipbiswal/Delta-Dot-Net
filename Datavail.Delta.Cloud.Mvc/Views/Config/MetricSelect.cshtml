@@ -1,0 +1,15 @@
+﻿@model MetricSelectModel
+<div id="metricselect-form">
+    <form action="@Model.MetricSelectFormAction">
+    <table class="EditTable">
+        <tr>
+            <td class="form-label">
+                Metric
+            </td>
+            <td class="form-data">
+                @Html.DropDownListFor(x => x.MetricId, Model.MetricId.OrderBy(x => x.Text), new { id = "metric-select"})
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>

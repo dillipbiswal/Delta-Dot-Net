@@ -1,0 +1,30 @@
+﻿@model MaintenanceWindowSumaryModel
+<div id="maintwindow-summary-container" class='content-container' style="overflow: auto">
+    <h3>@Model.ParentName</h3>
+    @{
+        Html.RenderPartial("DeltaTable", Model.MaintenanceWindowTable);
+    }
+</div>
+<script type="text/javascript">
+    $("#@Model.TabListId").bind('tabresize', function () {
+        resizeChildToParent("#maintwindow-summary-container", 0);
+        var maintWindowTableId = "@Model.MaintenanceWindowTable.Id";
+
+        //Set the width
+        var parentContainerLeft = $("#maintwindow-summary-container").offset().left;
+        var parentContainerRight = parentContainerLeft + $("#maintwindow-summary-container").width();
+        var tableLeft = $("#" + maintWindowTableId).offset().left;
+        var tableWidth = parentContainerRight - tableLeft;
+
+        $("#" + maintWindowTableId).jqGrid("setGridWidth", tableWidth);
+
+        //Set the height
+        var parentContainerTop = $("#maintwindow-summary-container").offset().top;
+        var parentContainerBottom = parentContainerTop + $("#maintwindow-summary-container").height();
+        var tableTop = $("#" + maintWindowTableId).offset().top;
+        var tableHeight = (parentContainerBottom - tableTop);
+        var pagerHeight = $("#" + maintWindowTableId + "-pager").height();
+
+        $("#" + maintWindowTableId).jqGrid("setGridHeight", (tableHeight - pagerHeight) - 10);
+    });
+</script>

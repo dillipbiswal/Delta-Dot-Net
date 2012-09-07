@@ -1,0 +1,38 @@
+﻿@model UserMaintenanceModel
+<div id="usermaintenance-container" class="container_12 leading main-content-page">
+    <div class="container-table grid_12">
+        <div id="users-container" class='content-container'>
+            @{
+                Html.RenderPartial("DeltaTable", Model.UsersTable);
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("div.main-content-page").bind('maincontentresize', function () {
+            resizeUsersTable()
+        });
+    });
+    function resizeUsersTable() {
+        resizeChildToParent("#users-container", 5);
+        var usersTableId = "@Model.UsersTable.Id";
+
+        //Set the width
+        var parentContainerLeft = $("#users-container").offset().left;
+        var parentContainerRight = parentContainerLeft + $("#users-container").width();
+        var tableLeft = $("#" + usersTableId).offset().left;
+        var tableWidth = parentContainerRight - tableLeft;
+
+        $("#" + usersTableId).jqGrid("setGridWidth", tableWidth);
+
+        //Set the height
+        var usersTableTop = $("#users-table-container").offset().top;
+        var parentContainerBottom = $("#users-container").offset().top + $("#users-container").height();
+        var headerHeight = $(".toolbar-header", "#users-table-container").height();
+        var pagerHeight = $("#" + usersTableId + "-pager").height();
+        var totalTableHeight = parentContainerBottom - usersTableTop - headerHeight - pagerHeight;
+
+        $("#" + usersTableId).jqGrid("setGridHeight", totalTableHeight  - 40);
+    }
+</script>

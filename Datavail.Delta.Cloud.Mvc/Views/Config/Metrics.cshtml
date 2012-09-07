@@ -1,0 +1,128 @@
+﻿@model HierarchyModel
+<div id="metrics-container" class="container_12 leading main-content-page">
+    <div class="container-table grid_4">
+        <header class="toolbar-header">
+            <ul class="toolbar clearfix f1">
+                <li>
+                    <h2 class="fl partialpageheader" style="display: inline;">@Model.PageHeader</h2>
+                </li>
+                @foreach (var item in Model.ToolbarItems)
+                {
+                    Html.RenderPartial("ToolbarItem", item);
+                }
+                @if (Model.IsSearchEnabled)
+                {
+                    <li class="search fr">
+                        <div class="searchbox" id="@Model.PageId-search">
+                            <input id="search-hierarchy" autocomplete="off" placeholder="@Model.SearchPlaceholder">
+                        </div>
+                    </li>
+                }
+            </ul>
+        </header>
+        <div id="hierarchy-container" class="content-container" style="overflow: auto">
+            <div id="metrics-hierarchy" class="leading">
+            </div>
+            <div id="hierarchy-select-message" class="select-message">@Model.SelectMessage</div>
+        </div>
+    </div>
+    <div id="metrics-details" class="container-tabs grid_8">
+        <div id="tabs-overlay" class="content-overlay">
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+
+            showTabsOverlay();
+            
+            $("div.main-content-page").bind('maincontentresize', function () {
+                resizeChildToParent("#hierarchy-container", 20);
+                resizeChildToParent("#tabs-overlay", 20);
+            });
+
+            $('#metrics-hierarchy').bind("loaded.jstree", function (event, data) {
+                $('#metrics-hierarchy').jstree('select_node', 'li:first[rel="Metric"]');
+            }).bind("select_node.jstree", function (event, data) {
+                var itemType = data.rslt.obj.attr('rel');
+
+                if (itemType != "MetricFolder") {
+                    updateMetricDetails(data.rslt.obj.attr('id'), data.rslt.obj.attr('rel'))
+                }
+            }).jstree({
+                "json_data": {
+                    "ajax": {
+                        "url": "Config/MetricHierarchy",
+                        "type": "POST",
+                        "dataType": "text json",
+                        "contentType": "application/json charset=utf-8"
+                    }
+                },
+                "themes": {
+                    "theme": "classic",
+                    "dots": false,
+                    "icons": true
+                },
+                "ui": {},
+                "types": {
+                    "types": {
+                        "Metric": {
+                            "icon": {
+                                "image": "Scripts/themes/classic/e.png",
+                                "position": "-55px -37px"
+                            },
+                            "valid_children": ["Cluster", "ServerGroup"]
+                        },
+                        "MetricFolder": {
+                            "valid_children": ["Metric"]
+                        }
+                    }
+                },
+                "plugins": ["themes", "json_data", "ui", "types"]
+            });
+        });
+
+        function showTabsOverlay() {
+            var offset = $("#metrics-details").offset();
+            $("#tabs-overlay").css('top', offset.top);
+            $("#tabs-overlay").css('left', offset.left);
+
+            $("#tabs-overlay").height($("#metrics-details").height());
+            $("#tabs-overlay").width($("#metrics-details").width());
+
+            $("#tabs-overlay").css('display', 'block');
+        }
+
+        function hideTabsOverlay() {
+            $("#tabs-overlay").css('display', 'none');
+        }
+
+        function updateMetricDetails(id, type) {
+            var detailId = $("#metrics-details").data('detailid');
+
+            //Check if the details for this id are loaded currently
+            if (detailId != id) {
+
+                var currrentrequest = $("#metrics-details").data('currentrequest');
+
+                //kill the current request if it exists
+                if (currrentrequest != null) {
+                    currrentrequest.abort();
+                }
+
+                showTabsOverlay();
+                $("#metrics-details").children().not("#tabs-overlay").remove();
+
+                $("#metrics-details").data('currentrequest', $.ajax({
+                    type: "GET",
+                    url: "Config/MetricDetail?itemid=" + id,
+                    success: function (data) {
+                        hideTabsOverlay();
+                        $("#metrics-details").children().not("#tabs-overlay").remove();
+                        $("#metrics-details").prepend(data);
+                        $("#metrics-details").data('detailid', id);
+                    }
+                }));
+            }
+        }
+    </script>
+</div>

@@ -1,0 +1,49 @@
+﻿@model DatabaseModel
+           
+<div id="databaseedit-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Name
+                </td>
+                <td class="form-data">
+                   @Html.TextBoxFor(x => x.Name)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Status
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Status)
+                </td>
+            </tr>
+        </table>
+    }
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("form", "#databaseedit-form").validate({
+            errorContainer: $("#form-errors-container", "#databaseedit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#databaseedit-form")),
+            wrapper: 'li',
+            rules: {
+                Name: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: "Please supply a Database Name"
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Datavail.Delta.Domain.Cluster">
+    <Position X="13.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEgAEAEAAAAAQAAAAAAAgQAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Cluster.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Groups" />
+      <Property Name="Nodes" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.ClusterGroup">
+    <Position X="10.5" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAEAgQAAAAAAAQAAAAAAAgQAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>ClusterGroup.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.DatabaseInstance">
+    <Position X="6.5" Y="3" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAECUAAAQAAAQAAAgQAAAAAAAACAAAAAgAAAEA=</HashCode>
+      <FileName>DatabaseInstance.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ClusterGroup" />
+      <Property Name="Server" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Server" Collapsed="true">
+    <Position X="13.5" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CGEAAAgEAAAACQACAACAAgAAAAAAAAAAQCABAAAEAAA=</HashCode>
+      <FileName>Server.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

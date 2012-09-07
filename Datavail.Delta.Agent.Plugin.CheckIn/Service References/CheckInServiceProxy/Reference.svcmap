@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e6adaa39-f689-4234-b3f6-1b256b164926" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="https://delta-ws.datavail.com/CheckInService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="CheckInService2.xsd" MetadataType="Schema" ID="334b07fa-e18b-47fa-9b57-f08bc3c52755" SourceId="1" SourceUrl="https://delta-ws.datavail.com/CheckInService.svc?xsd=xsd1" />
+    <MetadataFile FileName="CheckInService1.disco" MetadataType="Disco" ID="fee61b8d-f3da-4ea4-b2ac-03ca0b151d69" SourceId="1" SourceUrl="https://delta-ws.datavail.com/CheckInService.svc?disco" />
+    <MetadataFile FileName="CheckInService1.wsdl" MetadataType="Wsdl" ID="3a121f4f-1aad-4282-971a-543e976cf780" SourceId="1" SourceUrl="https://delta-ws.datavail.com/CheckInService.svc?wsdl" />
+    <MetadataFile FileName="CheckInService21.xsd" MetadataType="Schema" ID="dd682ab1-07c6-4953-b28b-fafc1e8f84c8" SourceId="1" SourceUrl="https://delta-ws.datavail.com/CheckInService.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

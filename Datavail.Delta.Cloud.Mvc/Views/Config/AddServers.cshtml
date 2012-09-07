@@ -1,0 +1,36 @@
+﻿@model AddServerModel
+           
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor( x => x.ParentId)
+
+    if (!Model.PotentialServers.Any() && !Model.SelectedServerIds.Any())
+    {
+        <h3>@Model.UnavailableMessage</h3>
+    }
+    else
+    {
+        @Html.ListBoxFor(model => model.SelectedServerIds, new MultiSelectList(Model.PotentialServersSelectListItems, "Value", "Text", Model.SelectedServerIds)) 
+        
+    }
+
+}
+
+<script type="text/javascript">
+    $('#SelectedServerIds').multiSelect({
+        selectableHeader : "<div id='selectable-header' class='ms-header'><h4>@Model.PotentialServersHeader</h4><a id='select-all-items' class='fr' href='#'>Select All</a></div>",
+        selectedHeader: "<div id='selected-header' class='ms-header'><h4>@Model.SelectedServersHeader</h4><a id='remove-all-items' class='fr' href='#'>Remove All</a></div>"
+    });
+
+    $('#select-all-items', "#selectable-header").click(function () {
+        $('#SelectedServerIds').multiSelect('select_all');
+        return false;
+    });
+
+    $('#remove-all-items', '#selected-header').click(function () {
+        $('#SelectedServerIds').multiSelect('deselect_all');
+        return false;
+    });
+
+</script>
+
