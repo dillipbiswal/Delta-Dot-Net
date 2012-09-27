@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="Datavail.Delta.WebServices.UpdateService" CodeBehind="UpdateService.svc.cs" Factory="Datavail.Delta.WebServices.UnityServiceHostFactory" %>
