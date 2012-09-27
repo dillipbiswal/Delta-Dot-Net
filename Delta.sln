@@ -123,8 +123,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.IncidentProc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.IncidentProcessorConsole", "Datavail.Delta.IncidentProcessorConsole\Datavail.Delta.IncidentProcessorConsole.csproj", "{D48969F1-E425-4E58-999D-660F5B14A727}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Datavail.Delta.IncidentProcessor.Installer", "Datavail.Delta.IncidentProcessor.Installer\Datavail.Delta.IncidentProcessor.Installer.vdproj", "{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.BatchProcessor", "Datavail.Delta.BatchProcessor\Datavail.Delta.BatchProcessor.csproj", "{26BBB399-F620-48D7-A120-3EFEE7DE560E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Repository.EfWithMigrations", "Datavail.Delta.Repository.EfWithMigrations\Datavail.Delta.Repository.EfWithMigrations.csproj", "{600F9F0C-FC33-4644-A116-82618FC58BBF}"
@@ -138,6 +136,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.SharedCode", "Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj", "{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.RestServices", "Datavail.Delta.RestServices\Datavail.Delta.RestServices.csproj", "{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.ServiceDesk.Nimsoft", "Datavail.Delta.Application.ServiceDesk.Nimsoft\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj", "{08B92495-142A-4556-BABB-BFC1FDA47560}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -281,30 +281,30 @@ Global
 		SccProjectTopLevelParentUniqueName34 = Delta.sln
 		SccProjectName34 = Datavail.Delta.IncidentProcessorConsole
 		SccLocalPath34 = Datavail.Delta.IncidentProcessorConsole
-		SccProjectUniqueName35 = Datavail.Delta.IncidentProcessor.Installer\\Datavail.Delta.IncidentProcessor.Installer.vdproj
+		SccProjectUniqueName35 = Datavail.Delta.BatchProcessor\\Datavail.Delta.BatchProcessor.csproj
 		SccProjectTopLevelParentUniqueName35 = Delta.sln
-		SccProjectName35 = Datavail.Delta.IncidentProcessor.Installer
-		SccLocalPath35 = Datavail.Delta.IncidentProcessor.Installer
-		SccProjectUniqueName36 = Datavail.Delta.BatchProcessor\\Datavail.Delta.BatchProcessor.csproj
+		SccProjectName35 = Datavail.Delta.BatchProcessor
+		SccLocalPath35 = Datavail.Delta.BatchProcessor
+		SccProjectUniqueName36 = Datavail.Delta.Repository.EfWithMigrations\\Datavail.Delta.Repository.EfWithMigrations.csproj
 		SccProjectTopLevelParentUniqueName36 = Delta.sln
-		SccProjectName36 = Datavail.Delta.BatchProcessor
-		SccLocalPath36 = Datavail.Delta.BatchProcessor
-		SccProjectUniqueName37 = Datavail.Delta.Repository.EfWithMigrations\\Datavail.Delta.Repository.EfWithMigrations.csproj
+		SccProjectName36 = Datavail.Delta.Repository.EfWithMigrations
+		SccLocalPath36 = Datavail.Delta.Repository.EfWithMigrations
+		SccProjectUniqueName37 = Datavail.Delta.Datawarehouse.Processor\\Datavail.Delta.Datawarehouse.Processor.csproj
 		SccProjectTopLevelParentUniqueName37 = Delta.sln
-		SccProjectName37 = Datavail.Delta.Repository.EfWithMigrations
-		SccLocalPath37 = Datavail.Delta.Repository.EfWithMigrations
-		SccProjectUniqueName38 = Datavail.Delta.Datawarehouse.Processor\\Datavail.Delta.Datawarehouse.Processor.csproj
+		SccProjectName37 = Datavail.Delta.Datawarehouse.Processor
+		SccLocalPath37 = Datavail.Delta.Datawarehouse.Processor
+		SccProjectUniqueName38 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
 		SccProjectTopLevelParentUniqueName38 = Delta.sln
-		SccProjectName38 = Datavail.Delta.Datawarehouse.Processor
-		SccLocalPath38 = Datavail.Delta.Datawarehouse.Processor
-		SccProjectUniqueName39 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
+		SccProjectName38 = Datavail.Delta.Agent.SharedCode
+		SccLocalPath38 = Datavail.Delta.Agent.SharedCode
+		SccProjectUniqueName39 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
 		SccProjectTopLevelParentUniqueName39 = Delta.sln
-		SccProjectName39 = Datavail.Delta.Agent.SharedCode
-		SccLocalPath39 = Datavail.Delta.Agent.SharedCode
-		SccProjectUniqueName40 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
+		SccProjectName39 = Datavail.Delta.RestServices
+		SccLocalPath39 = Datavail.Delta.RestServices
+		SccProjectUniqueName40 = Datavail.Delta.Application.ServiceDesk.Nimsoft\\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj
 		SccProjectTopLevelParentUniqueName40 = Delta.sln
-		SccProjectName40 = Datavail.Delta.RestServices
-		SccLocalPath40 = Datavail.Delta.RestServices
+		SccProjectName40 = Datavail.Delta.Application.ServiceDesk.Nimsoft
+		SccLocalPath40 = Datavail.Delta.Application.ServiceDesk.Nimsoft
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
@@ -1017,19 +1017,6 @@ Global
 		{D48969F1-E425-4E58-999D-660F5B14A727}.Release|x64.ActiveCfg = Release|x86
 		{D48969F1-E425-4E58-999D-660F5B14A727}.Release|x86.ActiveCfg = Release|x86
 		{D48969F1-E425-4E58-999D-660F5B14A727}.Release|x86.Build.0 = Release|x86
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Debug|Any CPU.ActiveCfg = Debug
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Debug|Any CPU.Build.0 = Debug
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Debug|x64.ActiveCfg = Debug
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Debug|x86.ActiveCfg = Debug
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release 64|Any CPU.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release 64|Mixed Platforms.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release 64|x64.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release 64|x86.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release|Any CPU.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release|Mixed Platforms.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release|x64.ActiveCfg = Release
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4}.Release|x86.ActiveCfg = Release
 		{26BBB399-F620-48D7-A120-3EFEE7DE560E}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{26BBB399-F620-48D7-A120-3EFEE7DE560E}.Debug|Any CPU.Build.0 = Debug|x86
 		{26BBB399-F620-48D7-A120-3EFEE7DE560E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
@@ -1122,6 +1109,24 @@ Global
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|x64.ActiveCfg = Release|Any CPU
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|x86.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|Any CPU.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|Any CPU.Build.0 = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|Mixed Platforms.Build.0 = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|x64.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release 64|x86.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|x64.ActiveCfg = Release|Any CPU
+		{08B92495-142A-4556-BABB-BFC1FDA47560}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1140,6 +1145,7 @@ Global
 		{5D28D78D-F5AA-40FB-A3F4-AA88BA81AECD} = {3CB83B28-EF6D-46EB-AF6F-4EFE656C8DCC}
 		{F8CC3F03-5E77-4F74-AC9C-7F91599D72C7} = {3CB83B28-EF6D-46EB-AF6F-4EFE656C8DCC}
 		{19F05595-333D-4B47-92E8-71EB5B60B7AE} = {3CB83B28-EF6D-46EB-AF6F-4EFE656C8DCC}
+		{08B92495-142A-4556-BABB-BFC1FDA47560} = {3CB83B28-EF6D-46EB-AF6F-4EFE656C8DCC}
 		{37C56D57-C241-4D8B-A04A-858B36C36134} = {C3F13CAF-2728-4A97-B285-E350C5DCEF6E}
 		{F48B275F-B907-445E-8441-2D010DDB5BBE} = {C3F13CAF-2728-4A97-B285-E350C5DCEF6E}
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F} = {37C56D57-C241-4D8B-A04A-858B36C36134}
@@ -1153,7 +1159,6 @@ Global
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
 		{D604A714-4255-40FA-916B-F448683BE51B} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{D48969F1-E425-4E58-999D-660F5B14A727} = {9189275D-308A-4B0E-8108-A054164E2B9E}
-		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{26BBB399-F620-48D7-A120-3EFEE7DE560E} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{A35B291F-D2B5-4814-94CF-99B979F82451} = {0A478EA3-84EF-4C36-86DC-EA5B1E1F0F83}
 		{3D126F3C-4777-482E-9E7B-F325544623E5} = {F19972D7-38DA-4283-AC87-925377E24882}
