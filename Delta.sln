@@ -129,10 +129,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Repository.E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 - Infrastructure", "00 - Infrastructure", "{14A21F13-A4CE-458A-B3A8-723A877ECF29}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 - DW", "03 - DW", "{5B46DA92-080B-4A21-AEB4-D5A747B7E513}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Datawarehouse.Processor", "Datavail.Delta.Datawarehouse.Processor\Datavail.Delta.Datawarehouse.Processor.csproj", "{C7FE12B5-46F7-4C6A-B522-66448857D69D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.SharedCode", "Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj", "{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.RestServices", "Datavail.Delta.RestServices\Datavail.Delta.RestServices.csproj", "{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}"
@@ -141,7 +137,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 41
+		SccNumberOfProjects = 40
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://dvdcsvrtfs01:8080/tfs/defaultcollection
 		SccLocalPath0 = .
@@ -289,22 +285,18 @@ Global
 		SccProjectTopLevelParentUniqueName36 = Delta.sln
 		SccProjectName36 = Datavail.Delta.Repository.EfWithMigrations
 		SccLocalPath36 = Datavail.Delta.Repository.EfWithMigrations
-		SccProjectUniqueName37 = Datavail.Delta.Datawarehouse.Processor\\Datavail.Delta.Datawarehouse.Processor.csproj
+		SccProjectUniqueName37 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
 		SccProjectTopLevelParentUniqueName37 = Delta.sln
-		SccProjectName37 = Datavail.Delta.Datawarehouse.Processor
-		SccLocalPath37 = Datavail.Delta.Datawarehouse.Processor
-		SccProjectUniqueName38 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
+		SccProjectName37 = Datavail.Delta.Agent.SharedCode
+		SccLocalPath37 = Datavail.Delta.Agent.SharedCode
+		SccProjectUniqueName38 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
 		SccProjectTopLevelParentUniqueName38 = Delta.sln
-		SccProjectName38 = Datavail.Delta.Agent.SharedCode
-		SccLocalPath38 = Datavail.Delta.Agent.SharedCode
-		SccProjectUniqueName39 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
+		SccProjectName38 = Datavail.Delta.RestServices
+		SccLocalPath38 = Datavail.Delta.RestServices
+		SccProjectUniqueName39 = Datavail.Delta.Application.ServiceDesk.Nimsoft\\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj
 		SccProjectTopLevelParentUniqueName39 = Delta.sln
-		SccProjectName39 = Datavail.Delta.RestServices
-		SccLocalPath39 = Datavail.Delta.RestServices
-		SccProjectUniqueName40 = Datavail.Delta.Application.ServiceDesk.Nimsoft\\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj
-		SccProjectTopLevelParentUniqueName40 = Delta.sln
-		SccProjectName40 = Datavail.Delta.Application.ServiceDesk.Nimsoft
-		SccLocalPath40 = Datavail.Delta.Application.ServiceDesk.Nimsoft
+		SccProjectName39 = Datavail.Delta.Application.ServiceDesk.Nimsoft
+		SccLocalPath39 = Datavail.Delta.Application.ServiceDesk.Nimsoft
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
@@ -1055,24 +1047,6 @@ Global
 		{600F9F0C-FC33-4644-A116-82618FC58BBF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{600F9F0C-FC33-4644-A116-82618FC58BBF}.Release|x64.ActiveCfg = Release|Any CPU
 		{600F9F0C-FC33-4644-A116-82618FC58BBF}.Release|x86.ActiveCfg = Release|Any CPU
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|x64.ActiveCfg = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|x86.ActiveCfg = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Debug|x86.Build.0 = Debug|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|Any CPU.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|Mixed Platforms.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|Mixed Platforms.Build.0 = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|x64.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|x86.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release 64|x86.Build.0 = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|Any CPU.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|Mixed Platforms.Build.0 = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|x64.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|x86.ActiveCfg = Release|x86
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D}.Release|x86.Build.0 = Release|x86
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -1191,7 +1165,6 @@ Global
 		{8CA9CEF1-33A3-446B-A133-EB045DDBA014} = {B2FDF999-F977-4225-88FF-5EB9E67FCECD}
 		{073141F2-00B5-48F6-B33E-F01F90571C55} = {B2FDF999-F977-4225-88FF-5EB9E67FCECD}
 		{49F3604D-A85C-4EA6-8BEC-74EC8432C3DF} = {B2FDF999-F977-4225-88FF-5EB9E67FCECD}
-		{C7FE12B5-46F7-4C6A-B522-66448857D69D} = {5B46DA92-080B-4A21-AEB4-D5A747B7E513}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.0\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\DesignTime;packages\Unity.2.1.505.2\lib\NET35
