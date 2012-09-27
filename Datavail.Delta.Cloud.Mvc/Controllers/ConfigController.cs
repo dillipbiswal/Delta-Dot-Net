@@ -54,12 +54,12 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                 case Constants.ItemHierarchyType.None:
                     Customer customer = null;
 
-                    customer = id.Equals(Guid.Empty) ? _serverService.Find<Customer>(new Specification<Customer>(x => x.Status.Value != (int)Status.Deleted)).OrderBy(x => x.Name).First() : _serverService.GetByKey<Customer>(id);
+                    customer = id.Equals(Guid.Empty) ? _serverService.Find<Customer>(new Specification<Customer>(x => x.Status != Status.Deleted)).OrderBy(x => x.Name).First() : _serverService.GetByKey<Customer>(id);
 
                     if (customer != null && customer.Status != Status.Deleted)
                     {
                         //Get the server groups
-                        var serverGroups = customer.ServerGroups.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var serverGroups = customer.ServerGroups.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Name,
                             attr = new
@@ -86,7 +86,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         };
 
                         //Get the clusters
-                        var clusters = customer.Clusters.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var clusters = customer.Clusters.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Name,
                             attr = new
@@ -135,7 +135,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     if (cluster != null && cluster.Status != Status.Deleted)
                     {
                         //Get the child nodes and virtual servers
-                        var nodes = cluster.Nodes.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var nodes = cluster.Nodes.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Hostname,
                             attr = new
@@ -161,7 +161,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                             state = nodes.Count > 0 ? "closed" : "leaf"
                         };
 
-                        var virtualServers = cluster.VirtualServers.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var virtualServers = cluster.VirtualServers.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Hostname,
                             attr = new
@@ -196,7 +196,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     if (serverGroup != null && serverGroup.Status != Status.Deleted)
                     {
                         //Get the child servers
-                        var serverGroupServers = serverGroup.Servers.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var serverGroupServers = serverGroup.Servers.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Hostname,
                             attr = new
@@ -233,7 +233,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     if (server != null && server.Status != Status.Deleted)
                     {
                         //Get the child db instances
-                        var serverInstances = server.Instances.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var serverInstances = server.Instances.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Name,
                             attr = new
@@ -260,7 +260,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         };
 
                         //Get the child metric instances
-                        var serverMetricInstances = server.MetricInstances.Where(x => x.Status.Value != (int)Status.Deleted && x.DatabaseInstance == null
+                        var serverMetricInstances = server.MetricInstances.Where(x => x.Status != Status.Deleted && x.DatabaseInstance == null
                                                                                         && x.Database == null).Select(x => new
                                                                                         {
                                                                                             data = x.Label,
@@ -296,7 +296,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     if (instance != null && instance.Status != Status.Deleted)
                     {
                         //Get the child dbs
-                        var databases = instance.Databases.Where(x => x.Status.Value != (int)Status.Deleted).Select(x => new
+                        var databases = instance.Databases.Where(x => x.Status != Status.Deleted).Select(x => new
                         {
                             data = x.Name,
                             attr = new
@@ -323,7 +323,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         };
 
                         //Get the child metric instances
-                        var instanceMetricInstances = instance.Server.MetricInstances.Where(x => x.Status.Value != (int)Status.Deleted &&
+                        var instanceMetricInstances = instance.Server.MetricInstances.Where(x => x.Status != Status.Deleted &&
                                                                                                  x.DatabaseInstance != null && x.DatabaseInstance.Id.Equals(id))
                                                                                                  .Select(x => new
                                                                                                  {
@@ -360,7 +360,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     if (database != null && database.Status != Status.Deleted)
                     {
                         //Get the child metric instances
-                        var dbMetricInstances = database.Instance.Server.MetricInstances.Where(x => x.Status.Value != (int)Status.Deleted && x.Database != null
+                        var dbMetricInstances = database.Instance.Server.MetricInstances.Where(x => x.Status != Status.Deleted && x.Database != null
                                                                                                     && x.Database.Id.Equals(id)).Select(x => new
                                                                                                     {
                                                                                                         data = x.Label,
@@ -477,7 +477,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var customer = _serverService.GetByKey<Customer>(customerId);
 
-            var selectedServers = customer.Servers.Where(x => x.Status.Value != (int)Status.Deleted).OrderBy(s => s.Hostname).ToList();
+            var selectedServers = customer.Servers.Where(x => x.Status != Status.Deleted).OrderBy(s => s.Hostname).ToList();
             var potentialServers = _serverService.GetUnknownServers(customer.Tenant.Id).Concat(selectedServers).OrderBy(s => s.Hostname).ToList();
             var potentialServersSelectListItems = from s in potentialServers
                                                   select new SelectListItem
@@ -510,7 +510,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var serverGroup = _serverService.GetByKey<ServerGroup>(serverGroupId);
 
-            var selectedServers = serverGroup.Servers.Where(x => x.Status.Value != (int)Status.Deleted).OrderBy(s => s.Hostname);
+            var selectedServers = serverGroup.Servers.Where(x => x.Status != Status.Deleted).OrderBy(s => s.Hostname);
             var potentialServers = serverGroup.ParentCustomer.Servers.Concat(selectedServers).OrderBy(s => s.Hostname).Distinct();
             var potentialServersSelectListItems = from s in potentialServers
                                                   select new SelectListItem
@@ -544,7 +544,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var cluster = _serverService.GetByKey<Cluster>(clusterId);
 
-            var selectedServers = cluster.Nodes.Where(x => x.Status.Value != (int)Status.Deleted).Concat(cluster.VirtualServers.Where(x => x.Status.Value != (int)Status.Deleted)).OrderBy(s => s.Hostname);
+            var selectedServers = cluster.Nodes.Where(x => x.Status != Status.Deleted).Concat(cluster.VirtualServers.Where(x => x.Status != Status.Deleted)).OrderBy(s => s.Hostname);
             var potentialServers = cluster.Customer.Servers.Where(x => x.Cluster == null).Concat(selectedServers).Distinct().OrderBy(s => s.Hostname);
             var potentialServersSelectListItems = from s in potentialServers
                                                   select new SelectListItem
@@ -1002,10 +1002,10 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         [HttpPost]
         public JsonResult MetricHierarchy()
         {
-            var metricCriteria = new Specification<Metric>(x => x.Status.Value != (int)Status.Deleted);
+            var metricCriteria = new Specification<Metric>(x => x.Status != Status.Deleted);
             var metrics = _serverService.Find(metricCriteria).ToList();
 
-            var serverMetrics = metrics.Where(x => ((x.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server)).Select(x => new
+            var serverMetrics = metrics.Where(x => ((x.MetricType & MetricType.Server) == MetricType.Server)).Select(x => new
             {
                 data = x.Name,
                 attr = new
@@ -1017,7 +1017,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                 state = "leaf"
             }).ToList();
 
-            var virtualServerMetrics = metrics.Where(x => ((x.MetricType.Value & (int)MetricType.VirtualServer) == (int)MetricType.VirtualServer)).Select(x => new
+            var virtualServerMetrics = metrics.Where(x => ((x.MetricType & MetricType.VirtualServer) == MetricType.VirtualServer)).Select(x => new
             {
                 data = x.Name,
                 attr = new
@@ -1029,7 +1029,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                 state = "leaf"
             }).ToList();
 
-            var databaseInstanceMetrics = metrics.Where(x => ((x.MetricType.Value & (int)MetricType.Instance) == (int)MetricType.Instance)).Select(x => new
+            var databaseInstanceMetrics = metrics.Where(x => ((x.MetricType & MetricType.Instance) == MetricType.Instance)).Select(x => new
             {
                 data = x.Name,
                 attr = new
@@ -1041,7 +1041,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                 state = "leaf"
             }).ToList();
 
-            var databaseMetrics = metrics.Where(x => ((x.MetricType.Value & (int)MetricType.Database) == (int)MetricType.Database)).Select(x => new
+            var databaseMetrics = metrics.Where(x => ((x.MetricType & MetricType.Database) == MetricType.Database)).Select(x => new
             {
                 data = x.Name,
                 attr = new
@@ -1461,7 +1461,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             if (_search)
             {
-                criteria = criteria.And(x => x.Severity.Enum.ToString().Contains(searchString));
+                criteria = criteria.And(x => x.Severity.ToString().Contains(searchString));
             }
 
             var totalRecords = _serverService.GetPagedEntities<MetricThreshold>(page, rows, criteria, x => "", out metricThresholds);
@@ -1494,14 +1494,14 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                                     Icon=Constants.DELETEICON, 
                                     Alt="Delete"},
                             }),
-                            x.ThresholdComparisonFunction.Enum.ToString(),
-                            x.Severity.Enum.ToString(),
+                            x.ThresholdComparisonFunction.ToString(),
+                            x.Severity.ToString(),
                             x.TimePeriod.ToString(),
                             x.CeilingValue.ToString(),
                             x.FloorValue.ToString(),
                             x.MatchValue,
                             x.NumberOfOccurrences.ToString(),
-                            x.ThresholdValueType.Enum.ToString(),
+                            x.ThresholdValueType.ToString(),
                             GetThresholdDisplayText(metricThresholds.Where(y => y.Id.Equals(x.Id)).FirstOrDefault())
                         }
                             })
@@ -1594,7 +1594,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             if (_search)
             {
-                criteria = criteria.And(x => x.ScheduleType.Enum.ToString().Contains(searchString));
+                criteria = criteria.And(x => x.ScheduleType.ToString().Contains(searchString));
             }
 
             var result = new
@@ -1628,8 +1628,8 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                             x.Day.ToString(),
                             x.Hour.ToString(),
                             x.Minute.ToString(),
-                            x.DayOfWeek.Enum.ToString(),
-                            x.ScheduleType.Enum.ToString(),
+                            x.DayOfWeek.ToString(),
+                            x.ScheduleType.ToString(),
                             x.Interval.ToString(),
                             GetScheduleDisplayText(schedules.Where(y => y.Id.Equals(x.Id)).FirstOrDefault())
                         }
@@ -1725,7 +1725,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                                             bool _search, string searchField, string searchOper, string searchString, string specType, Guid parentId)
         {
             IEnumerable<MetricInstance> metricInstances = null;
-            Specification<MetricInstance> criteria = new Specification<MetricInstance>(x => x.Status.Value != (int)Status.Deleted);
+            Specification<MetricInstance> criteria = new Specification<MetricInstance>(x => x.Status != Status.Deleted);
             Server server = null;
 
             //Convert the posted specification type and create the criteria
@@ -1735,25 +1735,25 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
             {
                 case Constants.SpecificationType.ServerMetrics:
                     server = _serverService.GetByKey<Server>(parentId);
-                    criteria = criteria.And(x => ((x.Metric.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server));
+                    criteria = criteria.And(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server));
                     criteria = criteria.And(x => x.Server.Id.Equals(parentId));
                     break;
                 case Constants.SpecificationType.DatabaseInstanceMetrics:
                     var instance = _serverService.GetByKey<DatabaseInstance>(parentId);
                     server = instance.Server;
-                    criteria = criteria.And(x => ((x.Metric.MetricType.Value & (int)MetricType.Instance) == (int)MetricType.Instance));
+                    criteria = criteria.And(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance));
                     criteria = criteria.And(x => x.DatabaseInstance.Id.Equals(parentId));
                     break;
                 case Constants.SpecificationType.DatabaseMetrics:
                     var database = _serverService.GetByKey<Database>(parentId);
                     server = database.Instance.Server;
-                    criteria = criteria.And(x => ((x.Metric.MetricType.Value & (int)MetricType.Database) == (int)MetricType.Database));
+                    criteria = criteria.And(x => ((x.Metric.MetricType & MetricType.Database) == MetricType.Database));
                     criteria = criteria.And(x => x.Database.Id.Equals(parentId));
                     break;
                 case Constants.SpecificationType.VirtualServerMetrics:
                     server = _serverService.GetByKey<Server>(parentId);
-                    criteria = criteria.And(x => (((x.Metric.MetricType.Value & (int)MetricType.VirtualServer) == (int)MetricType.VirtualServer) ||
-                                            (x.Metric.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server));
+                    criteria = criteria.And(x => (((x.Metric.MetricType & MetricType.VirtualServer) == MetricType.VirtualServer) ||
+                                            (x.Metric.MetricType & MetricType.Server) == MetricType.Server));
                     criteria = criteria.And(x => x.Server.Id.Equals(parentId));
                     break;
                 default:
@@ -1784,7 +1784,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                                     GetMetricInstanceTableActionItems(specificationType, metricInstances.Where(y => y.Id.Equals(x.Id)).FirstOrDefault(), parentId),
                                     x.Metric.Name,
                                     x.Label,
-                                    x.Status.Enum.ToString()
+                                    x.Status.ToString()
                                 }
                             })
                             .ToArray(),
@@ -2163,15 +2163,15 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var displayText = new StringBuilder();
 
-            if (schedule.ScheduleType.Value == (int)ScheduleType.Once)
+            if (schedule.ScheduleType == (int)ScheduleType.Once)
             {
                 displayText.Append("Schedule the metric to run once");
             }
             else
             {
-                displayText.Append("Schedule the metric to run every " + schedule.Interval + " " + schedule.ScheduleType.Enum.ToString().ToLower());
+                displayText.Append("Schedule the metric to run every " + schedule.Interval + " " + schedule.ScheduleType.ToString().ToLower());
 
-                switch (schedule.ScheduleType.Enum)
+                switch (schedule.ScheduleType)
                 {
                     case ScheduleType.Hours:
                         displayText.Append(" at " + schedule.Minute + " past the hour");
@@ -2180,7 +2180,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         displayText.Append(" at " + schedule.Hour + ":" + schedule.Minute);
                         break;
                     case ScheduleType.Weeks:
-                        displayText.Append(" on " + schedule.DayOfWeek.Enum + " at " + schedule.Hour + ":" + schedule.Minute);
+                        displayText.Append(" on " + schedule.DayOfWeek + " at " + schedule.Hour + ":" + schedule.Minute);
                         break;
                     case ScheduleType.Months:
                         displayText.Append(" on the " + schedule.Day + " day of the month at " + schedule.Hour + ":" + schedule.Minute);
@@ -2198,7 +2198,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var displayText = new StringBuilder();
 
-            displayText.Append("Raise an alert level of '" + metricThreshold.Severity.Enum + "'");
+            displayText.Append("Raise an alert level of '" + metricThreshold.Severity + "'");
 
             if (metricThreshold.ThresholdComparisonFunction.Value == (int)ThresholdComparisonFunction.Match)
             {
@@ -2207,7 +2207,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
             }
             else
             {
-                displayText.Append(", If the metric " + metricThreshold.ThresholdComparisonFunction.Enum.ToString().ToLower());
+                displayText.Append(", If the metric " + metricThreshold.ThresholdComparisonFunction.ToString().ToLower());
                 displayText.Append(" is between " + metricThreshold.FloorValue + " and " + metricThreshold.CeilingValue);
 
                 if (metricThreshold.ThresholdValueType.Value == (int)ThresholdValueType.Percentage)

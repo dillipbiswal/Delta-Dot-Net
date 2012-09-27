@@ -49,7 +49,7 @@ namespace Datavail.Delta.TestConsole
             var repository = new ServerRepository(context, logger.Object);
             var serverService = new ServerService(logger.Object,repository);
 
-            var instances = repository.GetQuery<DatabaseInstance>(i => i.Status.Value != (int)Status.Deleted).ToList();
+            var instances = repository.GetQuery<DatabaseInstance>(i => i.Status != Status.Deleted).ToList();
 
             foreach (var databaseInstance in instances)
             {

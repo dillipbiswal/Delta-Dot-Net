@@ -9,7 +9,7 @@ namespace Datavail.Delta.Domain
 
         #region Properties
         public virtual DatabaseInstance Instance { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual Status Status { get; set; }
         public string Name { get; set; }
         #endregion
 

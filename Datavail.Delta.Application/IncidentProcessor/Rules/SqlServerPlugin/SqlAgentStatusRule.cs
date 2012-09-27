@@ -53,7 +53,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             var xSqlAgentStatus = dataCollection.Root.Attribute("sqlAgentStatus");
             if (xSqlAgentStatus != null)
             {
-                _sqlAgentStatus = xSqlAgentStatus.Value;
+                _sqlAgentStatus = xSqlAgentStatus.ToString();
             }
 
             var xDatabaseServerInstanceName = dataCollection.Root.Attribute("databaseServerInstanceName");

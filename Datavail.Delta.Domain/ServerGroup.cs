@@ -41,7 +41,7 @@ namespace Datavail.Delta.Domain
 
         public virtual int Priority { get; set; }
         public virtual IList<Server> Servers { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual Status Status { get; set; }
         #endregion
 
         #region ctor

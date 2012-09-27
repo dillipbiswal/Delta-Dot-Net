@@ -17,7 +17,7 @@ namespace Datavail.Delta.Domain
         public virtual IList<ServerGroup> ServerGroups { get; set; }
         public virtual IList<Server> Servers { get; set; }
         public string ServiceDeskData { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual Status Status { get; set; }
         public virtual Tenant Tenant { get; set; }
         #endregion
 

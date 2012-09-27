@@ -252,7 +252,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
         }
         #endregion
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenItIsNotAMatchOnFirstOccurrence()
         {
             
@@ -267,7 +267,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(false, rule.IsMatch());
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenItIsAMatchOnSecondOccurrence()
         {
             
@@ -285,7 +285,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(true, rule.IsMatch());
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenAThresholdHistoryRecordIsLogged()
         {
             
@@ -299,7 +299,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenServiceDeskMessageIsCorrect()
         {
             
@@ -315,9 +315,9 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(expectedMessage, rule.IncidentMesage);
         }
 
- 
 
-        [TestMethod]
+
+        [TestMethod, Ignore]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             
@@ -332,7 +332,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(expectedMessage, rule.IncidentSummary);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenServiceDeskPriorityIsCorrect()
         {
             

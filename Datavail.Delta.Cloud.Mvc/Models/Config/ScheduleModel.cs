@@ -49,12 +49,12 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<Schedule, ScheduleModel>()
-                .ForMember(f => f.DayOfWeek, opt => opt.MapFrom(f => f.DayOfWeek.Enum))
-                .ForMember(f => f.ScheduleType, opt => opt.MapFrom(f => f.ScheduleType.Enum));
+                .ForMember(f => f.DayOfWeek, opt => opt.MapFrom(f => f.DayOfWeek))
+                .ForMember(f => f.ScheduleType, opt => opt.MapFrom(f => f.ScheduleType));
 
             configuration.CreateMap<ScheduleModel, Schedule>()
-                .ForMember(m => m.DayOfWeek, opt => opt.MapFrom(f => (DayOfWeekWrapper)f.DayOfWeek))
-                .ForMember(m => m.ScheduleType, opt => opt.MapFrom(f => (ScheduleTypeWrapper)f.ScheduleType))
+                .ForMember(m => m.DayOfWeek, opt => opt.MapFrom(f => (DayOfWeek)f.DayOfWeek))
+                .ForMember(m => m.ScheduleType, opt => opt.MapFrom(f => (ScheduleType)f.ScheduleType))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }
     }

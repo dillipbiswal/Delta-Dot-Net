@@ -9,12 +9,12 @@ namespace Datavail.Delta.Domain
 
         #region Properties
         public int? Day { get; set; }
-        public virtual DayOfWeekWrapper DayOfWeek { get; set; }
+        public virtual DayOfWeek DayOfWeek { get; set; }
         public virtual MetricConfiguration MetricConfiguration { get; set; }
         public int? Hour { get; set; }
         public int? Month { get; set; }
         public int? Minute { get; set; }
-        public virtual ScheduleTypeWrapper ScheduleType { get; set; }
+        public virtual ScheduleType ScheduleType { get; set; }
         public int Interval { get; set; }
         #endregion
 

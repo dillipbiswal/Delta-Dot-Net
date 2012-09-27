@@ -14,8 +14,8 @@ namespace Datavail.Delta.Domain
         public string Name { get; set; }
         public string Password { get; set; }
         public virtual Server Server { get; set; }
-        public virtual StatusWrapper Status { get; set; }
-        public DatabaseVersionWrapper DatabaseVersion { get; set; }
+        public virtual Status Status { get; set; }
+        public DatabaseVersion DatabaseVersion { get; set; }
         public bool UseIntegratedSecurity { get; set; }
         public string Username { get; set; }
         #endregion

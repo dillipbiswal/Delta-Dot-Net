@@ -102,7 +102,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             //incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenServiceDeskMessageIsCorrect()
         {
             
@@ -117,7 +117,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(expectedMessage, rule.IncidentMesage);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             

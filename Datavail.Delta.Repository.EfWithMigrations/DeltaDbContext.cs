@@ -25,61 +25,63 @@ namespace Datavail.Delta.Repository.EfWithMigrations
         public IDbSet<Tenant> Tenants { get; set; }
         public IDbSet<User> Users { get; set; }
 
-        public DeltaDbContext(){}
+        public DeltaDbContext()
+        {
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             //Clusters
-            modelBuilder.Entity<Cluster>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<Cluster>().Property(p => p.Status).HasColumnName("Status_Id");
             modelBuilder.Entity<Cluster>().HasRequired(p => p.Customer).WithMany(p => p.Clusters);
 
             //Customers
-            modelBuilder.Entity<Customer>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<Customer>().Property(p => p.Status).HasColumnName("Status_Id");
             modelBuilder.Entity<Customer>().HasRequired(p => p.Tenant).WithMany(p => p.Customers).WillCascadeOnDelete();
 
             //Databases
-            modelBuilder.Entity<Domain.Database>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<Domain.Database>().Property(p => p.Status).HasColumnName("Status_Id");
 
             //Databases Instances
-            modelBuilder.Entity<DatabaseInstance>().Property(p => p.Status.Value).HasColumnName("Status_Id");
-            modelBuilder.Entity<DatabaseInstance>().Property(p => p.DatabaseVersion.Value).HasColumnName("DatabaseVersion_Id");
+            modelBuilder.Entity<DatabaseInstance>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<DatabaseInstance>().Property(p => p.DatabaseVersion).HasColumnName("DatabaseVersion_Id");
 
             //Incident Histories
             modelBuilder.Entity<IncidentHistory>().HasRequired(p => p.MetricInstance);
 
             //Metric
-            modelBuilder.Entity<Metric>().Property(p => p.MetricType.Value).HasColumnName("MetricType_Id");
-            modelBuilder.Entity<Metric>().Property(p => p.MetricThresholdType.Value).HasColumnName("MetricThresholdType_Id");
-            modelBuilder.Entity<Metric>().Property(p => p.Status.Value).HasColumnName("Status_Id");
-            modelBuilder.Entity<Metric>().Property(p => p.DatabaseVersion.Value).HasColumnName("DatabaseVersion_Id");
+            modelBuilder.Entity<Metric>().Property(p => p.MetricType).HasColumnName("MetricType_Id");
+            modelBuilder.Entity<Metric>().Property(p => p.MetricThresholdType).HasColumnName("MetricThresholdType_Id");
+            modelBuilder.Entity<Metric>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<Metric>().Property(p => p.DatabaseVersion).HasColumnName("DatabaseVersion_Id");
 
             //MetricInstance
-            modelBuilder.Entity<MetricInstance>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<MetricInstance>().Property(p => p.Status).HasColumnName("Status_Id");
 
             //Metric Threshold Histories
             modelBuilder.Entity<MetricThresholdHistory>().HasRequired(p => p.MetricInstance);
 
             //Schedule
-            modelBuilder.Entity<Schedule>().Property(p => p.DayOfWeek.Value).IsOptional().HasColumnName("DayOfWeek");
+            modelBuilder.Entity<Schedule>().Property(p => p.DayOfWeek).IsOptional().HasColumnName("DayOfWeek");
             modelBuilder.Entity<Schedule>().HasRequired(p => p.MetricConfiguration).WithMany(p => p.Schedules).WillCascadeOnDelete(true);
-            modelBuilder.Entity<Schedule>().Property(p => p.ScheduleType.Value).HasColumnName("ScheduleType_Id");
+            modelBuilder.Entity<Schedule>().Property(p => p.ScheduleType).HasColumnName("ScheduleType_Id");
 
             //Server
-            modelBuilder.Entity<Server>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<Server>().Property(p => p.Status).HasColumnName("Status_Id");
             modelBuilder.Entity<Server>().HasRequired(p => p.Tenant).WithMany(p => p.Servers).WillCascadeOnDelete(true);
             modelBuilder.Entity<Server>().HasOptional(p => p.Cluster).WithMany(p => p.Nodes);
             modelBuilder.Entity<Server>().HasOptional(p => p.VirtualServerParent).WithMany(p => p.VirtualServers);
 
             //Server Group
-            modelBuilder.Entity<ServerGroup>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<ServerGroup>().Property(p => p.Status).HasColumnName("Status_Id");
 
             //Sql Agent Jobs
-            modelBuilder.Entity<SqlAgentJob>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<SqlAgentJob>().Property(p => p.Status).HasColumnName("Status_Id");
 
             //Tenant
-            modelBuilder.Entity<Tenant>().Property(p => p.Status.Value).HasColumnName("Status_Id");
+            modelBuilder.Entity<Tenant>().Property(p => p.Status).HasColumnName("Status_Id");
         }
     }
 }

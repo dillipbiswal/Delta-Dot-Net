@@ -44,7 +44,7 @@ namespace Datavail.Delta.IncidentProcessor
                     {
                         SetupPerLoopChildContainer(childContainer);
                         var checkInGuid = Guid.Parse("5AC60801-A66A-4967-8BDD-4BC1CFFCC652");
-                        var metricInstances = _repository.GetQuery<MetricInstance>().Where(mi => mi.Status.Value == (int)Status.Active && mi.Metric.Id == checkInGuid);
+                        var metricInstances = _repository.GetQuery<MetricInstance>().Where(mi => mi.Status == Status.Active && mi.Metric.Id == checkInGuid);
 
                         foreach (var metricInstance in metricInstances)
                         {

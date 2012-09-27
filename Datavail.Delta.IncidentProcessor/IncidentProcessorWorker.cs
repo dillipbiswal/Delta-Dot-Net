@@ -204,7 +204,7 @@ namespace Datavail.Delta.IncidentProcessor
             var metricInstance = _repository.GetByKey<MetricInstance>(rule.MetricInstance.Id);
 
             //Metric Instance
-            if (metricInstance.Status.Enum != Status.Active)
+            if (metricInstance.Status != Status.Active)
                 return true;
 
             //Database
@@ -216,7 +216,7 @@ namespace Datavail.Delta.IncidentProcessor
                 return true;
 
             //Server
-            if (server.Status.Enum != Status.Active)
+            if (server.Status != Status.Active)
                 return true;
 
             //ServerGroup
@@ -230,7 +230,7 @@ namespace Datavail.Delta.IncidentProcessor
                 return true;
 
             //Tenant
-            if (server.Tenant.Status.Enum != Status.Active)
+            if (server.Tenant.Status != Status.Active)
                 return true;
 
             //Metric

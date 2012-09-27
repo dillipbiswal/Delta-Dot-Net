@@ -25,25 +25,25 @@ namespace Datavail.Delta.Agent.Updater
 
             _logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Updater Started");
 
-            //Give the agent time to do its initial work on startup after install
-            Thread.Sleep(TimeSpan.FromSeconds(30));
-
             _workerThread = new Thread(DoWork);
             _workerThread.Start();
-            
         }
 
         protected override void OnStop()
         {
             _stopCalled = true;
-
-            Thread.Sleep(5000);
+            
+            _workerThread.Join(TimeSpan.FromSeconds(30));
             _workerThread.Abort();
+            
             _logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Updater Stopped");
         }
 
         protected void DoWork()
         {
+            //Give the agent time to do its initial work on startup after install
+            Thread.Sleep(TimeSpan.FromSeconds(90)); 
+
             while (!_stopCalled)
             {
                 try

@@ -37,6 +37,10 @@ namespace Datavail.Delta.Infrastructure.Agent.Schedules
                 waitHandle.WaitOne();
                 TaskManager.Stop();
             }
+            catch (ThreadAbortException)
+            {
+
+            }
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception in Scheduler.Execute()", ex);

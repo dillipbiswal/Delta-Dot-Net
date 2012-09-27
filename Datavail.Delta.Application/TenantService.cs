@@ -63,12 +63,12 @@ namespace Datavail.Delta.Application
                     {
                         var mcXml = new XElement("MetricThreshold");
                         mcXml.Add(new XAttribute("MetricInstanceId", metricInstance.Id.ToString()));
-                        mcXml.Add(new XAttribute("Severity", metricThreshold.Severity.Value.ToString()));
+                        mcXml.Add(new XAttribute("Severity", metricThreshold.Severity.ToString()));
                         mcXml.Add(new XAttribute("FloorValue", metricThreshold.FloorValue.ToString()));
                         mcXml.Add(new XAttribute("CeilingValue", metricThreshold.CeilingValue.ToString()));
-                        mcXml.Add(new XAttribute("Function", metricThreshold.ThresholdComparisonFunction.Value.ToString()));
+                        mcXml.Add(new XAttribute("Function", metricThreshold.ThresholdComparisonFunction.ToString()));
                         mcXml.Add(new XAttribute("Count", metricThreshold.NumberOfOccurrences.ToString()));
-                        mcXml.Add(new XAttribute("ValueType", metricThreshold.ThresholdValueType.Value.ToString()));
+                        mcXml.Add(new XAttribute("ValueType", metricThreshold.ThresholdValueType.ToString()));
                         mcXml.Add(new XAttribute("TimePeriod", metricThreshold.TimePeriod.ToString()));
 
                         xml.Add(mcXml);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
 using Datavail.Delta.Agent.SharedCode.Queues;
@@ -78,7 +79,7 @@ namespace Datavail.Delta.Agent
                 var scheduler = new Infrastructure.Agent.Schedules.Scheduler();
                 scheduler.Execute(SchedulerWaitHandle);
             }
-            catch (ThreadAbortException ex)
+            catch (ThreadAbortException)
             {
                 //Swallow if we're shutting down
             }
@@ -95,6 +96,9 @@ namespace Datavail.Delta.Agent
                 Logger.LogDebug("StartQueueRunner() Called");
                 var queueRunner = new DotNetQueueRunner();
                 queueRunner.Execute(QueueRunnerWaitHandle);
+            }
+            catch (ThreadAbortException)
+            {
             }
             catch (Exception ex)
             {

@@ -18,12 +18,12 @@ namespace Datavail.Delta.Domain
         public string AdapterClass { get; set; }
         [Required]
         public string Name { get; set; }
-        public DatabaseVersionWrapper DatabaseVersion { get; set; }
+        public DatabaseVersion DatabaseVersion { get; set; }
         public virtual IList<MetricConfiguration> MetricConfigurations { get; set; }
         public virtual IList<MaintenanceWindow> MaintenanceWindows { get; set; }
-        public virtual MetricTypeWrapper MetricType { get; set; }
-        public virtual MetricThresholdTypeWrapper MetricThresholdType { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual MetricType MetricType { get; set; }
+        public virtual MetricThresholdType MetricThresholdType { get; set; }
+        public virtual Status Status { get; set; }
         #endregion
 
         #region ctor

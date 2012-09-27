@@ -1,8 +1,10 @@
-﻿using System;
-using System.ServiceModel;
-using System.Threading;
-using Datavail.Delta.Infrastructure.Agent;
+﻿using Datavail.Delta.Infrastructure.Agent;
 using Datavail.Delta.Infrastructure.Agent.Logging;
+using RestSharp;
+using System;
+using System.Configuration;
+using System.Net;
+using System.Threading;
 
 namespace Datavail.Delta.Agent.Plugin.CheckIn
 {
@@ -24,21 +26,29 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
         {
             try
             {
-                using (var proxy = new CheckInServiceProxy.CheckInServiceClient())
+                var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
+                var request = new RestRequest("Server/CheckIn/{id}", Method.POST);
+
+                //Add ServerId to the URL
+                request.AddUrlSegment("id", serverId.ToString());
+
+                //Create JSON body
+                request.AddParameter("Hostname", hostname);
+                request.AddParameter("IpAddress", ipAddress);
+                request.AddParameter("Timestamp", DateTime.UtcNow);
+                request.AddParameter("TenantId", tenantId.ToString());
+                request.AddParameter("AgentVersion", agentVersion);
+                request.AddParameter("CustomerId", customerId.ToString());
+
+                var response = client.Execute(request);
+
+                if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    proxy.CheckIn(DateTime.UtcNow, tenantId, serverId, hostname, ipAddress, agentVersion, customerId);
-                    proxy.Close();
+                    var errorMessage = string.Format("Error while checking in. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+
+                    DoBackOff();
                 }
-            }
-            catch (EndpointNotFoundException)
-            {
-                _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Check-In WebService is unreachable");
-                DoBackOff();
-            }
-            catch (CommunicationException)
-            {
-                _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Check-In WebService is unreachable");
-                DoBackOff();
             }
             catch (ThreadAbortException)
             {

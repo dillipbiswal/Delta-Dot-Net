@@ -9,12 +9,13 @@ using Datavail.Delta.Infrastructure.Agent.Queues;
 using Datavail.Delta.Infrastructure.Agent.ServerInfo;
 using Datavail.Delta.Infrastructure.Agent.SqlRunner;
 using Moq;
+using RestSharp;
 
 namespace Datavail.Delta.Agent.TestConsole
 {
     class Program
     {
-        static void Main(string[] args) { DatabaseServerBlockingTest(); }
+        static void Main(string[] args) { RestDataUploadTest(); }
 
         static void LogWatcherTest()
         {
@@ -78,7 +79,7 @@ namespace Datavail.Delta.Agent.TestConsole
             var sqlRunner = new SqlServerRunner();
             var sqlRunnerPublishers = new SqlServerRunner();
             var databaseServerInfo = new SqlServerInfo("");
-            
+
 
 
             databaseServerInfo.Product = "MS SQL";
@@ -103,7 +104,7 @@ namespace Datavail.Delta.Agent.TestConsole
             var sqlRunner = new SqlServerRunner();
             var sqlRunnerPublishers = new SqlServerRunner();
             var databaseServerInfo = new SqlServerInfo("185026238254136051009003236182073159227201212006193191058198249152071008159155173000115022192092240162127239168204133246164150155201134146017023038220003003148044143224153030095144238201190044101055039127238143018233193037026182238153195000");
-            
+
 
 
             databaseServerInfo.Product = "MS SQL";
@@ -119,10 +120,21 @@ namespace Datavail.Delta.Agent.TestConsole
         }
 
 
+        static void RestDataUploadTest()
+        {
+            var client = new RestClient("http://localhost:25458/v41/");
+            var request = new RestRequest("Server/PostData/{id}", Method.POST);
+
+            request.AddUrlSegment("id", "07CDFB37-AACB-4CB5-BC6F-611782966EC7");
+            request.AddParameter("Data", "Hi");
+            request.AddParameter("IpAddress", "1.1.1.1");// adds to POST or URL querystring based on Method
+
+            var response = client.Execute(request);
+            var content = response.Content; // raw content as string
+        }
 
 
 
 
-        
     }
 }

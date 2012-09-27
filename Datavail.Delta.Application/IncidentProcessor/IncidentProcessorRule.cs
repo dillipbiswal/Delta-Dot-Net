@@ -71,10 +71,10 @@ namespace Datavail.Delta.Application.IncidentProcessor
             foreach (var metricThreshold in Thresholds)
             {
                 //Setup Common Items
-                var isPercentageType = metricThreshold.ThresholdValueType.Enum == ThresholdValueType.Percentage;
-                var isCountType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Value;
-                var isAverageType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Average;
-                var isMatchType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Match;
+                var isPercentageType = metricThreshold.ThresholdValueType == ThresholdValueType.Percentage;
+                var isCountType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Value;
+                var isAverageType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Average;
+                var isMatchType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Match;
                 var isSingleMatchType = metricThreshold.NumberOfOccurrences <= 1;
 
                 var metricTypeDescription = isPercentageType ? PercentageTypeLabel : ValueTypeLabel;
@@ -95,7 +95,7 @@ namespace Datavail.Delta.Application.IncidentProcessor
                         }
                         if (isSingleMatchType)
                         {
-                            IncidentPriority = metricThreshold.Severity.Value;
+                            IncidentPriority = (int)metricThreshold.Severity;
                             IncidentMesage = FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold);
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             return true;
@@ -103,7 +103,7 @@ namespace Datavail.Delta.Application.IncidentProcessor
                         else
                         {
                             var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
-                            IncidentPriority = metricThreshold.Severity.Value;
+                            IncidentPriority = (int)metricThreshold.Severity;
                             IncidentMesage = FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold);
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             if (count >= metricThreshold.NumberOfOccurrences) return true;
@@ -128,7 +128,7 @@ namespace Datavail.Delta.Application.IncidentProcessor
 
                     if (!float.IsNaN(average) && average >= metricThreshold.FloorValue && average <= metricThreshold.CeilingValue)
                     {
-                        IncidentPriority = (int)metricThreshold.Severity.Enum;
+                        IncidentPriority = (int)metricThreshold.Severity;
                         IncidentMesage = FormatAverageServiceDeskMessage(average, metricTypeDescription, metricThreshold);
                         IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                         return true;
@@ -143,7 +143,7 @@ namespace Datavail.Delta.Application.IncidentProcessor
 
                         if (isSingleMatchType)
                         {
-                            IncidentPriority = (int)metricThreshold.Severity.Enum;
+                            IncidentPriority = (int)metricThreshold.Severity;
                             IncidentMesage = FormatMatchServiceDeskMessage(metricThreshold);
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             return true;
@@ -151,7 +151,7 @@ namespace Datavail.Delta.Application.IncidentProcessor
                         else
                         {
                             var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
-                            IncidentPriority = metricThreshold.Severity.Value;
+                            IncidentPriority = (int)metricThreshold.Severity;
                             IncidentMesage = FormatMatchCountServiceDeskMessage(count, metricThreshold);
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             if (count >= metricThreshold.NumberOfOccurrences) return true;

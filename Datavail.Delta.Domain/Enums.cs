@@ -10,32 +10,32 @@ namespace Datavail.Delta.Domain
         Unknown=-1
     }
 
-    public class StatusWrapper
-    {
-        public Status Enum { get; set; }
+    //public class Status
+    //{
+    //    public Status Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (Status)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (Status)value; }
+    //    }
 
-        public static implicit operator Status(StatusWrapper w)
-        {
-            if (w == null) return default(Status);
-            return w.Enum;
-        }
+    //    public static implicit operator Status(Status w)
+    //    {
+    //        if (w == null) return default(Status);
+    //        return w;
+    //    }
 
-        public static implicit operator StatusWrapper(Status c)
-        {
-            return new StatusWrapper { Enum = c };
-        }
+    //    public static implicit operator Status(Status c)
+    //    {
+    //        return new Status { Enum = c };
+    //    }
 
-        public static implicit operator StatusWrapper(int value)
-        {
-            return new StatusWrapper { Value = value };
-        }
-    }
+    //    public static implicit operator Status(int value)
+    //    {
+    //        return new Status { Value = value };
+    //    }
+    //}
 
    
     public enum Severity
@@ -46,26 +46,26 @@ namespace Datavail.Delta.Domain
         Informational = 4
     }
 
-    public class SeverityWrapper
-    {
-        public Severity Enum { get; set; }
+    //public class Severity
+    //{
+    //    public Severity Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (Severity)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (Severity)value; }
+    //    }
 
-        public static implicit operator Severity(SeverityWrapper w)
-        {
-            return w == null ? default(Severity) : w.Enum;
-        }
+    //    public static implicit operator Severity(Severity w)
+    //    {
+    //        return w == null ? default(Severity) : w;
+    //    }
 
-        public static implicit operator SeverityWrapper(Severity c)
-        {
-            return new SeverityWrapper { Enum = c };
-        }
-    }
+    //    public static implicit operator Severity(Severity c)
+    //    {
+    //        return new Severity { Enum = c };
+    //    }
+    //}
 
     public enum ThresholdValueType
     {
@@ -73,26 +73,26 @@ namespace Datavail.Delta.Domain
         Percentage
     }
 
-    public class ThresholdValueTypeWrapper
-    {
-        public ThresholdValueType Enum { get; set; }
+    //public class ThresholdValueType
+    //{
+    //    public ThresholdValueType Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (ThresholdValueType)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (ThresholdValueType)value; }
+    //    }
 
-        public static implicit operator ThresholdValueType(ThresholdValueTypeWrapper w)
-        {
-            return w == null ? default(ThresholdValueType) : w.Enum;
-        }
+    //    public static implicit operator ThresholdValueType(ThresholdValueType w)
+    //    {
+    //        return w == null ? default(ThresholdValueType) : w;
+    //    }
 
-        public static implicit operator ThresholdValueTypeWrapper(ThresholdValueType c)
-        {
-            return new ThresholdValueTypeWrapper { Enum = c };
-        }
-    }
+    //    public static implicit operator ThresholdValueType(ThresholdValueType c)
+    //    {
+    //        return new ThresholdValueType { Enum = c };
+    //    }
+    //}
 
     public enum ThresholdComparisonFunction
     {
@@ -101,26 +101,26 @@ namespace Datavail.Delta.Domain
         Match
     }
 
-    public class ThresholdComparisonFunctionWrapper
-    {
-        public ThresholdComparisonFunction Enum { get; set; }
+    //public class ThresholdComparisonFunction
+    //{
+    //    public ThresholdComparisonFunction Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (ThresholdComparisonFunction)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (ThresholdComparisonFunction)value; }
+    //    }
 
-        public static implicit operator ThresholdComparisonFunction(ThresholdComparisonFunctionWrapper w)
-        {
-            return w == null ? default(ThresholdComparisonFunction) : w.Enum;
-        }
+    //    public static implicit operator ThresholdComparisonFunction(ThresholdComparisonFunction w)
+    //    {
+    //        return w == null ? default(ThresholdComparisonFunction) : w;
+    //    }
 
-        public static implicit operator ThresholdComparisonFunctionWrapper(ThresholdComparisonFunction c)
-        {
-            return new ThresholdComparisonFunctionWrapper { Enum = c };
-        }
-    }
+    //    public static implicit operator ThresholdComparisonFunction(ThresholdComparisonFunction c)
+    //    {
+    //        return new ThresholdComparisonFunction { Enum = c };
+    //    }
+    //}
 
     public enum ScheduleType
     {
@@ -134,26 +134,26 @@ namespace Datavail.Delta.Domain
         Year
     }
 
-    public class ScheduleTypeWrapper
-    {
-        public ScheduleType Enum { get; set; }
+    //public class ScheduleType
+    //{
+    //    public ScheduleType Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (ScheduleType)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (ScheduleType)value; }
+    //    }
 
-        public static implicit operator ScheduleType(ScheduleTypeWrapper w)
-        {
-            return w == null ? default(ScheduleType) : w.Enum;
-        }
+    //    public static implicit operator ScheduleType(ScheduleType w)
+    //    {
+    //        return w == null ? default(ScheduleType) : w;
+    //    }
 
-        public static implicit operator ScheduleTypeWrapper(ScheduleType c)
-        {
-            return new ScheduleTypeWrapper { Enum = c };
-        }
-    }
+    //    public static implicit operator ScheduleType(ScheduleType c)
+    //    {
+    //        return new ScheduleType { Enum = c };
+    //    }
+    //}
 
     public enum DayOfWeek
     {
@@ -167,26 +167,26 @@ namespace Datavail.Delta.Domain
         Saturday
     }
 
-    public class DayOfWeekWrapper
-    {
-        public DayOfWeek Enum { get; set; }
+    //public class DayOfWeek
+    //{
+    //    public DayOfWeek Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (DayOfWeek)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (DayOfWeek)value; }
+    //    }
 
-        public static implicit operator DayOfWeek(DayOfWeekWrapper w)
-        {
-            return w == null ? default(DayOfWeek) : w.Enum;
-        }
+    //    public static implicit operator DayOfWeek(DayOfWeek w)
+    //    {
+    //        return w == null ? default(DayOfWeek) : w;
+    //    }
 
-        public static implicit operator DayOfWeekWrapper(DayOfWeek c)
-        {
-            return new DayOfWeekWrapper { Enum = c };
-        }
-    }
+    //    public static implicit operator DayOfWeek(DayOfWeek c)
+    //    {
+    //        return new DayOfWeek { Enum = c };
+    //    }
+    //}
 
     [Flags]
     public enum MetricType
@@ -197,31 +197,31 @@ namespace Datavail.Delta.Domain
         VirtualServer = 8
     }
 
-    public class MetricTypeWrapper
-    {
-        public MetricType Enum { get; set; }
+    //public class MetricType
+    //{
+    //    public MetricType Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (MetricType)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (MetricType)value; }
+    //    }
 
-        public static implicit operator MetricType(MetricTypeWrapper w)
-        {
-            return w == null ? default(MetricType) : w.Enum;
-        }
+    //    public static implicit operator MetricType(MetricType w)
+    //    {
+    //        return w == null ? default(MetricType) : w;
+    //    }
 
-        public static implicit operator MetricTypeWrapper(MetricType c)
-        {
-            return new MetricTypeWrapper { Enum = c };
-        }
+    //    public static implicit operator MetricType(MetricType c)
+    //    {
+    //        return new MetricType { Enum = c };
+    //    }
 
-        public static implicit operator MetricTypeWrapper(int value)
-        {
-            return new MetricTypeWrapper { Value = value };
-        }
-    }
+    //    public static implicit operator MetricType(int value)
+    //    {
+    //        return new MetricType { Value = value };
+    //    }
+    //}
 
     [Flags]
     public enum MetricThresholdType
@@ -234,31 +234,31 @@ namespace Datavail.Delta.Domain
         PercentageType = 16
     }
 
-    public class MetricThresholdTypeWrapper
-    {
-        public MetricThresholdType Enum { get; set; }
+    //public class MetricThresholdType
+    //{
+    //    public MetricThresholdType Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (MetricThresholdType)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (MetricThresholdType)value; }
+    //    }
 
-        public static implicit operator MetricThresholdType(MetricThresholdTypeWrapper w)
-        {
-            return w == null ? default(MetricThresholdType) : w.Enum;
-        }
+    //    public static implicit operator MetricThresholdType(MetricThresholdType w)
+    //    {
+    //        return w == null ? default(MetricThresholdType) : w;
+    //    }
 
-        public static implicit operator MetricThresholdTypeWrapper(MetricThresholdType c)
-        {
-            return new MetricThresholdTypeWrapper { Enum = c };
-        }
+    //    public static implicit operator MetricThresholdType(MetricThresholdType c)
+    //    {
+    //        return new MetricThresholdType { Enum = c };
+    //    }
 
-        public static implicit operator MetricThresholdTypeWrapper(int value)
-        {
-            return new MetricThresholdTypeWrapper { Value = value };
-        }
-    }
+    //    public static implicit operator MetricThresholdType(int value)
+    //    {
+    //        return new MetricThresholdType { Value = value };
+    //    }
+    //}
 
     public enum DatabaseVersion
     {
@@ -268,31 +268,31 @@ namespace Datavail.Delta.Domain
         SqlServer2008
     }
 
-    public class DatabaseVersionWrapper
-    {
-        public DatabaseVersion Enum { get; set; }
+    //public class DatabaseVersion
+    //{
+    //    public DatabaseVersion Enum { get; set; }
 
-        public int Value
-        {
-            get { return (int)Enum; }
-            set { Enum = (DatabaseVersion)value; }
-        }
+    //    public int Value
+    //    {
+    //        get { return (int)Enum; }
+    //        set { Enum = (DatabaseVersion)value; }
+    //    }
 
-        public static implicit operator DatabaseVersion(DatabaseVersionWrapper w)
-        {
-            return w == null ? default(DatabaseVersion) : w.Enum;
-        }
+    //    public static implicit operator DatabaseVersion(DatabaseVersion w)
+    //    {
+    //        return w == null ? default(DatabaseVersion) : w;
+    //    }
 
-        public static implicit operator DatabaseVersionWrapper(DatabaseVersion c)
-        {
-            return new DatabaseVersionWrapper { Enum = c };
-        }
+    //    public static implicit operator DatabaseVersion(DatabaseVersion c)
+    //    {
+    //        return new DatabaseVersion { Enum = c };
+    //    }
 
-        public static implicit operator DatabaseVersionWrapper(int value)
-        {
-            return new DatabaseVersionWrapper { Value = value };
-        }
-    }
+    //    public static implicit operator DatabaseVersion(int value)
+    //    {
+    //        return new DatabaseVersion { Value = value };
+    //    }
+    //}
 
     public enum MetricConfigurationParentType
     {

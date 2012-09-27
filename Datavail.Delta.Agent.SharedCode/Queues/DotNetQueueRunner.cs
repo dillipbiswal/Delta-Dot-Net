@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.ServiceModel;
-using System.Threading;
-using System.Xml.Serialization;
-using Datavail.Delta.Infrastructure.Agent.CollectionServiceProxy;
-using Datavail.Delta.Infrastructure.Agent.Common;
+﻿using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.Queues;
+using RestSharp;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Net;
+using System.Threading;
+using System.Xml.Serialization;
 
 namespace Datavail.Delta.Agent.SharedCode.Queues
 {
@@ -17,13 +19,17 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
         private readonly IDeltaLogger _logger;
         private readonly BlockingCollection<QueueMessage> _queue;
 
+        private WaitHandle _waitHandle;
+        private readonly string _path;
+
         public DotNetQueueRunner()
         {
             try
             {
-                _common = new Infrastructure.Agent.Common.Common();
+                _common = new Common();
                 _logger = new DeltaLogger();
                 _queue = DotNetDataQueuerFactory.Current;
+                _path = Path.Combine(_common.GetCachePath(), "QueueData.xml");
             }
             catch (Exception ex)
             {
@@ -46,111 +52,126 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
 
         public void Execute(WaitHandle waitHandle)
         {
-            var tenantId = _common.GetTenantId();
-            var serverId = _common.GetServerId();
-            var hostname = _common.GetHostname();
-            var ipaddress = _common.GetIpAddress();
-
-            var path = Path.Combine(_common.GetCachePath(), "QueueData.xml");
-            
-            //Push the serialized messages into the queue
-            if (File.Exists(path))
+            try
             {
-                var deserializer = new XmlSerializer(_queue.GetType());
-                var tr = new StreamReader(path);
-                var tempQueue = (BlockingCollection<QueueMessage>)deserializer.Deserialize(tr);
-                tr.Close();
+                _waitHandle = waitHandle;
 
-                var storedMsg = tempQueue.Take();
-                while (storedMsg!=null)
+                var tenantId = _common.GetTenantId();
+                var serverId = _common.GetServerId();
+                var hostname = _common.GetHostname();
+                var ipaddress = _common.GetIpAddress();
+
+
+
+                //Push the serialized messages into the queue
+                if (File.Exists(_path))
                 {
-                    _queue.Add(storedMsg);
-                    storedMsg = tempQueue.Take();
-                }
+                    var deserializer = new XmlSerializer(typeof(List<QueueMessage>));
+                    var tr = new StreamReader(_path);
+                    var tempQueue = (List<QueueMessage>)deserializer.Deserialize(tr);
+                    tr.Close();
 
-                File.Delete(path);
-            }
-
-            while (true)
-            {
-                try
-                {
-                    _logger.LogDebug("QueueRunner Run Begin");
-
-                    var msg = _queue.Take();
-                    while (msg != null)
+                    foreach (var queueMessage in tempQueue)
                     {
-
-                        var result = false;
-                        try
-                        {
-                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
-                            using (var collectionService = new CollectionServiceClient())
-                            {
-                                result = collectionService.PostCollection(msg.Timestamp, tenantId, serverId, hostname, ipaddress, msg.Data);
-                                collectionService.Close();
-                                _common.SetBackoffTimer(0);
-                            }
-
-                        }
-                        catch (EndpointNotFoundException)
-                        {
-                            _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Collection WebService is unreachable");
-                            DoBackOff();
-                        }
-                        catch (CommunicationException)
-                        {
-                            _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Collection WebService is unreachable");
-                            DoBackOff();
-                        }
-                        catch (ThreadAbortException)
-                        {
-                            //Don't log anything if we're shutting down
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogUnhandledException("Unhandled Exception in QueueRunner.Execute()", ex);
-                            DoBackOff();
-                        }
-
-                        if (!result)
-                        {
-                            _queue.Add(msg);
-                        }
-
-                        msg = _queue.Take();
+                        _queue.Add(queueMessage);
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogUnhandledException("Unhandled Exception in Scheduler.Execute(WaitHandle waitHandle)", ex);
+
+                    File.Delete(_path);
                 }
 
-                //Wait to see if we're cancelled, if not loop again   
-                var cancelled = waitHandle.WaitOne(100);
-                if (cancelled)
-                {
-                    _logger.LogDebug("Cancel WaitHandle Received in QueueRunner");
+                var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
 
+                while (true)
+                {
                     try
                     {
-                        if (_queue.Count > 0)
+                        _logger.LogDebug("QueueRunner Run Begin");
+
+                        QueueMessage msg;
+                        _queue.TryTake(out msg, TimeSpan.FromSeconds(3));
+
+                        while (msg != null)
                         {
-                            var serializer = new XmlSerializer(_queue.GetType());
-                            var tw = new StreamWriter(path);
-                            serializer.Serialize(tw, _queue);
-                            tw.Close();
+                            IRestResponse response = null;
+
+                            try
+                            {
+                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage,
+                                                         "Posting " + msg.Data);
+
+
+                                var request = new RestRequest("Server/PostData/{id}", Method.POST);
+
+                                //Add ServerId to the URL
+                                request.AddUrlSegment("id", serverId.ToString());
+
+                                //Create JSON body
+                                request.AddParameter("Data", msg.Data);
+                                request.AddParameter("Hostname", hostname);
+                                request.AddParameter("IpAddress", ipaddress);
+                                request.AddParameter("Timestamp", msg.Timestamp);
+                                request.AddParameter("TenantId", tenantId.ToString());
+
+                                response = client.Execute(request);
+
+                                if (response.StatusCode == HttpStatusCode.OK)
+                                {
+                                    _common.SetBackoffTimer(0);
+                                    _logger.LogDebug("Posted sucessfully");
+                                }
+                                else
+                                {
+                                    var errorMessage = string.Format("Error while posting data. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+
+                                    DoBackOff();
+                                }
+                            }
+                            catch (ThreadAbortException)
+                            {
+                                //Don't log anything if we're shutting down
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogUnhandledException("Unhandled Exception in QueueRunner.Execute()", ex);
+                                DoBackOff();
+                            }
+
+                            if (response != null && response.StatusCode != HttpStatusCode.OK && _queue.Count < 5000)
+                            {
+                                _queue.Add(msg);
+                            }
+
+                            //Only save top N messages
+                            while (_queue.Count > 5000)
+                            {
+                                QueueMessage throwAwayMessage;
+                                _queue.TryTake(out throwAwayMessage, TimeSpan.FromSeconds(1));
+                            }
+
+                            _queue.TryTake(out msg, TimeSpan.FromSeconds(3));
+
+                            //Wait to see if we're cancelled, if not loop again   
+                            var cancelled = _waitHandle.WaitOne(1000);
+                            if (cancelled)
+                            {
+                                SerializeQueue();
+                                break;
+                            }
                         }
+                    }
+                    catch (ThreadAbortException)
+                    {
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogUnhandledException("Could not serialize queue", ex);
+                        _logger.LogUnhandledException("Unhandled Exception in Scheduler.Execute(WaitHandle waitHandle)", ex);
                     }
 
-                    break;
                 }
-
-                _logger.LogDebug("QueueRunner Run End");
+            }
+            catch (ThreadAbortException)
+            {
             }
         }
 
@@ -172,7 +193,28 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
             }
 
             _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Waiting " + backoffTimer + " seconds before retrying posting queued data");
-            Thread.Sleep(TimeSpan.FromSeconds(backoffTimer));
+
+            var cancelled = _waitHandle.WaitOne(TimeSpan.FromSeconds(backoffTimer));
+            if (cancelled)
+                SerializeQueue();
+        }
+
+        private void SerializeQueue()
+        {
+            try
+            {
+                if (_queue.Count <= 0) return;
+
+                var serializableList = new List<QueueMessage>(_queue);
+                var serializer = new XmlSerializer(typeof(List<QueueMessage>));
+                var tw = new StreamWriter(_path);
+                serializer.Serialize(tw, serializableList);
+                tw.Close();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Could not serialize queue", ex);
+            }
         }
     }
 }

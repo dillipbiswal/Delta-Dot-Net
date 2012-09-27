@@ -108,7 +108,7 @@ namespace Datavail.Delta.Agent
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var pluginsPath = Path.Combine(path, "plugins");
 
-            foreach (var file in Directory.EnumerateFiles(pluginsPath))
+            foreach (var file in Directory.GetFiles(pluginsPath))
             {
                 File.Delete(file);
             }           

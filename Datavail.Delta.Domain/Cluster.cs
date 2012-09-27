@@ -13,7 +13,7 @@ namespace Datavail.Delta.Domain
         public string Name { get; set; }
         public virtual ICollection<Server> Nodes { get; set; }
         public virtual ICollection<Server> VirtualServers { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual Status Status { get; set; }
         #endregion
 
         #region ctor

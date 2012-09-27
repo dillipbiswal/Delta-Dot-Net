@@ -34,10 +34,10 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<Cluster, ClusterModel>()
-                .ForMember(f => f.Status, opt => opt.MapFrom(f => f.Status.Enum));
+                .ForMember(f => f.Status, opt => opt.MapFrom(f => f.Status));
 
             configuration.CreateMap<ClusterModel, Cluster>()
-                .ForMember(m => m.Status, opt => opt.MapFrom(f => (StatusWrapper)f.Status))
+                .ForMember(m => m.Status, opt => opt.MapFrom(f => (Status)f.Status))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }
     }

@@ -112,14 +112,14 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<MetricThreshold, MetricThresholdModel>()
-                .ForMember(f => f.Severity, opt => opt.MapFrom(f => f.Severity.Enum))
-                .ForMember(f => f.ThresholdComparisonFunction, opt => opt.MapFrom(f => f.ThresholdComparisonFunction.Enum))
-                .ForMember(f => f.ThresholdValueType, opt => opt.MapFrom(f => f.ThresholdValueType.Enum));
+                .ForMember(f => f.Severity, opt => opt.MapFrom(f => f.Severity))
+                .ForMember(f => f.ThresholdComparisonFunction, opt => opt.MapFrom(f => f.ThresholdComparisonFunction))
+                .ForMember(f => f.ThresholdValueType, opt => opt.MapFrom(f => f.ThresholdValueType));
 
             configuration.CreateMap<MetricThresholdModel, MetricThreshold>()
-                .ForMember(m => m.Severity, opt => opt.MapFrom(f => (SeverityWrapper)f.Severity))
-                .ForMember(m => m.ThresholdComparisonFunction, opt => opt.MapFrom(f => (ThresholdComparisonFunctionWrapper)f.ThresholdComparisonFunction))
-                .ForMember(m => m.ThresholdValueType, opt => opt.MapFrom(f => (ThresholdValueTypeWrapper)f.ThresholdValueType))
+                .ForMember(m => m.Severity, opt => opt.MapFrom(f => (Severity)f.Severity))
+                .ForMember(m => m.ThresholdComparisonFunction, opt => opt.MapFrom(f => (ThresholdComparisonFunction)f.ThresholdComparisonFunction))
+                .ForMember(m => m.ThresholdValueType, opt => opt.MapFrom(f => (ThresholdValueType)f.ThresholdValueType))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }
     }

@@ -68,10 +68,10 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                 foreach (var metricThreshold in Thresholds)
                 {
                     //Setup Common Items
-                    var isPercentageType = metricThreshold.ThresholdValueType.Enum == ThresholdValueType.Percentage;
-                    var isCountType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Value;
-                    var isAverageType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Average;
-                    var isMatchType = metricThreshold.ThresholdComparisonFunction.Enum == ThresholdComparisonFunction.Match;
+                    var isPercentageType = metricThreshold.ThresholdValueType == ThresholdValueType.Percentage;
+                    var isCountType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Value;
+                    var isAverageType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Average;
+                    var isMatchType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Match;
                     var isSingleMatchType = metricThreshold.NumberOfOccurrences <= 1;
 
                     var metricTypeDescription = isPercentageType ? PercentageTypeLabel : ValueTypeLabel;
@@ -91,7 +91,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             }
                             if (isSingleMatchType)
                             {
-                                IncidentPriority = metricThreshold.Severity.Value;
+                                IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                                 IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
                                 IncidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
@@ -100,7 +100,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             else
                             {
                                 var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
-                                IncidentPriority = metricThreshold.Severity.Value;
+                                IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                                 IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
                                 IncidentMesages.Add(FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold));
@@ -126,7 +126,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
                         if (!float.IsNaN(average) && average >= metricThreshold.FloorValue && average <= metricThreshold.CeilingValue)
                         {
-                            IncidentPriority = (int)metricThreshold.Severity.Enum;
+                            IncidentPriority = (int)metricThreshold.Severity;
                             //IncidentMesage = FormatAverageServiceDeskMessage(average, metricTypeDescription, metricThreshold);
                             IncidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
@@ -144,7 +144,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
                             if (isSingleMatchType)
                             {
-                                IncidentPriority = (int)metricThreshold.Severity.Enum;
+                                IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                                 IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
                                 IncidentMesages.Add(FormatMatchServiceDeskMessage(metricThreshold));
@@ -154,7 +154,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             {
                                 var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id,
                                                                       metricThreshold.TimePeriod);
-                                IncidentPriority = metricThreshold.Severity.Value;
+                                IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                                 IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
                                 IncidentMesages.Add(FormatMatchCountServiceDeskMessage(count, metricThreshold));

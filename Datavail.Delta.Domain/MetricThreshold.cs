@@ -13,9 +13,9 @@ namespace Datavail.Delta.Domain
         public string MatchValue { get; set; }
         public virtual MetricConfiguration MetricConfiguration { get; set; }
         public int NumberOfOccurrences { get; set; }
-        public virtual SeverityWrapper Severity { get; set; }
-        public virtual ThresholdComparisonFunctionWrapper ThresholdComparisonFunction { get; set; }
-        public virtual ThresholdValueTypeWrapper ThresholdValueType { get; set; }
+        public virtual Severity Severity { get; set; }
+        public virtual ThresholdComparisonFunction ThresholdComparisonFunction { get; set; }
+        public virtual ThresholdValueType ThresholdValueType { get; set; }
         public int TimePeriod { get; set; }
         #endregion
 

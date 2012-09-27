@@ -35,7 +35,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
                 string previousNode;
                 var failoverOccurred = ServerService.VirtualServerActiveNodeFailoverOccurred(ServerId, _virtualServerId, _activeNode, out previousNode);
 
-                IncidentPriority = metricThreshold.Severity.Value;
+                IncidentPriority = (int)metricThreshold.Severity;
                 IncidentMesage = FormatStandardServiceDeskMessage(_groupName, _activeNode.ToLower(), previousNode.ToLower(), metricThreshold);
                 IncidentSummary = FormatSummaryServiceDeskMessage(_groupName);
 

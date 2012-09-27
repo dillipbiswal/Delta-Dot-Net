@@ -111,102 +111,41 @@ namespace Datavail.Delta.Application
             stopWatch.Start();
 
             //Check MetricInstance Level
-            //if (metricInstance.MetricConfigurations.Any(mc => mc.Schedules.Any() || mc.MetricThresholds.Any()))
-            //{
-            //    return metricInstance.MetricConfigurations.FirstOrDefault();
-            //}
             var metricInstanceLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentMetricInstance.Id == metricInstance.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (metricInstanceLevelConfig != null)
                 return metricInstanceLevelConfig;
 
-            Debug.WriteLine("     MetricInstance Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
-
             //Check Server Level
-            //if (server.MetricConfigurations.Any(mc => mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())))
-            //{
-            //    return server.MetricConfigurations.FirstOrDefault(s => s.Metric.Id == metricInstance.Metric.Id);
-            //}
             var serverLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentServer.Id == server.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (serverLevelConfig != null)
                 return serverLevelConfig;
-
-            Debug.WriteLine("     Server Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
+            
             //Check Server Group Level
-            //foreach (var serverGroup in server.ServerGroups.OrderBy(s => s.Priority))
-            //{
-            //    if (serverGroup.MetricConfigurations.Any(mc => mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())))
-            //    {
-            //        return serverGroup.MetricConfigurations.FirstOrDefault(s => s.Metric.Id == metricInstance.Metric.Id);
-            //    }
-            //}
-
             foreach (var serverGroup in server.ServerGroups.OrderBy(s => s.Priority).ToList())
             {
                 var serverGroupLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentServerGroup.Id == serverGroup.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
                 if (serverGroupLevelConfig != null)
                     return serverGroupLevelConfig;
             }
-
-            Debug.WriteLine("     Server Group Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
+            
             //Check Customer Level
-            //if (server.Customer != null &&
-            //    server.Customer.MetricConfigurations.Any(mc => mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())))
-            //{
-            //    return server.Customer.MetricConfigurations.FirstOrDefault(s => s.Metric.Id == metricInstance.Metric.Id);
-            //}
             if (server.Customer != null)
             {
                 var customerLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentCustomer.Id == server.Customer.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
                 if (customerLevelConfig != null)
                     return customerLevelConfig;
             }
-
-            Debug.WriteLine("     Customer Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
+            
             //Check Tenant Level
-            //if (server.Tenant.MetricConfigurations.Any(mc => mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())))
-            //{
-            //    return server.Tenant.MetricConfigurations.FirstOrDefault(s => s.Metric.Id == metricInstance.Metric.Id);
-            //}
             var tenantLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentTenant.Id == server.Tenant.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (tenantLevelConfig != null)
                 return tenantLevelConfig;
-
-            Debug.WriteLine("     Tenant Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
+            
             //Check Metric Level
-            //if (metricInstance.Metric.MetricConfigurations.Any(mc => mc.Metric.Id == metricInstance.Metric.Id && mc.Parent.Id == mc.Metric.Id))
-            //{
-            //    return metricInstance.Metric.MetricConfigurations.FirstOrDefault(s => s.Metric.Id == metricInstance.Metric.Id && s.Parent.Id == s.Metric.Id);
-            //}
             var metricLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentMetric.Id == metricInstance.Metric.Id).FirstOrDefault();
             if (metricLevelConfig != null)
                 return metricLevelConfig;
-
-            Debug.WriteLine("     Metric Level took {0}ms to execute", stopWatch.ElapsedMilliseconds);
-            stopWatch.Stop();
-            stopWatch.Reset();
-            stopWatch.Start();
-
-
+            
             throw new InvalidOperationException(ApplicationErrors.NoConfigurationFound);
         }
 
@@ -231,7 +170,7 @@ namespace Datavail.Delta.Application
 
         public IEnumerable<Metric> GetMetrics(MetricConfigurationParentType parentType, Guid parentId)
         {
-            var criteria = new Specification<Metric>(x => x.Status.Value != (int)Status.Deleted);
+            var criteria = new Specification<Metric>(x => x.Status != Status.Deleted);
 
             switch (parentType)
             {
@@ -260,7 +199,7 @@ namespace Datavail.Delta.Application
 
         public IEnumerable<Metric> GetMetrics(MetricType metricType, Guid itemId)
         {
-            var criteria = new Specification<Metric>(x => x.Status.Value != (int)Status.Deleted);
+            var criteria = new Specification<Metric>(x => x.Status != Status.Deleted);
             var databaseVersion = DatabaseVersion.None;
             var existingMetricIds = new List<Guid>();
 
@@ -269,27 +208,27 @@ namespace Datavail.Delta.Application
                 case MetricType.VirtualServer:
                 case MetricType.Server:
                     var server = _repository.GetByKey<Server>(itemId);
-                    existingMetricIds = server.MetricInstances.Where(x => x.Status.Value != (int)Status.Deleted
+                    existingMetricIds = server.MetricInstances.Where(x => x.Status != Status.Deleted
                                                                             && x.Database == null
                                                                             && x.DatabaseInstance == null
                                                                             && x.Metric.AdapterClass != "LogWatcherPlugin"
                                                                             && x.Metric.AdapterClass != "ServiceStatusPlugin"
                                                                             && x.Metric.AdapterClass != "DiskPlugin").Select(x => x.Metric.Id).ToList();
-                    criteria = criteria.And(x => (((x.MetricType.Value & (int)MetricType.VirtualServer) == (int)MetricType.VirtualServer) ||
-                                            (x.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server));
+                    criteria = criteria.And(x => (((x.MetricType & MetricType.VirtualServer) == MetricType.VirtualServer) ||
+                                            (x.MetricType & MetricType.Server) == MetricType.Server));
                     criteria = criteria.And(x => !existingMetricIds.Contains(x.Id));
                     break;
                 case MetricType.Instance:
                     var instance = _repository.GetByKey<DatabaseInstance>(itemId);
                     databaseVersion = instance.DatabaseVersion;
-                    criteria = criteria.And(x => ((x.MetricType.Value & (int)metricType) == (int)metricType));
-                    criteria = criteria.And(x => x.DatabaseVersion.Value == (int)databaseVersion);
+                    criteria = criteria.And(x => ((x.MetricType & metricType) == metricType));
+                    criteria = criteria.And(x => x.DatabaseVersion == databaseVersion);
                     break;
                 case MetricType.Database:
                     var database = _repository.GetByKey<Database>(itemId);
                     databaseVersion = database.Instance.DatabaseVersion;
-                    criteria = criteria.And(x => x.DatabaseVersion.Value == (int)databaseVersion);
-                    criteria = criteria.And(x => ((x.MetricType.Value & (int)metricType) == (int)metricType));
+                    criteria = criteria.And(x => x.DatabaseVersion == databaseVersion);
+                    criteria = criteria.And(x => ((x.MetricType & metricType) == metricType));
                     break;
             }
 
@@ -300,7 +239,7 @@ namespace Datavail.Delta.Application
 
         public IEnumerable<Metric> GetMetrics()
         {
-            var criteria = new Specification<Metric>(x => x.Status.Value != (int)Status.Deleted);
+            var criteria = new Specification<Metric>(x => x.Status != Status.Deleted);
             IEnumerable<Metric> metrics = _repository.Find<Metric>(criteria);
 
             return metrics;
@@ -1197,9 +1136,9 @@ namespace Datavail.Delta.Application
                         var instanceIds = server.Instances.Select(x => x.Id).ToList();
                         DeleteInstances(instanceIds);
 
-                        var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server &&
+                        var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
                                                                                                         x.Server.Id.Equals(server.Id) &&
-                                                                                                        x.Status.Value != (int)Status.Deleted))
+                                                                                                        x.Status != Status.Deleted))
                                                                                                 .Select(x => x.Id).ToList();
                         DeleteMetricInstances(metricInstanceIds);
 
@@ -1407,7 +1346,7 @@ namespace Datavail.Delta.Application
             if (server != null)
             {
                 //CheckinPlugin
-                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "CheckInPlugin" && x.Status.Value != (int)Status.Deleted))
+                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "CheckInPlugin" && x.Status != Status.Deleted))
                 {
                     if (!server.IsVirtual)
                     {
@@ -1421,14 +1360,14 @@ namespace Datavail.Delta.Application
                 }
 
                 //DiskInventoryPlugin
-                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskInventoryPlugin" && x.Status.Value != (int)Status.Deleted))
+                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskInventoryPlugin" && x.Status != Status.Deleted))
                 {
                     var diskInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DiskInventoryPlugin").OrderBy(x => x.AdapterVersion).LastOrDefault();
                     SaveMetricInstance(Guid.Empty, diskInventoryMetric.Id, serverId, GetMetricData(diskInventoryMetric.Id, serverId), Status.Active, MetricInstanceParentType.Server);
                 }
 
                 //DiskPlugin
-                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskPlugin" && x.Status.Value != (int)Status.Deleted))
+                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskPlugin" && x.Status != Status.Deleted))
                 {
                     var serverDisks = _repository.Find<ServerDisk>(x => x.Server.Id.Equals(server.Id)).ToList();
                     var diskMetric = _repository.Find<Metric>(x => x.AdapterClass == "DiskPlugin").OrderBy(x => x.AdapterVersion).LastOrDefault();
@@ -1471,12 +1410,12 @@ namespace Datavail.Delta.Application
 
                 //DatabaseInventoryPlugin
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "DatabaseInventoryPlugin" &&
-                                                                        x.Status.Value != (int)Status.Deleted &&
-                                                                        x.Metric.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value &&
+                                                                        x.Status != Status.Deleted &&
+                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
                                                                         x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseInventoryPlugin" &&
-                                                                                    x.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value)
+                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
@@ -1485,12 +1424,12 @@ namespace Datavail.Delta.Application
 
                 //JobsInventoryPlugin
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "SqlAgentJobInventoryPlugin" &&
-                                                                        x.Status.Value != (int)Status.Deleted &&
-                                                                        x.Metric.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value &&
+                                                                        x.Status != Status.Deleted &&
+                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
                                                                         x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "SqlAgentJobInventoryPlugin" &&
-                                                                                    x.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value)
+                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
@@ -1501,13 +1440,13 @@ namespace Datavail.Delta.Application
                 if (databaseInstance.Jobs != null)
                 {
                     var databaseServerJobsMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseServerJobsPlugin" &&
-                                                                               x.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value)
+                                                                               x.DatabaseVersion == databaseInstance.DatabaseVersion)
                                                                                .OrderBy(x => x.AdapterVersion)
                                                                                .LastOrDefault();
 
                     var existingJobsMetrics = databaseInstance.Server.MetricInstances.Where(x => x.Metric.AdapterClass == "DatabaseServerJobsPlugin" &&
-                                                                                                x.Status.Value != (int)Status.Deleted &&
-                                                                                                x.Metric.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value &&
+                                                                                                x.Status != Status.Deleted &&
+                                                                                                x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
                                                                                                 x.DatabaseInstance.Id.Equals(databaseInstance.Id)).ToList();
 
                     foreach (var job in databaseInstance.Jobs)
@@ -1527,12 +1466,12 @@ namespace Datavail.Delta.Application
 
                 //SqlAgentStatusPlugin
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "SqlAgentStatusPlugin" &&
-                                                                        x.Metric.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value &&
-                                                                        x.Status.Value != (int)Status.Deleted &&
+                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
+                                                                        x.Status != Status.Deleted &&
                                                                         x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
                 {
                     var sqlAgentStatusMetric = _repository.Find<Metric>(x => x.AdapterClass == "SqlAgentStatusPlugin" &&
-                                                                                    x.DatabaseVersion.Value == databaseInstance.DatabaseVersion.Value)
+                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
@@ -1557,12 +1496,12 @@ namespace Datavail.Delta.Application
                 //DatabaseBackupStatusPlugin
                 if (database.Name != "tempdb" && !database.Instance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "DatabaseBackupStatusPlugin" &&
 
-                                                                        x.Metric.DatabaseVersion.Value == database.Instance.DatabaseVersion.Value &&
-                                                                        x.Status.Value != (int)Status.Deleted &&
+                                                                        x.Metric.DatabaseVersion == database.Instance.DatabaseVersion &&
+                                                                        x.Status != Status.Deleted &&
                                                                         x.Database.Id.Equals(database.Id)))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseBackupStatusPlugin" &&
-                                                                                    x.DatabaseVersion.Value == database.Instance.DatabaseVersion.Value)
+                                                                                    x.DatabaseVersion == database.Instance.DatabaseVersion)
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
@@ -1571,12 +1510,12 @@ namespace Datavail.Delta.Application
 
                 //DatabaseStatusPlugin
                 if (!database.Instance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "DatabaseStatusPlugin" &&
-                                                                        x.Metric.DatabaseVersion.Value == database.Instance.DatabaseVersion.Value &&
-                                                                        x.Status.Value != (int)Status.Deleted &&
+                                                                        x.Metric.DatabaseVersion == database.Instance.DatabaseVersion &&
+                                                                        x.Status != Status.Deleted &&
                                                                         x.Database.Id.Equals(database.Id)))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseStatusPlugin" &&
-                                                                                    x.DatabaseVersion.Value == database.Instance.DatabaseVersion.Value)
+                                                                                    x.DatabaseVersion == database.Instance.DatabaseVersion)
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
@@ -1643,11 +1582,11 @@ namespace Datavail.Delta.Application
                 miXml.Add(new XAttribute("AdapterVersion", metricInstance.Metric.AdapterVersion));
                 miXml.Add(new XAttribute("Label", metricInstance.Label));
                 miXml.Add(new XAttribute("Data", metricInstance.Data));
-                miXml.Add(new XAttribute("ScheduleType", schedule.ScheduleType.Value));
+                miXml.Add(new XAttribute("ScheduleType", (int)schedule.ScheduleType));
                 miXml.Add(new XAttribute("ScheduleInterval", schedule.Interval));
                 miXml.Add((new XAttribute("MetricConfigurationId", metricConfiguration.Id)));
 
-                switch (schedule.ScheduleType.Enum)
+                switch (schedule.ScheduleType)
                 {
                     case ScheduleType.Seconds:
                         break;
@@ -1766,7 +1705,7 @@ namespace Datavail.Delta.Application
             Specification<ServerGroup> criteria = new ServerGroupsByParentSpecification(parentId);
             criteria = criteria.And(x => !x.Id.Equals(serverGroup.Id));
             criteria = criteria.And(x => x.Priority.Equals(serverGroup.Priority));
-            criteria = criteria.And(x => x.Status.Value != (int)Status.Deleted);
+            criteria = criteria.And(x => x.Status != Status.Deleted);
 
             var serverGroups = _repository.Find<ServerGroup>(criteria);
 
@@ -1855,7 +1794,7 @@ namespace Datavail.Delta.Application
         public IEnumerable<object> GetCustomerNames(string searchTerm)
         {
             var customerNames = _repository.Find<Customer>(x => x.Name.StartsWith(searchTerm))
-                                            .Where(x => x.Status.Value != (int)Status.Deleted)
+                                            .Where(x => x.Status != Status.Deleted)
                                             .Select(x => new { name = x.Name, id = x.Id }).OrderBy(x => x.name).ToList();
 
             return customerNames;
@@ -2010,9 +1949,9 @@ namespace Datavail.Delta.Application
                 var instanceIds = server.Instances.Select(x => x.Id).ToList();
                 DeleteInstances(instanceIds);
 
-                var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType.Value & (int)MetricType.Server) == (int)MetricType.Server &&
+                var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
                                                                                                 x.Server.Id.Equals(server.Id) &&
-                                                                                                x.Status.Value != (int)Status.Deleted))
+                                                                                                x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
 
@@ -2087,9 +2026,9 @@ namespace Datavail.Delta.Application
                 var databaseIds = instance.Databases.Select(x => x.Id).ToList();
                 DeleteDatabases(databaseIds);
 
-                var metricInstanceIds = instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType.Value & (int)MetricType.Instance) == (int)MetricType.Instance &&
+                var metricInstanceIds = instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
                                                                                                 x.DatabaseInstance.Id.Equals(instance.Id) &&
-                                                                                                x.Status.Value != (int)Status.Deleted))
+                                                                                                x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
 
@@ -2113,9 +2052,9 @@ namespace Datavail.Delta.Application
                 _repository.Update(database);
 
                 //Delete the associated metric instances
-                var metricInstanceIds = database.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType.Value & (int)MetricType.Database) == (int)MetricType.Database &&
+                var metricInstanceIds = database.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Database) == MetricType.Database &&
                                                                                                 x.Database.Id.Equals(database.Id) &&
-                                                                                                x.Status.Value != (int)Status.Deleted))
+                                                                                                x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
             }
@@ -2136,16 +2075,16 @@ namespace Datavail.Delta.Application
                 _repository.Update(job);
 
                 //Delete the associated metric instances
-                //var metricInstanceIds = job.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType.Value & (int)MetricType.Instance) == (int)MetricType.Instance &&
+                //var metricInstanceIds = job.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
                 //                                                                        x.Label == string.Format("Job Status for '{0}' on Instance '{1}'", job.Name, job.Instance.Name) &&
-                //                                                                        x.Status.Value != (int)Status.Deleted))
+                //                                                                        x.Status != Status.Deleted))
                 //                                                                        .Select(x => x.Id).ToList();
 
                 var label = string.Format("Job Status for '{0}' on Instance '{1}'", job.Name, job.Instance.Name);
                 var metricInstanceIds =_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == job.Instance.Server.Id &&
-                                                               (mi.Metric.MetricType.Value & (int)MetricType.Instance) == (int)MetricType.Instance &&
+                                                               (mi.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
                                                                mi.Label == label &&
-                                                               mi.Status.Value != (int)Status.Deleted).Select(x => x.Id).ToList();
+                                                               mi.Status != Status.Deleted).Select(x => x.Id).ToList();
 
                 DeleteMetricInstances(metricInstanceIds);
             }
@@ -2214,14 +2153,14 @@ namespace Datavail.Delta.Application
             var metricInstanceList = new List<MetricInstance>();
 
             //Add all of the server's direct metric instances
-            metricInstanceList.AddRange(server.MetricInstances.Where(mi => mi.Status != Status.Deleted));
+            metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi=>mi.Server.Id==serverId && mi.Status!=Status.Deleted));
 
             //Add metric instances from each VirtualServer of the cluster that this server belongs to (if any)
             if (server.Cluster != null)
             {
                 foreach (var virtualServer in server.Cluster.VirtualServers)
                 {
-                    metricInstanceList.AddRange(virtualServer.MetricInstances.Where(mi => mi.Status != Status.Deleted));
+                    metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == virtualServer.Id && mi.Status != Status.Deleted));
                 }
             }
 
@@ -2264,7 +2203,7 @@ namespace Datavail.Delta.Application
             }
 
             var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id.Equals(serverId)
-                                                                         && x.Status.Value != (int)Status.Deleted
+                                                                         && x.Status != Status.Deleted
                                                                          && x.Metric.AdapterClass.Equals("DiskPlugin")
                                                                          && x.Data.Contains(drivePath)).FirstOrDefault();
 
@@ -2297,7 +2236,7 @@ namespace Datavail.Delta.Application
             }
 
             var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id.Equals(server.Id)
-                                                                         && x.Status.Value != (int)Status.Deleted
+                                                                         && x.Status != Status.Deleted
                                                                          && x.Metric.AdapterClass.Equals("DiskPlugin")
                                                                          && x.Data.Contains(drivePath)).FirstOrDefault();
 
@@ -2328,7 +2267,7 @@ namespace Datavail.Delta.Application
             //Mark any recreated (previously deleted) databases back to Active
             foreach (var database in databaseInstance.Databases.Where(database => databaseNames.Contains(database.Name)))
             {
-                if (database.Status.Enum == Status.Deleted)
+                if (database.Status == Status.Deleted)
                 {
                     database.Status = Status.Active;
                     _repository.Update(database);
@@ -2373,7 +2312,7 @@ namespace Datavail.Delta.Application
             DeleteJobs(jobsToDelete);
 
             //Mark any recreated (previously deleted) jobs back to Active
-            foreach (var job in databaseInstance.Jobs.Where(job => job.Status.Enum == Status.Deleted && jobNames.Contains(job.Name)))
+            foreach (var job in databaseInstance.Jobs.Where(job => job.Status == Status.Deleted && jobNames.Contains(job.Name)))
             {
                 hasUpdates = true;
                 job.Status = Status.Active;
@@ -2424,7 +2363,7 @@ namespace Datavail.Delta.Application
         public bool VirtualServerActiveNodeFailoverOccurred(Guid physicalServerId, Guid virtualServerId, string activeNodeName, out string previousNodeName)
         {
             var physicalserver = _repository.GetByKey<Server>(physicalServerId);
-            var activeNode = _repository.FindOne(new Specification<Server>(s => s.Status.Value == (int)Status.Active && s.IsVirtual == false && s.Customer.Id == physicalserver.Customer.Id && s.Hostname.ToLower() == activeNodeName.ToLower()));
+            var activeNode = _repository.FindOne(new Specification<Server>(s => s.Status == Status.Active && s.IsVirtual == false && s.Customer.Id == physicalserver.Customer.Id && s.Hostname.ToLower() == activeNodeName.ToLower()));
 
             Guard.IsNotNull(activeNode, string.Format("Active Node {0} Is Not Under Management", activeNodeName));
 
@@ -2716,7 +2655,7 @@ namespace Datavail.Delta.Application
             }
             else
             {
-                switch (metric.MetricType.Enum)
+                switch (metric.MetricType)
                 {
                     case MetricType.Server:
                     case MetricType.VirtualServer:

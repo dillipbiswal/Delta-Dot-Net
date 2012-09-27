@@ -55,7 +55,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             var xDatabaseStatus = dataCollection.Root.Attribute("status");
             if (xDatabaseStatus != null)
             {
-                _databaseStatus = xDatabaseStatus.Value;
+                _databaseStatus = xDatabaseStatus.ToString();
             }
 
             var xDatabaseName = dataCollection.Root.Attribute("name");

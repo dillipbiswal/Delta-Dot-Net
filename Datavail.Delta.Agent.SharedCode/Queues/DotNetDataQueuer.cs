@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using Datavail.Delta.Infrastructure.Agent.Logging;
+﻿using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.Queues;
+using System;
 
 namespace Datavail.Delta.Agent.SharedCode.Queues
 {
     public class DotNetDataQueuer : IDataQueuer
     {
-        private static BlockingCollection<QueueMessage> _cache;
         private readonly IDeltaLogger _logger;
 
         public DotNetDataQueuer()
         {
-            _cache = DotNetDataQueuerFactory.Current;
             _logger = new DeltaLogger();
         }
 
@@ -21,7 +18,7 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
             try
             {
                 var msg = new QueueMessage() {Data = data, Timestamp = DateTime.UtcNow};
-                _cache.Add(msg);
+                DotNetDataQueuerFactory.Current.Add(msg);
             }
             catch (Exception ex)
             {

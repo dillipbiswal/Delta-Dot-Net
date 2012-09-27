@@ -139,9 +139,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Datawarehous
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.SharedCode", "Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj", "{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.RestServices", "Datavail.Delta.RestServices\Datavail.Delta.RestServices.csproj", "{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 41
+		SccNumberOfProjects = 42
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://dvdcsvrtfs01:8080/tfs/defaultcollection
 		SccLocalPath0 = .
@@ -305,6 +307,10 @@ Global
 		SccProjectTopLevelParentUniqueName40 = Delta.sln
 		SccProjectName40 = Datavail.Delta.Agent.SharedCode
 		SccLocalPath40 = Datavail.Delta.Agent.SharedCode
+		SccProjectUniqueName41 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
+		SccProjectTopLevelParentUniqueName41 = Delta.sln
+		SccProjectName41 = Datavail.Delta.RestServices
+		SccLocalPath41 = Datavail.Delta.RestServices
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
@@ -493,8 +499,8 @@ Global
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release 64|x86.Build.0 = Release 64|x86
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x64.ActiveCfg = Release|Any CPU
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x64.Build.0 = Release|Any CPU
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x86.ActiveCfg = Release|x86
@@ -515,8 +521,8 @@ Global
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release 64|x86.ActiveCfg = Release 64|x64
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Mixed Platforms.Build.0 = Release|x64
+		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|x64.ActiveCfg = Release|Any CPU
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|x64.Build.0 = Release|Any CPU
 		{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}.Release|x86.ActiveCfg = Release|x64
@@ -536,8 +542,8 @@ Global
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release 64|x86.ActiveCfg = Release 64|x64
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Mixed Platforms.Build.0 = Release|x64
+		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|x64.ActiveCfg = Release|Any CPU
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|x64.Build.0 = Release|Any CPU
 		{A330076E-B858-47CC-A47A-7112F5F67924}.Release|x86.ActiveCfg = Release|Any CPU
@@ -557,8 +563,8 @@ Global
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release 64|x86.ActiveCfg = Release 64|x64
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Mixed Platforms.Build.0 = Release|x64
+		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|x64.ActiveCfg = Release|Any CPU
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|x64.Build.0 = Release|Any CPU
 		{F0040611-81A1-4982-B2CB-CFF28ED004E3}.Release|x86.ActiveCfg = Release|Any CPU
@@ -578,8 +584,8 @@ Global
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release 64|x86.ActiveCfg = Release 64|x64
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Any CPU.Build.0 = Release|Any CPU
-		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Mixed Platforms.Build.0 = Release|x64
+		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|x64.ActiveCfg = Release|Any CPU
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|x64.Build.0 = Release|Any CPU
 		{268E707C-BF9B-49C4-A32A-9DAFB8469986}.Release|x86.ActiveCfg = Release|x64
@@ -599,8 +605,8 @@ Global
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release 64|x86.ActiveCfg = Release 64|x64
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Mixed Platforms.Build.0 = Release|x64
+		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|x64.ActiveCfg = Release|Any CPU
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|x64.Build.0 = Release|Any CPU
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}.Release|x86.ActiveCfg = Release|x64
@@ -620,8 +626,8 @@ Global
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release 64|x86.ActiveCfg = Release 64|x64
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Mixed Platforms.Build.0 = Release|x64
+		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|x64.ActiveCfg = Release|Any CPU
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|x64.Build.0 = Release|Any CPU
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}.Release|x86.ActiveCfg = Release|x64
@@ -641,8 +647,8 @@ Global
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release 64|x86.ActiveCfg = Release 64|x64
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Mixed Platforms.Build.0 = Release|x64
+		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x64.ActiveCfg = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x64.Build.0 = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x86.ActiveCfg = Release|x64
@@ -1124,6 +1130,24 @@ Global
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Release|x64.ActiveCfg = Release|Any CPU
 		{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}.Release|x86.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|Any CPU.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|Any CPU.Build.0 = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|Mixed Platforms.Build.0 = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|x64.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release 64|x86.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|x64.ActiveCfg = Release|Any CPU
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1153,6 +1177,7 @@ Global
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955} = {37C56D57-C241-4D8B-A04A-858B36C36134}
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02} = {37C56D57-C241-4D8B-A04A-858B36C36134}
 		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
+		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
 		{D604A714-4255-40FA-916B-F448683BE51B} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{D48969F1-E425-4E58-999D-660F5B14A727} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{8767E5D5-9C7C-474A-AA79-E6C80FC67AE4} = {9189275D-308A-4B0E-8108-A054164E2B9E}
@@ -1191,6 +1216,6 @@ Global
 		{C7FE12B5-46F7-4C6A-B522-66448857D69D} = {5B46DA92-080B-4A21-AEB4-D5A747B7E513}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.0\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\DesignTime
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.0\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\DesignTime;packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

@@ -3,11 +3,15 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceModel;
 using System.ServiceProcess;
 using System.Threading;
 using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
+using Datavail.Delta.Infrastructure.Agent.Models;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace Datavail.Delta.Infrastructure.Agent.Updater
 {
@@ -40,7 +44,6 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
         {
             try
             {
-
                 var runInterval = _common.GetUpdaterRunInterval();
                 var start = DateTime.UtcNow;
 
@@ -137,7 +140,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
                 if (service.CanStop)
                 {
                     service.Stop();
-                    service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
+                    service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(60));
                 }
             }
         }
@@ -170,7 +173,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 var service = new ServiceController("Datavail Delta Agent");
                 service.Start();
-                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
+                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(60));
             }
         }
 
@@ -179,21 +182,33 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
             try
             {
                 _logger.LogDebug("Checking for updated configuration");
-                using (var updateSvc = new UpdateServiceProxy.UpdateServiceClient())
-                {
-                    var serverId = _common.GetServerId();
-                    var config = updateSvc.GetConfig(serverId);
 
+                var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
+                var request = new RestRequest("Server/Config/{id}", Method.GET);
+
+                //Add ServerId to the URL
+                var serverId = _common.GetServerId();
+                request.AddUrlSegment("id", serverId.ToString());
+
+                var response = client.Execute<ConfigModel>(request);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
                     if (File.Exists(_newConfigFile))
                         File.Delete(_newConfigFile);
 
-                    if (config != null && config != GetCurrentConfig())
+                    if (response.Data.Configuration != null && response.Data.Configuration != GetCurrentConfig())
                     {
-                        File.WriteAllText(_newConfigFile, config);
-                        _logger.LogDebug("New configuration file found");
+                        File.WriteAllText(_newConfigFile, response.Data.Configuration);
+                        _logger.LogDebug("New configuration file found [" + response.Data.GeneratingServer + " at " + response.Data.Timestamp + "]");
                     }
-
-                    updateSvc.Close();
+                    else
+                    {
+                        _logger.LogDebug("Agent Configuration does not need to be updated");
+                    }
+                }
+                else
+                {
+                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, string.Format("Response Status {0}: {1}", response.StatusCode, response.ErrorMessage));
                 }
 
                 _common.SetBackoffTimer(0);
@@ -235,32 +250,59 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
             try
             {
                 _logger.LogDebug("Checking for required assemblies");
-                using (var updateSvc = new UpdateServiceProxy.UpdateServiceClient())
+
+                var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
+                var request = new RestRequest("Server/AssemblyList/{id}", Method.GET);
+
+                //Add ServerId to the URL
+                var serverId = _common.GetServerId();
+                request.AddUrlSegment("id", serverId.ToString());
+
+                var response = client.Execute<AssemblyListModel>(request);
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var serverId = _common.GetServerId();
-                    var assemblyList = updateSvc.GetAssemblyList(serverId);
+
+                    var assemblyList = response.Data.Assemblies;
 
                     if (assemblyList != null)
                     {
                         _logger.LogDebug("Found " + assemblyList.Count + " required assemblies");
 
-                        foreach (var key in assemblyList.Keys)
+                        foreach (var assembly in assemblyList)
                         {
-                            var filename = Path.Combine(_common.GetPluginPath(), key + "." + assemblyList[key] + ".dll");
+                            var filename = Path.Combine(_common.GetPluginPath(), assembly.AssemblyName + "." + assembly.Version + ".dll");
                             if (!File.Exists(filename))
                             {
-                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, string.Format("Downloading {0}.{1}", key, assemblyList[key]));
-                                var tempfilename = Path.Combine(_common.GetTempPath(), key + "." + assemblyList[key] + ".dll");
-                                var fileContents = updateSvc.GetAssembly(serverId, key, assemblyList[key]);
+                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, string.Format("Downloading {0}.{1}", assembly.AssemblyName, assembly.Version));
+                                var tempfilename = Path.Combine(_common.GetTempPath(), assembly.AssemblyName + "." + assembly.Version + ".dll");
+                                //var fileContents = updateSvc.GetAssembly(serverId, key, assemblyList[key]);
 
-                                if (File.Exists(tempfilename))
-                                    File.Delete(tempfilename);
+                                var downloadRequest = new RestRequest("Assembly/{name}/{version}", Method.GET);
+                                downloadRequest.AddUrlSegment("name", assembly.AssemblyName);
+                                downloadRequest.AddUrlSegment("version", assembly.Version);
 
-                                File.WriteAllBytes(tempfilename, fileContents);
+                                var downloadResponse = client.Execute(downloadRequest);
+                                var responseData = JsonConvert.DeserializeObject<AssemblyDownloadModel>(downloadResponse.Content);
+
+                                if (downloadResponse.StatusCode == HttpStatusCode.OK)
+                                {
+                                    _logger.LogDebug(string.Format("Downloaded {0}.{1}.dll sucessfully", assembly.AssemblyName, assembly.Version));
+                                    var fileContents = responseData.Contents;
+
+                                    if (File.Exists(tempfilename))
+                                        File.Delete(tempfilename);
+
+                                    File.WriteAllBytes(tempfilename, fileContents);
+                                }
+                                else
+                                {
+                                    var errorMessage = string.Format("Error while downloading {0}.{1}.dll. {2}: {3}", assembly.AssemblyName, assembly.Version, response.StatusCode, response.ErrorMessage);
+                                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+                                }
                             }
                             else
                             {
-                                _logger.LogDebug("Skipping " + assemblyList[key] + ", file already exists locally");
+                                _logger.LogDebug(string.Format("Skipping {0}.{1}.dll, file already exists locally", assembly.AssemblyName, assembly.Version));
                             }
                         }
                     }
@@ -269,19 +311,8 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
                         _logger.LogDebug("Found 0 required assemblies");
                     }
 
-                    updateSvc.Close();
                     _common.SetBackoffTimer(0);
                 }
-            }
-            catch (EndpointNotFoundException)
-            {
-                _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Update WebService is unreachable");
-                DoBackOff();
-            }
-            catch (CommunicationException)
-            {
-                _logger.LogSpecificError(WellKnownAgentMesage.EndpointNotReachable, "The Update WebService is unreachable");
-                DoBackOff();
             }
             catch (ThreadAbortException)
             {

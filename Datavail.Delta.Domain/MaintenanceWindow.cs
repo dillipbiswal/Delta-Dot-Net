@@ -12,7 +12,7 @@ namespace Datavail.Delta.Domain
         #region Properties
         public DateTime BeginDate { get; set; }
         public DateTime EndDate { get; set; }
-        public virtual StatusWrapper ParentPreviousStatus { get; set; }
+        public virtual Status ParentPreviousStatus { get; set; }
         #endregion
 
         #region Parent

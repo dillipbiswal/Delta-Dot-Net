@@ -178,6 +178,12 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -210,6 +216,9 @@
     <Compile Include="ICheckInService.cs" />
     <Compile Include="Logging\DeltaLogger.cs" />
     <Compile Include="Logging\IDeltaLogger.cs" />
+    <Compile Include="Models\AssemblyDownloadModel.cs" />
+    <Compile Include="Models\AssemblyListModel.cs" />
+    <Compile Include="Models\ConfigModel.cs" />
     <Compile Include="Queues\Atomic.cs" />
     <Compile Include="Queues\Constants.cs" />
     <Compile Include="Queues\DataQueuer.cs" />

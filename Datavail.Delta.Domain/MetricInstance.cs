@@ -16,7 +16,7 @@ namespace Datavail.Delta.Domain
         public virtual IList<MetricConfiguration> MetricConfigurations { get; set; }
         public virtual IList<MaintenanceWindow> MaintenanceWindows { get; set; }
         public virtual Server Server { get; set; }
-        public virtual StatusWrapper Status { get; set; }
+        public virtual Status Status { get; set; }
         public virtual DatabaseInstance DatabaseInstance { get; set; }
         public virtual Database Database { get; set; }
         #endregion
