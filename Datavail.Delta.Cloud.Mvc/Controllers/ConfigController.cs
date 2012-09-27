@@ -2163,7 +2163,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         {
             var displayText = new StringBuilder();
 
-            if (schedule.ScheduleType == (int)ScheduleType.Once)
+            if (schedule.ScheduleType == ScheduleType.Once)
             {
                 displayText.Append("Schedule the metric to run once");
             }
@@ -2200,7 +2200,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             displayText.Append("Raise an alert level of '" + metricThreshold.Severity + "'");
 
-            if (metricThreshold.ThresholdComparisonFunction.Value == (int)ThresholdComparisonFunction.Match)
+            if (metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Match)
             {
                 displayText.Append(", If the metric value matches '" + metricThreshold.MatchValue + "'");
                 displayText.Append(", and occurs " + metricThreshold.NumberOfOccurrences + " times");
@@ -2210,12 +2210,12 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                 displayText.Append(", If the metric " + metricThreshold.ThresholdComparisonFunction.ToString().ToLower());
                 displayText.Append(" is between " + metricThreshold.FloorValue + " and " + metricThreshold.CeilingValue);
 
-                if (metricThreshold.ThresholdValueType.Value == (int)ThresholdValueType.Percentage)
+                if (metricThreshold.ThresholdValueType == ThresholdValueType.Percentage)
                 {
                     displayText.Append(" percent");
                 }
 
-                if (metricThreshold.ThresholdComparisonFunction.Value == (int)ThresholdComparisonFunction.Value)
+                if (metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Value)
                 {
                     displayText.Append(", and occurs " + metricThreshold.NumberOfOccurrences + " times");
                 }

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using Datavail.Delta.Infrastructure.Agent.Cluster;
+﻿using Datavail.Delta.Infrastructure.Agent.Cluster;
 using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
-using Datavail.Delta.Agent.SharedCode.Queues;
-using Datavail.Delta.Infrastructure.Agent;
-using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Queues;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Text.RegularExpressions;
 
 namespace Datavail.Delta.Agent.Plugin.Host.Tests.DiskPlugin_Tests
 {

@@ -85,8 +85,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.Plugin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.Plugin.SqlServer2008", "Datavail.Delta.Agent.Plugin.SqlServer2008\Datavail.Delta.Agent.Plugin.SqlServer2008.csproj", "{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Ws", "Datavail.Delta.Cloud.Ws\Datavail.Delta.Ws.csproj", "{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Cloud.Mvc", "Datavail.Delta.Cloud.Mvc\Datavail.Delta.Cloud.Mvc.csproj", "{A35B291F-D2B5-4814-94CF-99B979F82451}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.CheckIn.Tests", "Datavail.Delta.Agent.CheckIn.Tests\Datavail.Delta.Agent.CheckIn.Tests.csproj", "{F978642B-00C5-4D57-9108-5DF579F00805}"
@@ -143,7 +141,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.RestServices
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 42
+		SccNumberOfProjects = 41
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://dvdcsvrtfs01:8080/tfs/defaultcollection
 		SccLocalPath0 = .
@@ -287,30 +285,26 @@ Global
 		SccProjectTopLevelParentUniqueName35 = Delta.sln
 		SccProjectName35 = Datavail.Delta.IncidentProcessor.Installer
 		SccLocalPath35 = Datavail.Delta.IncidentProcessor.Installer
-		SccProjectUniqueName36 = Datavail.Delta.Cloud.Ws\\Datavail.Delta.Ws.csproj
+		SccProjectUniqueName36 = Datavail.Delta.BatchProcessor\\Datavail.Delta.BatchProcessor.csproj
 		SccProjectTopLevelParentUniqueName36 = Delta.sln
-		SccProjectName36 = Datavail.Delta.Cloud.Ws
-		SccLocalPath36 = Datavail.Delta.Cloud.Ws
-		SccProjectUniqueName37 = Datavail.Delta.BatchProcessor\\Datavail.Delta.BatchProcessor.csproj
+		SccProjectName36 = Datavail.Delta.BatchProcessor
+		SccLocalPath36 = Datavail.Delta.BatchProcessor
+		SccProjectUniqueName37 = Datavail.Delta.Repository.EfWithMigrations\\Datavail.Delta.Repository.EfWithMigrations.csproj
 		SccProjectTopLevelParentUniqueName37 = Delta.sln
-		SccProjectName37 = Datavail.Delta.BatchProcessor
-		SccLocalPath37 = Datavail.Delta.BatchProcessor
-		SccProjectUniqueName38 = Datavail.Delta.Repository.EfWithMigrations\\Datavail.Delta.Repository.EfWithMigrations.csproj
+		SccProjectName37 = Datavail.Delta.Repository.EfWithMigrations
+		SccLocalPath37 = Datavail.Delta.Repository.EfWithMigrations
+		SccProjectUniqueName38 = Datavail.Delta.Datawarehouse.Processor\\Datavail.Delta.Datawarehouse.Processor.csproj
 		SccProjectTopLevelParentUniqueName38 = Delta.sln
-		SccProjectName38 = Datavail.Delta.Repository.EfWithMigrations
-		SccLocalPath38 = Datavail.Delta.Repository.EfWithMigrations
-		SccProjectUniqueName39 = Datavail.Delta.Datawarehouse.Processor\\Datavail.Delta.Datawarehouse.Processor.csproj
+		SccProjectName38 = Datavail.Delta.Datawarehouse.Processor
+		SccLocalPath38 = Datavail.Delta.Datawarehouse.Processor
+		SccProjectUniqueName39 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
 		SccProjectTopLevelParentUniqueName39 = Delta.sln
-		SccProjectName39 = Datavail.Delta.Datawarehouse.Processor
-		SccLocalPath39 = Datavail.Delta.Datawarehouse.Processor
-		SccProjectUniqueName40 = Datavail.Delta.Agent.SharedCode\\Datavail.Delta.Agent.SharedCode.csproj
+		SccProjectName39 = Datavail.Delta.Agent.SharedCode
+		SccLocalPath39 = Datavail.Delta.Agent.SharedCode
+		SccProjectUniqueName40 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
 		SccProjectTopLevelParentUniqueName40 = Delta.sln
-		SccProjectName40 = Datavail.Delta.Agent.SharedCode
-		SccLocalPath40 = Datavail.Delta.Agent.SharedCode
-		SccProjectUniqueName41 = Datavail.Delta.RestServices\\Datavail.Delta.RestServices.csproj
-		SccProjectTopLevelParentUniqueName41 = Delta.sln
-		SccProjectName41 = Datavail.Delta.RestServices
-		SccLocalPath41 = Datavail.Delta.RestServices
+		SccProjectName40 = Datavail.Delta.RestServices
+		SccLocalPath40 = Datavail.Delta.RestServices
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
@@ -652,26 +646,6 @@ Global
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x64.ActiveCfg = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x64.Build.0 = Release|Any CPU
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}.Release|x86.ActiveCfg = Release|x64
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|x64.Build.0 = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|Any CPU.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|Any CPU.Build.0 = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|Mixed Platforms.Build.0 = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|x64.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release 64|x86.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|x64.ActiveCfg = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|x64.Build.0 = Release|Any CPU
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A}.Release|x86.ActiveCfg = Release|Any CPU
 		{A35B291F-D2B5-4814-94CF-99B979F82451}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A35B291F-D2B5-4814-94CF-99B979F82451}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A35B291F-D2B5-4814-94CF-99B979F82451}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -1176,7 +1150,6 @@ Global
 		{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5} = {37C56D57-C241-4D8B-A04A-858B36C36134}
 		{FCEE28C7-12F7-4137-A3D2-ADBE35F35955} = {37C56D57-C241-4D8B-A04A-858B36C36134}
 		{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02} = {37C56D57-C241-4D8B-A04A-858B36C36134}
-		{78BFD647-F088-40D1-9EAC-6C6F3C4D0E6A} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
 		{D604A714-4255-40FA-916B-F448683BE51B} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{D48969F1-E425-4E58-999D-660F5B14A727} = {9189275D-308A-4B0E-8108-A054164E2B9E}

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Configuration;
+﻿using Datavail.Delta.Infrastructure.Agent.Common;
+using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Datavail.Delta.Infrastructure.Agent.Common;
-using Datavail.Delta.Infrastructure.Agent;
-using Datavail.Delta.Infrastructure.Agent.Common;
 
 namespace Datavail.Delta.Agent.Plugin.Host
 {

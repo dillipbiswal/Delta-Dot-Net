@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Datavail.Delta.Infrastructure.Agent.Cluster;
+using System;
 using System.Collections.Generic;
 using System.Management;
 using System.Xml.Linq;
-using Datavail.Delta.Infrastructure.Agent.Cluster;
-using Datavail.Delta.Infrastructure.Agent.Cluster;
 
 namespace Datavail.Delta.Agent.Plugin.LogWatcher.Cluster
 {

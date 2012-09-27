@@ -53,7 +53,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
                 .ForMember(f => f.ScheduleType, opt => opt.MapFrom(f => f.ScheduleType));
 
             configuration.CreateMap<ScheduleModel, Schedule>()
-                .ForMember(m => m.DayOfWeek, opt => opt.MapFrom(f => (DayOfWeek)f.DayOfWeek))
+                .ForMember(m => m.DayOfWeek, opt => opt.MapFrom(f => (Datavail.Delta.Domain.DayOfWeek)f.DayOfWeek))
                 .ForMember(m => m.ScheduleType, opt => opt.MapFrom(f => (ScheduleType)f.ScheduleType))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }

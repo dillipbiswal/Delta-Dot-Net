@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Datavail.Delta.Infrastructure.Agent.Cluster;
+using Datavail.Delta.Infrastructure.Agent.Common;
+using Datavail.Delta.Infrastructure.Agent.Logging;
+using Datavail.Delta.Infrastructure.Agent.Queues;
+using Datavail.Delta.Infrastructure.Agent.ServerInfo;
+using Datavail.Delta.Infrastructure.Agent.SqlRunner;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Datavail.Delta.Infrastructure.Agent.Cluster;
-using Datavail.Delta.Infrastructure.Agent.Common;
-using Datavail.Delta.Infrastructure.Agent.Logging;
-using Datavail.Delta.Agent.SharedCode.Queues;
-using Datavail.Delta.Infrastructure.Agent.Queues;
-using Datavail.Delta.Infrastructure.Agent.ServerInfo;
-using Datavail.Delta.Infrastructure.Agent.SqlRunner;
-using Datavail.Delta.Infrastructure.Agent.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Datavail.Delta.Agent.Plugin.SqlServer2005.Tests.DatabaseInventoryPlugin_Tests
 {

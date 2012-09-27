@@ -1,17 +1,15 @@
-﻿using System;
-using System.Text;
-using System.Xml.Linq;
-using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
-using Datavail.Delta.Agent.SharedCode;
+﻿using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
 using Datavail.Delta.Agent.SharedCode.Queues;
+using Datavail.Delta.Infrastructure.Agent;
 using Datavail.Delta.Infrastructure.Agent.Cluster;
 using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.Queues;
 using Datavail.Delta.Infrastructure.Agent.ServerInfo;
 using Datavail.Delta.Infrastructure.Agent.SqlRunner;
-using Datavail.Delta.Infrastructure.Agent;
-using Datavail.Delta.Infrastructure.Agent.Common;
+using System;
+using System.Text;
+using System.Xml.Linq;
 
 
 namespace Datavail.Delta.Agent.Plugin.SqlServer2008

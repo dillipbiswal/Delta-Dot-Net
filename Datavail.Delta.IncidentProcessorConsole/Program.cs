@@ -1,8 +1,4 @@
-﻿using System;
-using System.Configuration;
-using System.Data.Entity;
-using System.Reflection;
-using Datavail.Delta.Application;
+﻿using Datavail.Delta.Application;
 using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Application.ServiceDesk.ConnectWise;
 using Datavail.Delta.IncidentProcessor;
@@ -13,6 +9,7 @@ using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
 using Datavail.Delta.Repository.Interface;
 using Microsoft.Practices.Unity;
+using System.Data.Entity;
 
 namespace Datavail.Delta.IncidentProcessorConsole
 {
