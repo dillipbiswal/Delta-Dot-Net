@@ -91,13 +91,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.CheckIn\Datavail.Delta.Agent.Plugin.CheckIn.csproj">
-      <Project>{8A53D5F7-1530-4F03-8345-383A9FB54F5F}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.CheckIn</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
       <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
       <Name>Datavail.Delta.Infrastructure.Agent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\plugins\Datavail.Delta.Agent.Plugin.CheckIn\Datavail.Delta.Agent.Plugin.CheckIn.csproj">
+      <Project>{8a53d5f7-1530-4f03-8345-383a9fb54f5f}</Project>
+      <Name>Datavail.Delta.Agent.Plugin.CheckIn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

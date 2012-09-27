@@ -12,7 +12,7 @@
     <AssemblyName>Datavail.Delta.Agent.Plugin.CheckIn</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>%24/Datavail Delta Project/MAIN-4.1/Datavail.Delta.Agent.Plugin.CheckIn</SccProjectName>
+    <SccProjectName>%24/Datavail Delta Project/MAIN-4.1/plugins/Datavail.Delta.Agent.Plugin.CheckIn</SccProjectName>
     <SccLocalPath>.</SccLocalPath>
     <SccAuxPath>http://dvdcsvrtfs01:8080/tfs/defaultcollection</SccAuxPath>
     <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
@@ -172,9 +172,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -199,7 +198,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
+    <ProjectReference Include="..\..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
       <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
       <Name>Datavail.Delta.Infrastructure.Agent</Name>
     </ProjectReference>

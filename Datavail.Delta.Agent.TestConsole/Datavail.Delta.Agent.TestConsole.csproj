@@ -110,10 +110,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.CheckIn\Datavail.Delta.Agent.Plugin.CheckIn.csproj">
-      <Project>{8A53D5F7-1530-4F03-8345-383A9FB54F5F}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.CheckIn</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Host\Datavail.Delta.Agent.Plugin.Host.csproj">
       <Project>{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}</Project>
       <Name>Datavail.Delta.Agent.Plugin.Host</Name>
