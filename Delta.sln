@@ -135,7 +135,7 @@ Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 38
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://dvdcsvrtfs01:8080/tfs/defaultcollection
+		SccTeamFoundationServer = http://tfs.datavail.local:8080/tfs/defaultcollection
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = Datavail.Delta.Agent.TestConsole\\Datavail.Delta.Agent.TestConsole.csproj
 		SccProjectTopLevelParentUniqueName1 = Delta.sln

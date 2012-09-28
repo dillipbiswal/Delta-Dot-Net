@@ -16,7 +16,7 @@
     <FileAlignment>512</FileAlignment>
     <SccProjectName>%24/Datavail Delta Project/MAIN-4.1/Datavail.Delta.Agent.Updater</SccProjectName>
     <SccLocalPath>.</SccLocalPath>
-    <SccAuxPath>http://dvdcsvrtfs01:8080/tfs/defaultcollection</SccAuxPath>
+    <SccAuxPath>http://tfs.datavail.local:8080/tfs/defaultcollection</SccAuxPath>
     <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\MAIN\</SolutionDir>
     <RestorePackages>true</RestorePackages>

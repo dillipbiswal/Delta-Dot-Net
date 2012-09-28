@@ -16,7 +16,7 @@
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SccProjectName>%24/Datavail Delta Project/MAIN-4.1/Datavail.Delta.Agent.Tests</SccProjectName>
     <SccLocalPath>.</SccLocalPath>
-    <SccAuxPath>http://dvdcsvrtfs01:8080/tfs/defaultcollection</SccAuxPath>
+    <SccAuxPath>http://tfs.datavail.local:8080/tfs/defaultcollection</SccAuxPath>
     <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\MAIN\</SolutionDir>
     <RestorePackages>true</RestorePackages>
