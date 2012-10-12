@@ -26,7 +26,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
         private const string SERVICE_DESK_MESSAGE_HEADER = "The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}).\nInstance Name: {3}\n\nStep Details\n\n";
         private const string SERVICE_DESK_JOB_STEP_MESSAGE = "Step Id: {0}\nStep Name: {1}\nRun Date:{2}\nRun Time: {3}\nRun Duration: {4}\nRetries Attempted: {5}\nMessage: {6}\n\n";
-        private const string SERVICE_DESK_MATCH_MESSAGE = "Metric Threshold: {0}\nMatch Value: {1}\nServer: {2} ({3})\nIp Address: {4}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "Agent Timestamp: {5}\nMetric Threshold: {0}\nMatch Value: {1}\nServer: {2} ({3})\nIp Address: {4}\n";
         private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {5}\n\nStep Details\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Job {4}/{2} is {3}";
 
@@ -208,13 +208,13 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, _jobName, _jobStatus, MetricInstanceId, _jobStatus, metricThreshold.Id, metricThreshold.MatchValue, Hostname, IpAddress, _instanceName);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, _jobName, _jobStatus, MetricInstanceId, _jobStatus, metricThreshold.Id, Timestamp);
             return message;
         }
 
         protected override string FormatMatchCountServiceDeskMessage(int count, MetricThreshold metricThreshold)
         {
-            var message = string.Format(SERVICE_DESK_MATCH_COUNT_MESSAGE, _jobName, _jobStatus, MetricInstanceId, count, metricThreshold.TimePeriod, _jobStatus, metricThreshold.Id, metricThreshold.MatchValue, Hostname, IpAddress, _instanceName);
+            var message = string.Format(SERVICE_DESK_MATCH_COUNT_MESSAGE, _jobName, _jobStatus, MetricInstanceId, count, metricThreshold.TimePeriod, _jobStatus, Timestamp);
             return message;
         }
 

@@ -11,17 +11,13 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
         private string _groupName;
         private string _status;
 
-        private const string ServiceDeskMatchMessage =
-            "The Delta monitoring application has detected that the cluster group {0} is {1} (metricInstanceId: {2}).\n\nStatus: {1}\n\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {5}\nIp Address: {6}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "The Delta monitoring application has detected that the cluster group {0} is {1} (metricInstanceId: {2}).\n\nStatus: {1}\n\nAgent Timestamp: {7}\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {5}\nIp Address: {6}\n";
+        private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that cluster group {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nStatus: {1}\n\nAgent Timestamp: {9}\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Cluster Group {2} is {3}";
 
-        private const string ServiceDeskMatchCountMessage =
-            "The Delta monitoring application has detected that cluster group {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nStatus: {1}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-
-        private const string ServiceDeskSummary = "P{0}/{1}/Cluster Group {2} is {3}";
-
-        public ClusterGroupStatusRule( IIncidentService incidentService, XDocument dataCollection,
+        public ClusterGroupStatusRule(IIncidentService incidentService, XDocument dataCollection,
                                       IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Cluster Group Status Match";
             XmlMatchString = "MsClusterGroupStatusPluginOutput";
@@ -39,22 +35,21 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchMessage, _groupName, _status, MetricInstanceId,
-                                        metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, _groupName, _status, MetricInstanceId, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatMatchCountServiceDeskMessage(int count, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchCountMessage, _groupName, _status, MetricInstanceId, count,
+            var message = string.Format(SERVICE_DESK_MATCH_COUNT_MESSAGE, _groupName, _status, MetricInstanceId, count,
                                         metricThreshold.TimePeriod, metricThreshold.MatchValue, metricThreshold.Id,
-                                        Hostname, IpAddress);
+                                        Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatSummaryServiceDeskMessage(string metricTypeDescription)
         {
-            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname, _groupName, _status);
+            var message = string.Format(SERVICE_DESK_SUMMARY, IncidentPriority, Hostname, _groupName, _status);
             return message;
         }
 

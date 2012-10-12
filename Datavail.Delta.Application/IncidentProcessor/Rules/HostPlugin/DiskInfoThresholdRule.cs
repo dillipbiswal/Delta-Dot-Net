@@ -13,9 +13,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
         private string _availableBytesFriendly = string.Empty;
         private float _percentageAvailable;
 
-        private const string ServiceDeskMessage = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}).\n\nTotal Bytes: {3} ({4:N0})\nAvailable Bytes: {5} ({6:N0})\nPercentage Available: {7:0.00}%\n\nMetric Threshold: {8}\nFloor Value: {9:N2}\nCeiling Value: {10:N2}\nServer: {11} ({12})\nIp Address: {13}\n";
-        private const string ServiceDeskMessageCount = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nTotal Bytes: {5} ({6:N0})\nAvailable Bytes: {7} ({8:N0})\nPercentage Available: {9:0.00}%\n\nMetric Threshold: {10}\nFloor Value: {11:N2}\nCeiling Value: {12:N2}\nServer: {13} ({14})\nIp Address: {15}\n";
-        private const string ServiceDeskMessageAverage = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}). The average has been {3:0.00} over the last {4} samples.\n\nTotal Bytes: {5} ({6:N0})\nAvailable Bytes: {7} ({8:N0})\nPercentage Available: {9:0.00}%\n\nMetric Threshold: {10}\nFloor Value: {11:N2}\nCeiling Value: {12:N2}\nServer: {13} ({14})\nIp Address: {15}\n";
+        private const string ServiceDeskMessage = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}).\n\nTotal Bytes: {3} ({4:N0})\nAvailable Bytes: {5} ({6:N0})\nPercentage Available: {7:0.00}%\n\nAgent Timestamp: {14}\nMetric Threshold: {8}\nFloor Value: {9:N2}\nCeiling Value: {10:N2}\nServer: {11} ({12})\nIp Address: {13}\n";
+        private const string ServiceDeskMessageCount = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nTotal Bytes: {5} ({6:N0})\nAvailable Bytes: {7} ({8:N0})\nPercentage Available: {9:0.00}%\n\nAgent Timestamp: {16}\nMetric Threshold: {10}\nFloor Value: {11:N2}\nCeiling Value: {12:N2}\nServer: {13} ({14})\nIp Address: {15}\n";
+        private const string ServiceDeskMessageAverage = "The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}). The average has been {3:0.00} over the last {4} samples.\n\nTotal Bytes: {5} ({6:N0})\nAvailable Bytes: {7} ({8:N0})\nPercentage Available: {9:0.00}%\n\nAgent Timestamp: {16}\nMetric Threshold: {10}\nFloor Value: {11:N2}\nCeiling Value: {12:N2}\nServer: {13} ({14})\nIp Address: {15}\n";
         private const string ServiceDeskSummary = "P{0}/{1}/Disk {2} threshold breach for {3}";
 
            public DiskInfoThresholdRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
@@ -46,19 +46,19 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
 
         protected override string FormatStandardServiceDeskMessage(string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessage, metricTypeDescription, Label, MetricInstanceId, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress);
+            var message = string.Format(ServiceDeskMessage, metricTypeDescription, Label, MetricInstanceId, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress,Timestamp);
             return message;
         }
 
         protected override string FormatCountServiceDeskMessage(int count, string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessageCount, metricTypeDescription, Label, MetricInstanceId, count, metricThreshold.TimePeriod, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress);
+            var message = string.Format(ServiceDeskMessageCount, metricTypeDescription, Label, MetricInstanceId, count, metricThreshold.TimePeriod, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress,Timestamp);
             return message;
         }
 
         protected override string FormatAverageServiceDeskMessage(float average, string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessageAverage, metricTypeDescription, Label, MetricInstanceId, average, metricThreshold.TimePeriod, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress);
+            var message = string.Format(ServiceDeskMessageAverage, metricTypeDescription, Label, MetricInstanceId, average, metricThreshold.TimePeriod, _totalBytesFriendly, _totalBytes, _availableBytesFriendly, _availableBytes, _percentageAvailable, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress,Timestamp);
             return message;
         }
         

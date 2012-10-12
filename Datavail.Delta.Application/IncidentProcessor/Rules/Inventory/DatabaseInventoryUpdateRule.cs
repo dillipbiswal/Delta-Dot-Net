@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Xml.Linq;
-using Datavail.Delta.Application.Interface;
-
+﻿using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Infrastructure.Util;
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Datavail.Delta.Application.IncidentProcessor.Rules.Inventory
 {

@@ -21,14 +21,14 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private string _blockingCommand;
         private string _instanceName;
 
-        private const string ServiceDeskMessageHeader = "The Delta monitoring application has detected the following blocking command(s).";
-        private const string ServiceDeskMessage = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {9} \nRequest Session Command: {3}\nRequest Session Id: {10}\nDatabase: {4}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string ServiceDeskMatchMessage = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
-        private const string ServiceDeskMessageCount = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nBlocking Command: {4}\nBlocking Id: {5} \nRequest Session Command: {6}\nRequest Session Id: {7}\nDatabase: {8}\n\nMatch Value: {9}\nMetric Threshold: {10}\nServer: {11}\nIp Address: {12}\n";
-        private const string ServiceDeskSummary = "P{0}/{1}/Blocking Command(s) detected.";
+        private const string SERVICE_DESK_MESSAGE_HEADER = "The Delta monitoring application has detected the following blocking command(s).";
+        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {9} \nRequest Session Command: {3}\nRequest Session Id: {10}\nDatabase: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {11}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\n\nAgent Timestamp: {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
+        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nBlocking Command: {4}\nBlocking Id: {5} \nRequest Session Command: {6}\nRequest Session Id: {7}\nDatabase: {8}\n\nMatch Value: {9}\n\nAgent Timestamp: {13}\nMetric Threshold: {10}\nServer: {11}\nIp Address: {12}\n";
+        private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Blocking Command(s) detected.";
 
-        public DatabaseServerBlockingRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+        public DatabaseServerBlockingRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Database Server Blocking Threshold Breach";
             XmlMatchString = "DatabaseServerBlockingPluginOutput";
@@ -93,7 +93,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             {
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
                                 matchFound = true;
                             }
@@ -102,7 +102,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                                 var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentMesages.Add(FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold));
                                 if (count >= metricThreshold.NumberOfOccurrences) matchFound = true;
                             }
@@ -146,7 +146,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             {
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentMesages.Add(FormatMatchServiceDeskMessage(metricThreshold));
                                 matchFound = true;
                             }
@@ -156,7 +156,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                                                                       metricThreshold.TimePeriod);
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentMesages.Add(FormatMatchCountServiceDeskMessage(count, metricThreshold));
 
                                 if (count >= metricThreshold.NumberOfOccurrences) matchFound = true;
@@ -190,34 +190,34 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
         protected override string FormatStandardServiceDeskMessage(string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchMessage, MetricInstanceId, _instanceName, _blockingCommand, _blockingId, _requestSessionCommand, _requestSessionId, _database, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, MetricInstanceId, _instanceName, _blockingCommand, _blockingId, _requestSessionCommand, _requestSessionId, _database, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchMessage, MetricInstanceId, _instanceName, _blockingCommand, _blockingId, _requestSessionCommand, _requestSessionId, _database, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, MetricInstanceId, _instanceName, _blockingCommand, _blockingId, _requestSessionCommand, _requestSessionId, _database, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatCountServiceDeskMessage(int count, string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessageCount, MetricInstanceId, count,
+            var message = string.Format(SERVICE_DESK_MESSAGE_COUNT, MetricInstanceId, count,
                                         metricThreshold.TimePeriod, _instanceName, _blockingCommand, _blockingId,
                                         _requestSessionCommand, _requestSessionId, _database, metricThreshold.MatchValue,
-                                        metricThreshold.Id, Hostname, IpAddress);
+                                        metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatSummaryServiceDeskMessage(string metricTypeDescription)
         {
-            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname);
+            var message = string.Format(SERVICE_DESK_SUMMARY, IncidentPriority, Hostname);
             return message;
         }
 
         protected override void ParseDataCollection(XDocument dataResultCollection)
         {
-                                                                              
+
             foreach (XElement dataCollection in dataResultCollection.Element("DatabaseServerBlockingPluginOutput").Elements("BlockingStatus"))
             {
                 NameValueCollection collection = new NameValueCollection();

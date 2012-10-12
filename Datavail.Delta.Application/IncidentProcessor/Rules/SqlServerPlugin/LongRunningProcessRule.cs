@@ -21,11 +21,11 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private string _sqlStatements;
         private string _instanceName;
 
-        private const string ServiceDeskMessageHeader = "The Delta monitoring application has detected the following Long Running Process(s).";
-        private const string ServiceDeskMessage = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string ServiceDeskMatchMessage = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string ServiceDeskMessageCount = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
-        private const string ServiceDeskSummary = "P{0}/{1}/Long Running Process(s) detected.";
+        private const string SERVICE_DESK_MESSAGE_HEADER = "The Delta monitoring application has detected the following Long Running Process(s).";
+        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\n\nAgent Timestamp: {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
+        private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Long Running Process(s) detected.";
 
         public LongRunningProcessRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
             : base( incidentService, dataCollection, serverService)
@@ -42,7 +42,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             if (DataCollection.Root != null && DataCollection.Root.Name != XmlMatchString)
                 return false;
             var matchFound = false;
-            List<string> IncidentMesages = new List<string>();
+            var incidentMesages = new List<string>();
 
             foreach (NameValueCollection node in nodes)
             {
@@ -84,18 +84,18 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             if (isSingleMatchType)
                             {
                                 IncidentPriority =(int) metricThreshold.Severity;
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
+                                incidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
                                 matchFound = true;
                             }
                             else
                             {
                                 var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
                                 IncidentPriority = (int)metricThreshold.Severity;
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesages.Add(FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold));
+                                incidentMesages.Add(FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold));
                                 if (count >= metricThreshold.NumberOfOccurrences) matchFound = true;
                             }
                         }
@@ -121,7 +121,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             IncidentPriority = (int)metricThreshold.Severity;
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             //IncidentMesage = FormatAverageServiceDeskMessage(average, metricTypeDescription, metricThreshold);
-                            IncidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
+                            incidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
                             
                             matchFound = true;
                         }
@@ -139,8 +139,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             {
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
-                                IncidentMesages.Add(FormatMatchServiceDeskMessage(metricThreshold));
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
+                                incidentMesages.Add(FormatMatchServiceDeskMessage(metricThreshold));
 
                                 matchFound = true;
                             }
@@ -150,8 +150,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                                                                       metricThreshold.TimePeriod);
                                 IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
-                                IncidentMesage = ServiceDeskMessageHeader + Environment.NewLine;
-                                IncidentMesages.Add(FormatMatchCountServiceDeskMessage(count, metricThreshold));
+                                IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
+                                incidentMesages.Add(FormatMatchCountServiceDeskMessage(count, metricThreshold));
 
                                 if (count >= metricThreshold.NumberOfOccurrences) matchFound = true;
                             }
@@ -164,7 +164,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             if (matchFound)
             {
                 
-                foreach (var message in IncidentMesages)
+                foreach (var message in incidentMesages)
                 {
                     IncidentMesage += message;
                     IncidentMesage += "----------------------------------------------------------------------";
@@ -186,32 +186,32 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
         protected override string FormatStandardServiceDeskMessage(string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessage,  MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MESSAGE,  MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
             return message;
         }
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchMessage, MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
             return message;
         }
 
         protected override string FormatCountServiceDeskMessage(int count, string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessageCount, MetricInstanceId, count, metricThreshold.TimePeriod, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress);
+            var message = string.Format(SERVICE_DESK_MESSAGE_COUNT, MetricInstanceId, count, metricThreshold.TimePeriod, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
             return message;
         }
 
         protected override string FormatSummaryServiceDeskMessage(string metricTypeDescription)
         {
-            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname);
+            var message = string.Format(SERVICE_DESK_SUMMARY, IncidentPriority, Hostname);
             return message;
         }
         
         protected override void ParseDataCollection(XDocument dataResultCollection)
         {
 
-            NameValueCollection collection = new NameValueCollection();
+            var collection = new NameValueCollection();
 
             foreach (XElement dataCollection in dataResultCollection.Element("DatabaseServerLongRunningProcessPluginOutput").Elements("LongRunningProcessResult"))
             {

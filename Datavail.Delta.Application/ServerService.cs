@@ -107,10 +107,7 @@ namespace Datavail.Delta.Application
 
         public MetricConfiguration GetActiveConfiguration(Server server, MetricInstance metricInstance)
         {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            //Check MetricInstance Level
+           //Check MetricInstance Level
             var metricInstanceLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentMetricInstance.Id == metricInstance.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (metricInstanceLevelConfig != null)
                 return metricInstanceLevelConfig;

@@ -13,18 +13,18 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
         private Guid _virtualServerId;
         private string _groupName;
 
-        private const string ServiceDeskMessage = "The Delta monitoring application has detected a Cluster Group Failover for '{0}' (metricInstanceId: {1}).\n\nNew Active Node: {2}\nPrevious Node: {3}\n\nServer: {4} ({5})\nIp Address: {6}\n";
-        private const string ServiceDeskSummary = "P{0}/{1}/Cluster Group Failover for {2}";
+        private const string SERVICE_DESK_MESSAGE = "The Delta monitoring application has detected a Cluster Group Failover for '{0}' (metricInstanceId: {1}).\n\nAgent Timestamp: {7}\nNew Active Node: {2}\nPrevious Node: {3}\n\nServer: {4} ({5})\nIp Address: {6}\n";
+        private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Cluster Group Failover for {2}";
 
-        public ClusterGroupSwitchedRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+        public ClusterGroupSwitchedRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Cluster Node Failover";
             XmlMatchString = "MsClusterGroupStatusPluginOutput";
 
             SetupMatchParams();
         }
-        
+
         public override bool IsMatch()
         {
             if (DataCollection.Root != null && DataCollection.Root.Name != XmlMatchString)
@@ -49,13 +49,13 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
 
         protected override string FormatSummaryServiceDeskMessage(string clusterGroupName)
         {
-            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname, clusterGroupName);
+            var message = string.Format(SERVICE_DESK_SUMMARY, IncidentPriority, Hostname, clusterGroupName);
             return message;
         }
 
         private string FormatStandardServiceDeskMessage(string groupName, string previousNode, string activeNode, MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMessage, groupName, MetricInstanceId, activeNode, previousNode, Hostname, ServerId, IpAddress);
+            var message = string.Format(SERVICE_DESK_MESSAGE, groupName, MetricInstanceId, activeNode, previousNode, Hostname, ServerId, IpAddress, Timestamp);
             return message;
         }
 
