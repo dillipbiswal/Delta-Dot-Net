@@ -1,18 +1,12 @@
-﻿using System;
-using System.Data.Entity;
+﻿using Datavail.Delta.Application.ServiceDesk.ConnectWise;
+using Datavail.Delta.Domain;
+using Datavail.Delta.Infrastructure.Logging;
+using Datavail.Delta.Infrastructure.Specification;
+using Datavail.Delta.Repository.EfWithMigrations;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Application.ServiceDesk.ConnectWise;
-using Datavail.Delta.Domain;
-using Datavail.Delta.Infrastructure.Logging;
-using Datavail.Delta.Infrastructure.Queues;
-using Datavail.Delta.Infrastructure.Queues.Messages;
-using Datavail.Delta.Infrastructure.Repository;
-using Datavail.Delta.Infrastructure.Specification;
-using Datavail.Delta.Repository.EfWithMigrations;
-using Microsoft.Practices.Unity;
 
 namespace Datavail.Delta.IncidentProcessor
 {
@@ -33,7 +27,7 @@ namespace Datavail.Delta.IncidentProcessor
             {
                 try
                 {
-                    _nextRunTime = DateTime.UtcNow.AddMinutes(1);
+                    _nextRunTime = DateTime.UtcNow.AddMinutes(2);
 
                     using (var context = new DeltaDbContext())
                     {
@@ -44,7 +38,7 @@ namespace Datavail.Delta.IncidentProcessor
                         foreach (var incidentHistory in openTickets)
                         {
                             var status = serviceDesk.GetIncidentStatus(GetStatusXml(incidentHistory.IncidentNumber));
-                            Console.WriteLine(string.Format("Checking Open Ticket {0}. Status is {1}", incidentHistory.IncidentNumber, status));
+                            Console.WriteLine("Checking Open Ticket {0}. Status is {1}", incidentHistory.IncidentNumber, status);
                             if (status == "Closed" || status == "Canceled" || status == "Resolved")
                             {
                                 incidentHistory.CloseTimestamp = DateTime.UtcNow;
@@ -56,7 +50,7 @@ namespace Datavail.Delta.IncidentProcessor
                     }
 
                     //Don't run more often than every minute
-                    if (DateTime.UtcNow < _nextRunTime)
+                    while (DateTime.UtcNow < _nextRunTime)
                     {
                         Thread.Sleep(TimeSpan.FromSeconds(10));
                     }
@@ -66,8 +60,6 @@ namespace Datavail.Delta.IncidentProcessor
                     _logger.LogUnhandledException("Unhandled Exception", ex);
                 }
             }
-
-            Thread.CurrentThread.Abort();
         }
 
         private static string GetStatusXml(string incidentNumber)

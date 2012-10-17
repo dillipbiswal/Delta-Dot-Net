@@ -60,6 +60,10 @@ namespace Datavail.Delta.Repository.EfWithMigrations
             //MetricInstance
             modelBuilder.Entity<MetricInstance>().Property(p => p.Status).HasColumnName("Status_Id");
 
+            modelBuilder.Entity<MetricThreshold>().Property(p => p.Severity).HasColumnName("Severity_Value");
+            modelBuilder.Entity<MetricThreshold>().Property(p => p.ThresholdComparisonFunction).HasColumnName("ThresholdComparisonFunction_Value");
+            modelBuilder.Entity<MetricThreshold>().Property(p => p.ThresholdValueType).HasColumnName("ThresholdValueType_Value");
+
             //Metric Threshold Histories
             modelBuilder.Entity<MetricThresholdHistory>().HasRequired(p => p.MetricInstance);
 
@@ -82,6 +86,8 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
             //Tenant
             modelBuilder.Entity<Tenant>().Property(p => p.Status).HasColumnName("Status_Id");
+
+            modelBuilder.Entity<MaintenanceWindow>().Property(p => p.ParentPreviousStatus).HasColumnName("ParentPreviousStatus_Value");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
@@ -35,6 +36,10 @@ namespace Datavail.Delta.IncidentProcessor
                             var incidentService = _container.Resolve<IIncidentService>();
                             incidentService.OpenIncident(_message.Body, _message.MetricInstanceId, _message.Priority, _message.Summary, _message.AdditionalData);
                             _openIncidentQueue.DeleteMessage(_message);
+                        }
+                        else
+                        {
+                            Thread.Sleep(TimeSpan.FromSeconds(10));
                         }
                     }
                 }

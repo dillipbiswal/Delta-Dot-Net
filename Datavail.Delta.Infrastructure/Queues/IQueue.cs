@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Datavail.Delta.Infrastructure.Queues
 {
@@ -12,5 +13,6 @@ namespace Datavail.Delta.Infrastructure.Queues
         void DeleteMessage(TMessage message);
         int GetApproximateMessageCount();
         TMessage GetMessage();
+        IEnumerable<TMessage> GetMessages(int messageCount);
     }
 }

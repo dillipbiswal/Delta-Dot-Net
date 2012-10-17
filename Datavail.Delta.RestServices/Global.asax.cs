@@ -28,9 +28,8 @@ namespace Datavail.Delta.RestServices
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             Database.SetInitializer<DeltaDbContext>(null);
-            GlobalConfiguration.Configuration.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
-
-        
+            
+            GlobalConfig.CustomizeConfig(GlobalConfiguration.Configuration);
         }
     }
 }

@@ -20,7 +20,7 @@ using Microsoft.Practices.Unity;
 
 namespace Datavail.Delta.IncidentProcessor
 {
-    
+
     public class IncidentProcessorWorker : WorkerBase
     {
         private readonly IUnityContainer _container;
@@ -48,8 +48,6 @@ namespace Datavail.Delta.IncidentProcessor
         {
             try
             {
-                var stopWatch = new Stopwatch();
-
                 //Get a list of all of the rules classes from the Datavail.Delta.Application assembly
                 _ruleClasses = Assembly.GetAssembly(typeof(IncidentProcessorRule)).GetTypes().Where(r => r.GetInterfaces().Contains(typeof(IIncidentProcessorRule)) && r.IsAbstract == false).ToList();
 
@@ -57,9 +55,6 @@ namespace Datavail.Delta.IncidentProcessor
                 {
                     try
                     {
-                        stopWatch.Reset();
-                        stopWatch.Start();
-
                         _message = _incidentQueue.GetMessage();
 
                         if (_message != null)
@@ -130,7 +125,7 @@ namespace Datavail.Delta.IncidentProcessor
                         else
                         {
                             Trace.WriteLine(string.Format("No messages in queue. Thread {0} sleeping for 3 seconds.", Thread.CurrentThread.ManagedThreadId));
-                            Thread.Sleep(TimeSpan.FromSeconds(3));
+                            Thread.Sleep(TimeSpan.FromSeconds(5));
                         }
 
                     }
@@ -144,6 +139,7 @@ namespace Datavail.Delta.IncidentProcessor
 
                             _errorQueue.AddMessage(errorMessage);
                         }
+                        // ReSharper disable EmptyGeneralCatchClause
                         catch (Exception)
                         {
                             //Swallow the exception if we can't move to the error queue
@@ -154,9 +150,18 @@ namespace Datavail.Delta.IncidentProcessor
                     {
                         if (_message != null)
                         {
-                            _incidentQueue.DeleteMessage(_message);
-                            Trace.WriteLine(string.Format("Deleting Message. Receipt: {0} processed in {1}ms", _message.PopReceipt, stopWatch.ElapsedMilliseconds));
-                            Trace.WriteLine("--------------------------------------------------------------------------");
+                            try
+                            {
+                                _incidentQueue.DeleteMessage(_message);
+                                Trace.WriteLine(string.Format("Deleting Message. Receipt: {0} processed", _message.PopReceipt));
+                                Trace.WriteLine("--------------------------------------------------------------------------");
+                            }
+                            // ReSharper disable EmptyGeneralCatchClause
+                            catch (Exception ex)
+                            {
+                                //Swallow any exceptions here so thread doesn't blow up
+                            }
+                            // ReSharper restore EmptyGeneralCatchClause
                         }
                     }
                 }
@@ -167,26 +172,6 @@ namespace Datavail.Delta.IncidentProcessor
             }
         }
 
-        //private DateTime _childContainerCreateTime = DateTime.UtcNow;
-        //private IUnityContainer _childContainer;
-        //private IUnityContainer GetChildContainer()
-        //{
-        //    if (_childContainer == null || DateTime.UtcNow.Subtract(_childContainerCreateTime) > TimeSpan.FromMinutes(15))
-        //    {
-        //        if (_childContainer != null)
-        //        {
-        //            _childContainer.Dispose();
-        //            _childContainer = null;
-        //        }
-
-        //        _childContainer = _container.CreateChildContainer();
-        //        SetupPerMessageChildContainer(_childContainer);
-        //        _childContainerCreateTime = DateTime.UtcNow;
-        //    }
-
-        //    return _childContainer;
-        //}
-
         private void SetupPerMessageChildContainer(IUnityContainer childContainer)
         {
             childContainer.RegisterType<DbContext, DeltaDbContext>(new ContainerControlledLifetimeManager());
@@ -195,8 +180,6 @@ namespace Datavail.Delta.IncidentProcessor
             _serverService = childContainer.Resolve<IServerService>();
             _incidentService = childContainer.Resolve<IIncidentService>();
         }
-
-
 
         private bool IsInMaintenanceMode(IIncidentProcessorRule rule)
         {

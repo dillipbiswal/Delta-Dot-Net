@@ -1,13 +1,6 @@
-﻿using System;
-using System.Configuration;
-using System.Data.Entity;
-using System.Linq;
-using System.ServiceProcess;
-using System.Threading;
-using Datavail.Delta.Application;
+﻿using Datavail.Delta.Application;
 using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Application.ServiceDesk.ConnectWise;
-using Datavail.Delta.Domain;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
@@ -15,6 +8,13 @@ using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
 using Datavail.Delta.Repository.Interface;
 using Microsoft.Practices.Unity;
+using System;
+using System.Configuration;
+using System.Data.Entity;
+using System.Diagnostics;
+using System.ServiceProcess;
+using System.Threading;
+using Database = System.Data.Entity.Database;
 
 namespace Datavail.Delta.IncidentProcessor
 {
@@ -28,10 +28,12 @@ namespace Datavail.Delta.IncidentProcessor
 
         public IncidentProcessor()
         {
+            Debugger.Launch();
+
             Int32.TryParse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"], out _numberOfWorkerThreads);
             _totalNumberOfThreads = _numberOfWorkerThreads + 3;
 
-            RegisterTypes();
+            BootstrapIoc();
             InitializeComponent();
         }
 
@@ -40,20 +42,23 @@ namespace Datavail.Delta.IncidentProcessor
             _workers = new WorkerBase[_totalNumberOfThreads];
             _workerThreads = new Thread[_totalNumberOfThreads];
 
+            Database.SetInitializer<DeltaDbContext>(null);
+
             _workers[0] = _container.Resolve<OpenIncidentWorker>();
             _workers[0].ServiceStarted = true;
             var incst = new ThreadStart(_workers[0].Run);
-            _workerThreads[0] = new Thread(incst);
+
+            _workerThreads[0] = new Thread(incst) { Name = "OpenIncidentWorker" };
 
             _workers[1] = _container.Resolve<CheckInWorker>();
             _workers[1].ServiceStarted = true;
             var checkst = new ThreadStart(_workers[1].Run);
-            _workerThreads[1] = new Thread(checkst);
+            _workerThreads[1] = new Thread(checkst) { Name = "CheckInWorker" }; ;
 
             _workers[2] = _container.Resolve<UpdateTicketClosedWorker>();
             _workers[2].ServiceStarted = true;
             var updateTicketClosedst = new ThreadStart(_workers[2].Run);
-            _workerThreads[2] = new Thread(updateTicketClosedst);
+            _workerThreads[2] = new Thread(updateTicketClosedst) { Name = "UpdateTicketClosedWorker" }; ;
 
             var firstWorkerThread = _totalNumberOfThreads - _numberOfWorkerThreads;
             for (var i = firstWorkerThread; i < _totalNumberOfThreads; i++)
@@ -66,7 +71,7 @@ namespace Datavail.Delta.IncidentProcessor
 
                 // create a thread and attach to the object
                 var st = new ThreadStart(_workers[i].Run);
-                _workerThreads[i] = new Thread(st);
+                _workerThreads[i] = new Thread(st) { Name = "IncidentProcessor " + i };
             }
 
             // start the threads
@@ -88,7 +93,7 @@ namespace Datavail.Delta.IncidentProcessor
             }
         }
 
-        public void RegisterTypes()
+        public void BootstrapIoc()
         {
             _container = new UnityContainer();
             _container.RegisterInstance(_container);
@@ -98,6 +103,8 @@ namespace Datavail.Delta.IncidentProcessor
 
             //Repositories
             _container.RegisterType<DbContext, DeltaDbContext>(new ContainerControlledLifetimeManager());
+
+
             _container.RegisterType<IRepository, GenericRepository>(new InjectionConstructor(typeof(DbContext), _container.Resolve<IDeltaLogger>()));
             _container.RegisterType<IServerRepository, ServerRepository>(new InjectionConstructor(typeof(DbContext), _container.Resolve<IDeltaLogger>()));
             _container.RegisterType<IIncidentRepository, IncidentRepository>(new InjectionConstructor(typeof(DbContext), typeof(IDeltaLogger)));
@@ -116,8 +123,9 @@ namespace Datavail.Delta.IncidentProcessor
             _container.RegisterType<IQueue<OpenIncidentMessage>, SqlQueue<OpenIncidentMessage>>(new InjectionConstructor(QueueNames.OpenIncidentQueue));
 
             //Make a DB Call to force DbContext Initialization
-            var dbContext = _container.Resolve<DbContext>();
-            dbContext.Set<Tenant>().Any();
+
+            //var dbContext = _container.Resolve<DbContext>();
+            //dbContext.Set<Tenant>().Any();
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Datavail.Delta.Infrastructure.Specification
 
         public TEntity SatisfyingEntityFrom(IQueryable<TEntity> query)
         {
-            return query.Where(Predicate).SingleOrDefault();
+            return query.Where(Predicate).FirstOrDefault();
         }
 
         public IQueryable<TEntity> SatisfyingEntitiesFrom(IQueryable<TEntity> query)

@@ -311,7 +311,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                 var xStatus = dataCollection.Attribute("status");
                 if (xStatus != null)
                 {
-                    _status = long.Parse(xStatus.ToString());
+                    _status = long.Parse(xStatus.Value);
                     collection.Add("Status", _status.ToString());
                 }
 

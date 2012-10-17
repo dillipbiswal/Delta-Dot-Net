@@ -132,10 +132,17 @@ namespace Datavail.Delta.Application.ServiceDesk.ConnectWise
                 var ticketXml = cw.ProcessClientAction(xml.ToString());
                 var doc = XDocument.Parse(ticketXml);
 
+                var boardName = string.Empty;
+                var board = doc.Descendants("Board").FirstOrDefault();
+                if(board!=null)
+                {
+                    boardName = board.Value;
+                }
+
                 var firstOrDefault = doc.Descendants("StatusName").FirstOrDefault();
                 if (firstOrDefault != null)
                 {
-                    var status = firstOrDefault.Value;
+                    var status = boardName=="Canceled" ? "Canceled" : firstOrDefault.Value;
                     return status;
                 }
                 return string.Empty;

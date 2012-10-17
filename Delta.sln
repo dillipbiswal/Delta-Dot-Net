@@ -131,9 +131,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Agent.Plugin.CheckIn", "plugins\Datavail.Delta.Agent.Plugin.CheckIn\Datavail.Delta.Agent.Plugin.CheckIn.csproj", "{8A53D5F7-1530-4F03-8345-383A9FB54F5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.ConfigurationPortal", "Datavail.Delta.ConfigurationPortal\Datavail.Delta.ConfigurationPortal.csproj", "{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.IncidentProcessor.ConsoleTester", "Datavail.Delta.IncidentProcessor.ConsoleTester\Datavail.Delta.IncidentProcessor.ConsoleTester.csproj", "{94D8EEC1-4911-4618-AFA6-CA679765A6EB}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 38
+		SccNumberOfProjects = 40
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://tfs.datavail.local:8080/tfs/defaultcollection
 		SccLocalPath0 = .
@@ -285,6 +289,14 @@ Global
 		SccProjectTopLevelParentUniqueName37 = Delta.sln
 		SccProjectName37 = plugins/Datavail.Delta.Agent.Plugin.CheckIn
 		SccLocalPath37 = plugins\\Datavail.Delta.Agent.Plugin.CheckIn
+		SccProjectUniqueName38 = Datavail.Delta.ConfigurationPortal\\Datavail.Delta.ConfigurationPortal.csproj
+		SccProjectTopLevelParentUniqueName38 = Delta.sln
+		SccProjectName38 = Datavail.Delta.ConfigurationPortal
+		SccLocalPath38 = Datavail.Delta.ConfigurationPortal
+		SccProjectUniqueName39 = Datavail.Delta.IncidentProcessor.ConsoleTester\\Datavail.Delta.IncidentProcessor.ConsoleTester.csproj
+		SccProjectTopLevelParentUniqueName39 = Delta.sln
+		SccProjectName39 = Datavail.Delta.IncidentProcessor.ConsoleTester
+		SccLocalPath39 = Datavail.Delta.IncidentProcessor.ConsoleTester
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
@@ -1049,6 +1061,42 @@ Global
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x64.Build.0 = Release|x64
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x86.ActiveCfg = Release|x86
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F}.Release|x86.Build.0 = Release|x86
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|Any CPU.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|Any CPU.Build.0 = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|Mixed Platforms.Build.0 = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|x64.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release 64|x86.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|x64.ActiveCfg = Release|Any CPU
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E}.Release|x86.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|Any CPU.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|Any CPU.Build.0 = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|Mixed Platforms.Build.0 = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|x64.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release 64|x86.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1080,7 +1128,9 @@ Global
 		{8A53D5F7-1530-4F03-8345-383A9FB54F5F} = {37C56D57-C241-4D8B-A04A-858B36C36134}
 		{35FBA47F-D9C6-4B68-A70A-A1CDE9FE752C} = {649005AA-817B-432A-8A1A-463A9F2D5C1E}
 		{D604A714-4255-40FA-916B-F448683BE51B} = {9189275D-308A-4B0E-8108-A054164E2B9E}
+		{94D8EEC1-4911-4618-AFA6-CA679765A6EB} = {9189275D-308A-4B0E-8108-A054164E2B9E}
 		{A35B291F-D2B5-4814-94CF-99B979F82451} = {0A478EA3-84EF-4C36-86DC-EA5B1E1F0F83}
+		{3603009E-D8E7-47E9-8DAE-4BA464F2A93E} = {0A478EA3-84EF-4C36-86DC-EA5B1E1F0F83}
 		{3D126F3C-4777-482E-9E7B-F325544623E5} = {F19972D7-38DA-4283-AC87-925377E24882}
 		{1968A7F7-9211-4439-AD01-1298CB4B2FC9} = {F19972D7-38DA-4283-AC87-925377E24882}
 		{D9A1ADF2-817A-4E6F-98AA-AD2812C85E69} = {F19972D7-38DA-4283-AC87-925377E24882}
@@ -1114,5 +1164,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.0\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.1\DesignTime;packages\Unity.2.1.505.2\lib\NET35
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

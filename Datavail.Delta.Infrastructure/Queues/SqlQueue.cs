@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 using System.Web.Script.Serialization;
+using System.Collections.Generic;
 
 namespace Datavail.Delta.Infrastructure.Queues
 {
@@ -123,6 +124,40 @@ namespace Datavail.Delta.Infrastructure.Queues
                 connection.Close();
             }
             return null;
+        }
+
+        public IEnumerable<TMessage> GetMessages(int messageCount)
+        {
+            var commandText = "Get" + _tableName + "Row";
+            var messages = new List<TMessage>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = commandText;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@rowsToReturn", SqlDbType.Int).Value = messageCount; 
+                connection.Open();
+
+                using (var reader = command.ExecuteReader(CommandBehavior.Default))
+                {
+                    while (reader.Read())
+                    {
+                        var id = (int)reader["MessageId"];
+                        var count = (int)reader["DequeueCount"];
+                        var data = (byte[])reader["Data"];
+
+                        var deserializedMessage = new JavaScriptSerializer().Deserialize<TMessage>(Encoding.ASCII.GetString(data));
+                        deserializedMessage.PopReceipt = (ulong)id;
+                        deserializedMessage.DequeueCount = count;
+                       
+                        messages.Add(deserializedMessage);
+                    }
+
+                    connection.Close();
+                    return messages;
+                }
+            }
         }
 
         public void Dispose()

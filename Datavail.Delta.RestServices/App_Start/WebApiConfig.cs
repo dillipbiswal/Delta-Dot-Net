@@ -6,10 +6,12 @@ namespace Datavail.Delta.RestServices
     {
         public static void Register(HttpConfiguration config)
         {
-           config.Routes.MapHttpRoute(
-                name: "CheckIn",
-                routeTemplate: "v41/Server/CheckIn/{id}",
-                defaults: new { controller = "Server", action = "CheckIn" });
+           
+
+            config.Routes.MapHttpRoute(
+                 name: "CheckIn",
+                 routeTemplate: "v41/Server/CheckIn/{id}",
+                 defaults: new { controller = "Server", action = "CheckIn" });
 
             config.Routes.MapHttpRoute(
                 name: "Config",
@@ -30,7 +32,9 @@ namespace Datavail.Delta.RestServices
                name: "AssemblyDownload",
                routeTemplate: "v41/Assembly/{name}/{version}",
                defaults: new { controller = "Assembly" });
+
             
+
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "v41/{controller}/{id}",

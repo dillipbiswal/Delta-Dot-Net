@@ -18,8 +18,9 @@ using Guard = Datavail.Delta.Infrastructure.Util.Guard;
 
 namespace Datavail.Delta.Application
 {
-    
-    
+
+    // ReSharper disable PossibleNullReferenceException
+    // ReSharper disable ImplicitlyCapturedClosure
     public class ServerService : IServerService
     {
         private readonly IDeltaLogger _logger;
@@ -38,14 +39,8 @@ namespace Datavail.Delta.Application
             if (metricInstance == null) throw new InvalidOperationException(ApplicationErrors.InvalidMetricInstanceId);
 
             var configuration = GetActiveConfiguration(metricInstance.Server, metricInstance);
-            var thresholds = new List<MetricThreshold>();
 
-            foreach (var threshold in configuration.MetricThresholds)
-            {
-                thresholds.Add(threshold);
-            }
-
-            return thresholds;
+            return configuration.MetricThresholds.ToList();
         }
         #endregion
 
@@ -98,7 +93,7 @@ namespace Datavail.Delta.Application
 
         public MetricInstance GetMetricInstance(Guid metricInstanceId, Guid parentId, out MetricData metricData)
         {
-            MetricInstance metricInstance = null;
+            MetricInstance metricInstance;
 
             metricData = GetMetricInstanceData(metricInstanceId, parentId, out metricInstance);
 
@@ -107,8 +102,10 @@ namespace Datavail.Delta.Application
 
         public MetricConfiguration GetActiveConfiguration(Server server, MetricInstance metricInstance)
         {
-           //Check MetricInstance Level
+            //Check MetricInstance Level
+
             var metricInstanceLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentMetricInstance.Id == metricInstance.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
+
             if (metricInstanceLevelConfig != null)
                 return metricInstanceLevelConfig;
 
@@ -116,15 +113,13 @@ namespace Datavail.Delta.Application
             var serverLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentServer.Id == server.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (serverLevelConfig != null)
                 return serverLevelConfig;
-            
+
             //Check Server Group Level
-            foreach (var serverGroup in server.ServerGroups.OrderBy(s => s.Priority).ToList())
+            foreach (var serverGroupLevelConfig in server.ServerGroups.OrderBy(s => s.Priority).ToList().Select(tmpGroup => _repository.GetQuery<MetricConfiguration>(mc => mc.ParentServerGroup.Id == tmpGroup.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault()).Where(serverGroupLevelConfig => serverGroupLevelConfig != null))
             {
-                var serverGroupLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentServerGroup.Id == serverGroup.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
-                if (serverGroupLevelConfig != null)
-                    return serverGroupLevelConfig;
+                return serverGroupLevelConfig;
             }
-            
+
             //Check Customer Level
             if (server.Customer != null)
             {
@@ -132,17 +127,17 @@ namespace Datavail.Delta.Application
                 if (customerLevelConfig != null)
                     return customerLevelConfig;
             }
-            
+
             //Check Tenant Level
             var tenantLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentTenant.Id == server.Tenant.Id && mc.Metric.Id == metricInstance.Metric.Id && (mc.Schedules.Any() || mc.MetricThresholds.Any())).FirstOrDefault();
             if (tenantLevelConfig != null)
                 return tenantLevelConfig;
-            
+
             //Check Metric Level
             var metricLevelConfig = _repository.GetQuery<MetricConfiguration>(mc => mc.ParentMetric.Id == metricInstance.Metric.Id).FirstOrDefault();
             if (metricLevelConfig != null)
                 return metricLevelConfig;
-            
+
             throw new InvalidOperationException(ApplicationErrors.NoConfigurationFound);
         }
 
@@ -162,7 +157,7 @@ namespace Datavail.Delta.Application
 
         public IEnumerable<Role> GetRoles()
         {
-            return _repository.Find<Role>(new Specification<Role>(x => x.Name != string.Empty));
+            return _repository.Find(new Specification<Role>(x => x.Name != string.Empty));
         }
 
         public IEnumerable<Metric> GetMetrics(MetricConfigurationParentType parentType, Guid parentId)
@@ -179,17 +174,15 @@ namespace Datavail.Delta.Application
                 case MetricConfigurationParentType.MetricInstance:
                     var metricInstance = _repository.GetByKey<MetricInstance>(parentId);
                     var metricId = metricInstance.Metric.Id;
-                    criteria = criteria.And(x => x.Id.Equals(metricId));
+                    criteria = criteria.And(x => x.Id == metricId);
                     break;
                 case MetricConfigurationParentType.Metric:
                     var metric = _repository.GetByKey<Metric>(parentId);
-                    criteria = criteria.And(x => x.Id.Equals(metric.Id));
-                    break;
-                default:
+                    criteria = criteria.And(x => x.Id == metric.Id);
                     break;
             }
 
-            IEnumerable<Metric> metrics = _repository.Find<Metric>(criteria).ToList();
+            IEnumerable<Metric> metrics = _repository.Find(criteria).ToList();
 
             return metrics;
         }
@@ -197,22 +190,21 @@ namespace Datavail.Delta.Application
         public IEnumerable<Metric> GetMetrics(MetricType metricType, Guid itemId)
         {
             var criteria = new Specification<Metric>(x => x.Status != Status.Deleted);
-            var databaseVersion = DatabaseVersion.None;
-            var existingMetricIds = new List<Guid>();
+            DatabaseVersion databaseVersion;
 
             switch (metricType)
             {
                 case MetricType.VirtualServer:
                 case MetricType.Server:
                     var server = _repository.GetByKey<Server>(itemId);
-                    existingMetricIds = server.MetricInstances.Where(x => x.Status != Status.Deleted
-                                                                            && x.Database == null
-                                                                            && x.DatabaseInstance == null
-                                                                            && x.Metric.AdapterClass != "LogWatcherPlugin"
-                                                                            && x.Metric.AdapterClass != "ServiceStatusPlugin"
-                                                                            && x.Metric.AdapterClass != "DiskPlugin").Select(x => x.Metric.Id).ToList();
-                    criteria = criteria.And(x => (((x.MetricType & MetricType.VirtualServer) == MetricType.VirtualServer) ||
-                                            (x.MetricType & MetricType.Server) == MetricType.Server));
+                    var existingMetricIds = server.MetricInstances.Where(x => x.Status != Status.Deleted
+                                                                                     && x.Database == null
+                                                                                     && x.DatabaseInstance == null
+                                                                                     && x.Metric.AdapterClass != "LogWatcherPlugin"
+                                                                                     && x.Metric.AdapterClass != "ServiceStatusPlugin"
+                                                                                     && x.Metric.AdapterClass != "DiskPlugin").Select(x => x.Metric.Id).ToList();
+
+                    criteria = criteria.And(x => (((x.MetricType & MetricType.VirtualServer) == MetricType.VirtualServer) || (x.MetricType & MetricType.Server) == MetricType.Server));
                     criteria = criteria.And(x => !existingMetricIds.Contains(x.Id));
                     break;
                 case MetricType.Instance:
@@ -229,7 +221,7 @@ namespace Datavail.Delta.Application
                     break;
             }
 
-            IEnumerable<Metric> metrics = _repository.Find<Metric>(criteria);
+            var metrics = _repository.Find(criteria);
 
             return metrics;
         }
@@ -237,17 +229,17 @@ namespace Datavail.Delta.Application
         public IEnumerable<Metric> GetMetrics()
         {
             var criteria = new Specification<Metric>(x => x.Status != Status.Deleted);
-            IEnumerable<Metric> metrics = _repository.Find<Metric>(criteria);
+            var metrics = _repository.Find(criteria);
 
             return metrics;
         }
 
         public MetricConfiguration GetMetricConfiguration(Guid metricId, Guid metricConfigParentId)
         {
-            if (metricId.Equals(Guid.Empty) || metricConfigParentId.Equals(Guid.Empty))
+            if (metricId == Guid.Empty || metricConfigParentId == Guid.Empty)
                 return null;
 
-            var criteria = new Specification<MetricConfiguration>(x => x.Metric.Id.Equals(metricId));
+            var criteria = new Specification<MetricConfiguration>(x => x.Metric.Id == metricId);
             criteria = criteria.And(new MetricConfigurationsByParentSpecification(metricConfigParentId));
 
             var metricConfiguration = _repository.Find(criteria).FirstOrDefault();
@@ -255,68 +247,21 @@ namespace Datavail.Delta.Application
             return metricConfiguration;
         }
 
-        public bool SaveMetricConfiguration(ref MetricConfiguration metricConfiguration)
+        public IEnumerable<object> GetCustomerNames(string searchTerm)
         {
-            var success = true;
+            var customerNames = _repository.Find<Customer>(x => x.Name.StartsWith(searchTerm))
+                                            .Where(x => x.Status != Status.Deleted)
+                                            .Select(x => new { name = x.Name, id = x.Id }).OrderBy(x => x.name).ToList();
 
-            _repository.Update(metricConfiguration);
-            _repository.UnitOfWork.SaveChanges();
-
-            return success;
+            return customerNames;
         }
 
-        public bool SaveMetricInstance(Guid metricInstanceId, Guid metricId, Guid metricParentId, MetricData metricData, Status status, MetricInstanceParentType parentType)
+        public IEnumerable<object> GetServerNames(Guid customerId, string searchTerm)
         {
-            var success = true;
-            var label = "";
-            var xmlData = "";
-            Metric metric;
-            Server server;
+            var serverNames = _repository.Find<Server>(x => x.Customer.Id == customerId && x.Hostname.StartsWith(searchTerm))
+                                        .Select(x => new { name = x.Hostname, id = x.Id }).OrderBy(x => x.name).ToList();
 
-            success = GetMetricInstanceDataAndLabel(metricId, metricParentId, metricData, out xmlData, out label, out server, out metric);
-
-            if (success)
-            {
-                if (metricInstanceId == Guid.Empty)
-                {
-                    var metricInstance = MetricInstance.NewMetricInstance(label, metric);
-
-                    switch (parentType)
-                    {
-                        case MetricInstanceParentType.Instance:
-                            var databaseInstance = _repository.GetByKey<DatabaseInstance>(metricParentId);
-                            metricInstance.DatabaseInstance = databaseInstance;
-                            break;
-                        case MetricInstanceParentType.Database:
-                            var database = _repository.GetByKey<Database>(metricParentId);
-                            metricInstance.Database = database;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    metricInstance.Id = Guid.NewGuid();
-                    metricInstance.Data = xmlData;
-                    metricInstance.Status = status;
-
-                    server.MetricInstances.Add(metricInstance);
-                    _repository.Add(metricInstance);
-                    _repository.Update(server);
-                }
-                else
-                {
-                    var metricInstance = _repository.GetByKey<MetricInstance>(metricInstanceId);
-
-                    metricInstance.Status = status;
-                    metricInstance.Data = xmlData;
-                    metricInstance.Label = label;
-                    _repository.Update(metricInstance);
-                }
-
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return success;
+            return serverNames;
         }
 
         public MetricData GetMetricInstanceData(Guid metricInstanceId, Guid parentId, out MetricInstance metricInstance)
@@ -394,17 +339,16 @@ namespace Datavail.Delta.Application
             return item;
         }
 
-
         public IEnumerable<TEntity> Find<TEntity>(Specification<TEntity> criteria) where TEntity : class
         {
-            var item = _repository.Find<TEntity>(criteria);
+            var item = _repository.Find(criteria);
 
             return item;
         }
 
         public IEnumerable<Server> GetClusterNodes(Guid clusterId)
         {
-            var servers = _repository.Find<Server>(x => x.Cluster.Id.Equals(clusterId));
+            var servers = _repository.Find<Server>(x => x.Cluster.Id == clusterId);
             return servers;
         }
 
@@ -416,302 +360,63 @@ namespace Datavail.Delta.Application
             return totalRecords;
         }
 
-
-        public bool SaveCustomerServerGroup(ref ServerGroup serverGroup, Guid parentId)
+        public Dictionary<String, String> GetAssembliesForServer(Guid serverId)
         {
-            var saveSuccess = true;
+            var assemblies = new Dictionary<String, String>();
 
-            //Add new
-            if (serverGroup.Id == Guid.Empty)
+            //Get the server
+            var server = _repository.GetByKey<Server>(serverId);
+            if (server == null)
+                return assemblies;
+
+            assemblies.Add("Datavail.Delta.Agent.SharedCode", "4.1.3061.0");
+
+            var metricInstanceList = new List<MetricInstance>();
+
+            //Add all of the server's direct metric instances
+            metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == serverId && mi.Status != Status.Deleted));
+
+            //Add metric instances from each VirtualServer of the cluster that this server belongs to (if any)
+            if (server.Cluster != null)
             {
-                var customer = _repository.FindOne<Customer>(x => x.Id.Equals(parentId));
-                serverGroup = ServerGroup.NewServerGroup(customer, serverGroup.Name, serverGroup.Priority);
-
-                _repository.Add(serverGroup);
-                _repository.UnitOfWork.SaveChanges();
-            }
-            else
-            {
-                _repository.Update(serverGroup);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveServer(ref Server server)
-        {
-            var saveSuccess = true;
-
-            //Edit Only!
-            if (!server.Id.Equals(Guid.Empty))
-            {
-                if (server == null)
+                foreach (var virtualServer in server.Cluster.VirtualServers)
                 {
-                    saveSuccess = false;
+                    var insideVirtualServer = virtualServer;
+                    metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == insideVirtualServer.Id && mi.Status != Status.Deleted));
+                }
+            }
+
+            //Loop through the MetricInstances
+            foreach (var metric in metricInstanceList.Select(metricInstance => metricInstance.Metric))
+            {
+                //Determine if adapter already added
+                if (!assemblies.ContainsKey(metric.AdapterAssembly))
+                {
+                    assemblies.Add(metric.AdapterAssembly, metric.AdapterVersion);
                 }
                 else
                 {
-                    _repository.Update(server);
-                    _repository.UnitOfWork.SaveChanges();
-                }
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveUser(ref User user, List<Guid> roleIds)
-        {
-            var saveSuccess = true;
-            var updatedRoles = _repository.Find<Role>(x => roleIds.Contains(x.Id)).ToList();
-
-            //Add new
-            if (user.Id == Guid.Empty)
-            {
-                user.Id = Guid.NewGuid();
-                user.Roles = updatedRoles;
-                _repository.Add(user);
-                _repository.UnitOfWork.SaveChanges();
-            }
-            else
-            {
-                var oldUser = _repository.GetByKey<User>(user.Id);
-                oldUser.FirstName = user.FirstName;
-                oldUser.LastName = user.LastName;
-                oldUser.EmailAddress = user.EmailAddress;
-
-                var rolesToRemove = oldUser.Roles.Where(x => !roleIds.Contains(x.Id)).ToList();
-
-                //Only update password if is changes
-                if (!string.IsNullOrEmpty(user.PasswordHash) && !string.IsNullOrEmpty(user.PasswordSalt))
-                {
-                    oldUser.PasswordHash = user.PasswordHash;
-                    oldUser.PasswordSalt = user.PasswordSalt;
-                }
-
-                foreach (var deletedRoles in rolesToRemove)
-                {
-                    oldUser.Roles.Remove(deletedRoles);
-                }
-
-                foreach (var addedRole in updatedRoles)
-                {
-                    if (!oldUser.Roles.Any(x => x.Id.Equals(addedRole.Id)))
+                    if (assemblies[metric.AdapterAssembly] != metric.AdapterVersion)
                     {
-                        oldUser.Roles.Add(addedRole);
+                        assemblies.Add(metric.AdapterAssembly, metric.AdapterVersion);
                     }
                 }
-
-                _repository.Update(oldUser);
-                _repository.UnitOfWork.SaveChanges();
             }
 
-            return saveSuccess;
+            //Return an IEnumerable of AssemblyVersion objects
+            return assemblies;
         }
 
-        /// <summary>
-        /// Save the supplied customer object
-        /// </summary>
-        /// <param name="customer">a ref param containing the customer entity to save</param>
-        /// <param name="tenantId">the tenant id of the customer entity to save</param>
-        /// <returns></returns>
-        public bool SaveCustomer(ref Customer customer, Guid tenantId)
+        public bool SaveMetricConfiguration(ref MetricConfiguration metricConfiguration)
         {
-            var saveSuccess = true;
+            const bool SUCCESS = true;
 
-            //Add new
-            if (customer.Id == Guid.Empty)
-            {
-                var tenant = _repository.GetByKey<Tenant>(tenantId);
-                customer.Tenant = tenant;
-                customer.Id = Guid.NewGuid();
+            _repository.Update(metricConfiguration);
+            _repository.UnitOfWork.SaveChanges();
 
-                //Create the default server group
-                var serverGroup = ServerGroup.NewServerGroup(customer, "Default");
-
-                _repository.Add(customer);
-                _repository.Add(serverGroup);
-                _repository.UnitOfWork.SaveChanges();
-            }
-            else
-            {
-                //Workaround because ServiceDeskData isn't passed down to the client's browser in the MVC layer.
-                var dbCustomer = _repository.GetByKey<Customer>(customer.Id);
-                Mapper.CreateMap<Customer, Customer>()
-                    .ForMember(dest => dest.ServiceDeskData, opt => opt.Ignore());
-
-                Mapper.Map(customer, dbCustomer);
-
-                _repository.Update(dbCustomer);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
+            return SUCCESS;
         }
 
-        public bool SaveMaintenanceWindow(ref MaintenanceWindow maintenanceWindow, Guid maintenanceWindowParentId, MaintenanceWindowParentType parentType)
-        {
-            var saveSuccess = true;
-
-            //Add new
-            if (maintenanceWindow.Id == Guid.Empty)
-            {
-                maintenanceWindow.Id = Guid.NewGuid();
-                IMaintenanceWindowParent parent = GetMaintenanceWindowParent(maintenanceWindowParentId, parentType);
-                maintenanceWindow.ParentPreviousStatus = parent.Status;
-                parent.MaintenanceWindows.Add(maintenanceWindow);
-
-                _repository.Add(maintenanceWindow);
-                _repository.Update(parent);
-                _repository.UnitOfWork.SaveChanges();
-            }
-            else
-            {
-                var prevMaintWindow = _repository.GetByKey<MaintenanceWindow>(maintenanceWindow.Id);
-                prevMaintWindow.BeginDate = maintenanceWindow.BeginDate;
-                prevMaintWindow.EndDate = maintenanceWindow.EndDate;
-
-                _repository.Update(prevMaintWindow);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveMetricThreshold(ref MetricThreshold metricThreshold, Guid metricConfigurationId)
-        {
-            var saveSuccess = true;
-            var metricConfig = _repository.GetByKey<MetricConfiguration>(metricConfigurationId);
-
-            if (metricConfig != null)
-            {
-                //Add new
-                if (metricThreshold.Id == Guid.Empty)
-                {
-                    metricThreshold.Id = Guid.NewGuid();
-                    metricConfig.MetricThresholds.Add(metricThreshold);
-
-                    _repository.Add(metricThreshold);
-                    _repository.Update(metricConfig);
-                    _repository.UnitOfWork.SaveChanges();
-                }
-                else
-                {
-                    _repository.Update(metricThreshold);
-                    _repository.UnitOfWork.SaveChanges();
-                }
-            }
-            else
-            {
-                saveSuccess = false;
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveSchedule(ref Schedule schedule, Guid metricConfigurationId)
-        {
-            var saveSuccess = true;
-            var metricConfig = _repository.GetByKey<MetricConfiguration>(metricConfigurationId);
-
-            if (metricConfig != null)
-            {
-                //Add new
-                if (schedule.Id == Guid.Empty)
-                {
-                    schedule.Id = Guid.NewGuid();
-                    metricConfig.Schedules.Add(schedule);
-
-                    _repository.Add(schedule);
-                    _repository.Update(metricConfig);
-                    _repository.UnitOfWork.SaveChanges();
-                }
-                else
-                {
-                    _repository.Update(schedule);
-                    _repository.UnitOfWork.SaveChanges();
-                }
-            }
-            else
-            {
-                saveSuccess = false;
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveCluster(ref Cluster cluster, Guid customerId)
-        {
-            var saveSuccess = true;
-
-            //Add new
-            if (cluster.Id == Guid.Empty)
-            {
-                var customer = _repository.GetByKey<Customer>(customerId);
-                cluster.Customer = customer;
-                cluster.Id = Guid.NewGuid();
-
-                _repository.Add(cluster);
-                _repository.UnitOfWork.SaveChanges();
-            }
-            else
-            {
-                _repository.Update(cluster);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveDatabaseInstance(ref DatabaseInstance databaseInstance, Guid serverId)
-        {
-            var saveSuccess = true;
-
-            //Add new
-            if (databaseInstance.Id == Guid.Empty)
-            {
-                var server = _repository.GetByKey<Server>(serverId);
-                databaseInstance.Server = server;
-                databaseInstance.Id = Guid.NewGuid();
-
-                _repository.Add(databaseInstance);
-                _repository.UnitOfWork.SaveChanges();
-
-                AddDefaultDatabaseInstanceMetrics(databaseInstance.Id);
-            }
-            else
-            {
-                _repository.Update(databaseInstance);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
-        }
-
-        public bool SaveDatabase(ref Database database, Guid instanceId)
-        {
-            var saveSuccess = true;
-
-            //Add new
-            if (database.Id == Guid.Empty)
-            {
-                var databaseInstance = _repository.GetByKey<DatabaseInstance>(instanceId);
-                database.Instance = databaseInstance;
-                database.Id = Guid.NewGuid();
-
-                _repository.Add(database);
-                _repository.UnitOfWork.SaveChanges();
-
-                AddDefaultDatabaseMetrics(database.Id);
-            }
-            else
-            {
-                _repository.Update(database);
-                _repository.UnitOfWork.SaveChanges();
-            }
-
-            return saveSuccess;
-        }
 
         public bool SetClusterNodes(List<Guid> serverIds, Guid clusterId)
         {
@@ -727,7 +432,7 @@ namespace Datavail.Delta.Application
 
                 foreach (var serverId in serverIds)
                 {
-                    if (cluster.Nodes.Any(x => x.Id.Equals(serverId)) || cluster.VirtualServers.Any(x => x.Id.Equals(serverId)))
+                    if (cluster.Nodes.Any(x => x.Id == serverId) || cluster.VirtualServers.Any(x => x.Id == serverId))
                     {
                         continue;
                     }
@@ -770,7 +475,7 @@ namespace Datavail.Delta.Application
 
                 foreach (var serverId in serverIds)
                 {
-                    if (serverGroup.Servers.Any(x => x.Id.Equals(serverId)))
+                    if (serverGroup.Servers.Any(x => x.Id == serverId))
                     {
                         continue;
                     }
@@ -780,7 +485,7 @@ namespace Datavail.Delta.Application
                     if (server != null)
                     {
                         //Make sure it doesn't already exist
-                        var existingId = serverGroup.Servers.Where(x => x.Id.Equals(server.Id)).FirstOrDefault();
+                        var existingId = serverGroup.Servers.FirstOrDefault(x => x.Id == server.Id);
 
                         if (existingId == null)
                         {
@@ -818,7 +523,7 @@ namespace Datavail.Delta.Application
 
                 foreach (var serverId in serverIds)
                 {
-                    if (customer.Servers.Any(x => x.Id.Equals(serverId)))
+                    if (customer.Servers.Any(x => x.Id == serverId))
                     {
                         continue;
                     }
@@ -832,9 +537,9 @@ namespace Datavail.Delta.Application
                         server.Status = Status.Active;
 
                         //Add the server to the default server group
-                        var defaultServerGroup = customer.ServerGroups.Where(x => x.Name == "Default").FirstOrDefault();
+                        var defaultServerGroup = customer.ServerGroups.FirstOrDefault(x => x.Name == "Default");
 
-                        if (!defaultServerGroup.Servers.Any(x => x.Id.Equals(server.Id)))
+                        if (defaultServerGroup.Servers.All(x => x.Id != server.Id))
                         {
                             defaultServerGroup.Servers.Add(server);
 
@@ -886,7 +591,7 @@ namespace Datavail.Delta.Application
                         server.Status = Status.Active;
 
                         //Add the server to the default server group
-                        var defaultServerGroup = customer.ServerGroups.Where(x => x.Name == "Default").FirstOrDefault();
+                        var defaultServerGroup = customer.ServerGroups.FirstOrDefault(x => x.Name == "Default");
 
                         if (defaultServerGroup != null)
                         {
@@ -919,7 +624,7 @@ namespace Datavail.Delta.Application
         {
             var success = true;
 
-            if (metricId.Equals(Guid.Empty) || configParentId.Equals(Guid.Empty))
+            if (metricId == Guid.Empty || configParentId == Guid.Empty)
             {
                 success = false;
             }
@@ -955,13 +660,11 @@ namespace Datavail.Delta.Application
 
         public bool AddVirtualServer(Guid clusterId, ref Server virtualServer)
         {
-            var saveSuccess = true;
-
             var cluster = _repository.GetByKey<Cluster>(clusterId);
 
             if (cluster != null)
             {
-                var serverGroup = _repository.Find<ServerGroup>(x => x.ParentCustomer.Id.Equals(cluster.Customer.Id) && x.Name.Equals("Default")).FirstOrDefault();
+                var serverGroup = _repository.Find<ServerGroup>(x => x.ParentCustomer.Id == cluster.Customer.Id && x.Name == "Default").FirstOrDefault();
 
                 virtualServer.Id = Guid.NewGuid();
                 virtualServer.VirtualServerParent = cluster;
@@ -978,12 +681,8 @@ namespace Datavail.Delta.Application
                 _repository.Update(serverGroup);
                 _repository.UnitOfWork.SaveChanges();
             }
-            else
-            {
-                saveSuccess = false;
-            }
 
-            saveSuccess = AddDefaultVirtualServerMetrics(virtualServer.Id);
+            var saveSuccess = AddDefaultVirtualServerMetrics(virtualServer.Id);
 
             return saveSuccess;
         }
@@ -1134,7 +833,7 @@ namespace Datavail.Delta.Application
                         DeleteInstances(instanceIds);
 
                         var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
-                                                                                                        x.Server.Id.Equals(server.Id) &&
+                                                                                                        x.Server.Id == server.Id &&
                                                                                                         x.Status != Status.Deleted))
                                                                                                 .Select(x => x.Id).ToList();
                         DeleteMetricInstances(metricInstanceIds);
@@ -1180,7 +879,7 @@ namespace Datavail.Delta.Application
                     if (server != null)
                     {
                         //Make sure it doesn't already exist
-                        var existingId = serverGroup.Servers.Where(x => x.Id.Equals(server.Id)).FirstOrDefault();
+                        var existingId = serverGroup.Servers.FirstOrDefault(x => x.Id == server.Id);
 
                         if (existingId == null)
                         {
@@ -1214,7 +913,7 @@ namespace Datavail.Delta.Application
             _repository.Update(user);
             _repository.UnitOfWork.SaveChanges();
 
-            if (user != null && user.HasPassword(password))
+            if (user.HasPassword(password))
             {
                 authenticated = true;
             }
@@ -1231,6 +930,372 @@ namespace Datavail.Delta.Application
 
             return user;
         }
+
+        public string GetServerInfo(Guid serverId)
+        {
+            var server = _repository.GetByKey<Server>(serverId);
+            var xml = new XElement("ServerInfo", new XAttribute("serverId", server.Id.ToString()), new XAttribute("hostName", server.Hostname), new XAttribute("ipAddress", server.IpAddress));
+            return xml.ToString();
+        }
+
+        public string GetServerInfoFromMetricInstanceId(Guid metricInstanceId)
+        {
+            var metricInstance = _repository.GetByKey<MetricInstance>(metricInstanceId);
+            var server = metricInstance.Server;
+
+            var xml = new XElement("ServerInfo", new XAttribute("serverId", server.Id.ToString()), new XAttribute("hostName", server.Hostname), new XAttribute("ipAddress", server.IpAddress));
+            return xml.ToString();
+        }
+        #endregion
+
+        #region Save
+        public bool SaveMetricInstance(Guid metricInstanceId, Guid metricId, Guid metricParentId, MetricData metricData, Status status, MetricInstanceParentType parentType)
+        {
+            string label;
+            string xmlData;
+            Metric metric;
+            Server server;
+
+            var success = GetMetricInstanceDataAndLabel(metricId, metricParentId, metricData, out xmlData, out label, out server, out metric);
+
+            if (success)
+            {
+                if (metricInstanceId == Guid.Empty)
+                {
+                    var metricInstance = MetricInstance.NewMetricInstance(label, metric);
+
+                    switch (parentType)
+                    {
+                        case MetricInstanceParentType.Instance:
+                            var databaseInstance = _repository.GetByKey<DatabaseInstance>(metricParentId);
+                            metricInstance.DatabaseInstance = databaseInstance;
+                            break;
+                        case MetricInstanceParentType.Database:
+                            var database = _repository.GetByKey<Database>(metricParentId);
+                            metricInstance.Database = database;
+                            break;
+                    }
+
+                    metricInstance.Id = Guid.NewGuid();
+                    metricInstance.Data = xmlData;
+                    metricInstance.Status = status;
+
+                    server.MetricInstances.Add(metricInstance);
+                    _repository.Add(metricInstance);
+                    _repository.Update(server);
+                }
+                else
+                {
+                    var metricInstance = _repository.GetByKey<MetricInstance>(metricInstanceId);
+
+                    metricInstance.Status = status;
+                    metricInstance.Data = xmlData;
+                    metricInstance.Label = label;
+                    _repository.Update(metricInstance);
+                }
+
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return success;
+        }
+
+        public bool SaveCustomerServerGroup(ref ServerGroup serverGroup, Guid parentId)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (serverGroup.Id == Guid.Empty)
+            {
+                var customer = _repository.FindOne<Customer>(x => x.Id == parentId);
+                serverGroup = ServerGroup.NewServerGroup(customer, serverGroup.Name, serverGroup.Priority);
+
+                _repository.Add(serverGroup);
+                _repository.UnitOfWork.SaveChanges();
+            }
+            else
+            {
+                _repository.Update(serverGroup);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        public bool SaveServer(ref Server server)
+        {
+            var saveSuccess = true;
+
+            //Edit Only!
+            if (server.Id != Guid.Empty)
+            {
+                if (server == null)
+                {
+                    saveSuccess = false;
+                }
+                else
+                {
+                    _repository.Update(server);
+                    _repository.UnitOfWork.SaveChanges();
+                }
+            }
+
+            return saveSuccess;
+        }
+
+        public bool SaveUser(ref User user, List<Guid> roleIds)
+        {
+            const bool SAVE_SUCCESS = true;
+            var updatedRoles = _repository.Find<Role>(x => roleIds.Contains(x.Id)).ToList();
+
+            //Add new
+            if (user.Id == Guid.Empty)
+            {
+                user.Id = Guid.NewGuid();
+                user.Roles = updatedRoles;
+                _repository.Add(user);
+                _repository.UnitOfWork.SaveChanges();
+            }
+            else
+            {
+                var oldUser = _repository.GetByKey<User>(user.Id);
+                oldUser.FirstName = user.FirstName;
+                oldUser.LastName = user.LastName;
+                oldUser.EmailAddress = user.EmailAddress;
+
+                var rolesToRemove = oldUser.Roles.Where(x => !roleIds.Contains(x.Id)).ToList();
+
+                //Only update password if is changes
+                if (!string.IsNullOrEmpty(user.PasswordHash) && !string.IsNullOrEmpty(user.PasswordSalt))
+                {
+                    oldUser.PasswordHash = user.PasswordHash;
+                    oldUser.PasswordSalt = user.PasswordSalt;
+                }
+
+                foreach (var deletedRoles in rolesToRemove)
+                {
+                    oldUser.Roles.Remove(deletedRoles);
+                }
+
+                foreach (var addedRole in updatedRoles)
+                {
+                    if (oldUser.Roles.All(x => x.Id != (addedRole.Id)))
+                    {
+                        oldUser.Roles.Add(addedRole);
+                    }
+                }
+
+                _repository.Update(oldUser);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        /// <summary>
+        /// Save the supplied customer object
+        /// </summary>
+        /// <param name="customer">a ref param containing the customer entity to save</param>
+        /// <param name="tenantId">the tenant id of the customer entity to save</param>
+        /// <returns></returns>
+        public bool SaveCustomer(ref Customer customer, Guid tenantId)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (customer.Id == Guid.Empty)
+            {
+                var tenant = _repository.GetByKey<Tenant>(tenantId);
+                customer.Tenant = tenant;
+                customer.Id = Guid.NewGuid();
+
+                //Create the default server group
+                var serverGroup = ServerGroup.NewServerGroup(customer, "Default");
+
+                _repository.Add(customer);
+                _repository.Add(serverGroup);
+                _repository.UnitOfWork.SaveChanges();
+            }
+            else
+            {
+                //Workaround because ServiceDeskData isn't passed down to the client's browser in the MVC layer.
+                var dbCustomer = _repository.GetByKey<Customer>(customer.Id);
+                Mapper.CreateMap<Customer, Customer>()
+                    .ForMember(dest => dest.ServiceDeskData, opt => opt.Ignore());
+
+                Mapper.Map(customer, dbCustomer);
+
+                _repository.Update(dbCustomer);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        public bool SaveMaintenanceWindow(ref MaintenanceWindow maintenanceWindow, Guid maintenanceWindowParentId, MaintenanceWindowParentType parentType)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (maintenanceWindow.Id == Guid.Empty)
+            {
+                maintenanceWindow.Id = Guid.NewGuid();
+                var parent = GetMaintenanceWindowParent(maintenanceWindowParentId, parentType);
+                maintenanceWindow.ParentPreviousStatus = parent.Status;
+                parent.MaintenanceWindows.Add(maintenanceWindow);
+
+                _repository.Add(maintenanceWindow);
+                _repository.Update(parent);
+                _repository.UnitOfWork.SaveChanges();
+            }
+            else
+            {
+                var prevMaintWindow = _repository.GetByKey<MaintenanceWindow>(maintenanceWindow.Id);
+                prevMaintWindow.BeginDate = maintenanceWindow.BeginDate;
+                prevMaintWindow.EndDate = maintenanceWindow.EndDate;
+
+                _repository.Update(prevMaintWindow);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        public bool SaveMetricThreshold(ref MetricThreshold metricThreshold, Guid metricConfigurationId)
+        {
+            var saveSuccess = true;
+            var metricConfig = _repository.GetByKey<MetricConfiguration>(metricConfigurationId);
+
+            if (metricConfig != null)
+            {
+                //Add new
+                if (metricThreshold.Id == Guid.Empty)
+                {
+                    metricThreshold.Id = Guid.NewGuid();
+                    metricConfig.MetricThresholds.Add(metricThreshold);
+
+                    _repository.Add(metricThreshold);
+                    _repository.Update(metricConfig);
+                    _repository.UnitOfWork.SaveChanges();
+                }
+                else
+                {
+                    _repository.Update(metricThreshold);
+                    _repository.UnitOfWork.SaveChanges();
+                }
+            }
+            else
+            {
+                saveSuccess = false;
+            }
+
+            return saveSuccess;
+        }
+
+        public bool SaveSchedule(ref Schedule schedule, Guid metricConfigurationId)
+        {
+            var saveSuccess = true;
+            var metricConfig = _repository.GetByKey<MetricConfiguration>(metricConfigurationId);
+
+            if (metricConfig != null)
+            {
+                //Add new
+                if (schedule.Id == Guid.Empty)
+                {
+                    schedule.Id = Guid.NewGuid();
+                    metricConfig.Schedules.Add(schedule);
+
+                    _repository.Add(schedule);
+                    _repository.Update(metricConfig);
+                    _repository.UnitOfWork.SaveChanges();
+                }
+                else
+                {
+                    _repository.Update(schedule);
+                    _repository.UnitOfWork.SaveChanges();
+                }
+            }
+            else
+            {
+                saveSuccess = false;
+            }
+
+            return saveSuccess;
+        }
+
+        public bool SaveCluster(ref Cluster cluster, Guid customerId)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (cluster.Id == Guid.Empty)
+            {
+                var customer = _repository.GetByKey<Customer>(customerId);
+                cluster.Customer = customer;
+                cluster.Id = Guid.NewGuid();
+
+                _repository.Add(cluster);
+                _repository.UnitOfWork.SaveChanges();
+            }
+            else
+            {
+                _repository.Update(cluster);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        public bool SaveDatabaseInstance(ref DatabaseInstance databaseInstance, Guid serverId)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (databaseInstance.Id == Guid.Empty)
+            {
+                var server = _repository.GetByKey<Server>(serverId);
+                databaseInstance.Server = server;
+                databaseInstance.Id = Guid.NewGuid();
+
+                _repository.Add(databaseInstance);
+                _repository.UnitOfWork.SaveChanges();
+
+                AddDefaultDatabaseInstanceMetrics(databaseInstance.Id);
+            }
+            else
+            {
+                _repository.Update(databaseInstance);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
+        public bool SaveDatabase(ref Database database, Guid instanceId)
+        {
+            const bool SAVE_SUCCESS = true;
+
+            //Add new
+            if (database.Id == Guid.Empty)
+            {
+                var databaseInstance = _repository.GetByKey<DatabaseInstance>(instanceId);
+                database.Instance = databaseInstance;
+                database.Id = Guid.NewGuid();
+
+                _repository.Add(database);
+                _repository.UnitOfWork.SaveChanges();
+
+                AddDefaultDatabaseMetrics(database.Id);
+            }
+            else
+            {
+                _repository.Update(database);
+                _repository.UnitOfWork.SaveChanges();
+            }
+
+            return SAVE_SUCCESS;
+        }
+
         #endregion
 
         #region Update Methods
@@ -1246,16 +1311,16 @@ namespace Datavail.Delta.Application
         /// <param name="customerId">A <see cref="T:System.Guid"/> representing the <see cref="T:Datavail.Delta.Domain.Customer"/> that the server belongs to.</param>
         public void CheckIn(Guid tenantId, Guid serverId, string hostname, string ipAddress, string agentVersion, Guid? customerId = null)
         {
-            Datavail.Delta.Infrastructure.Util.Guard.IsNotNull(tenantId);
-            Datavail.Delta.Infrastructure.Util.Guard.IsNotNull(serverId);
-            Datavail.Delta.Infrastructure.Util.Guard.IsNotNull(hostname);
-            Datavail.Delta.Infrastructure.Util.Guard.IsNotNull(ipAddress);
+            Guard.IsNotNull(tenantId);
+            Guard.IsNotNull(serverId);
+            Guard.IsNotNull(hostname);
+            Guard.IsNotNull(ipAddress);
 
             var server = _repository.GetByKey<Server>(serverId);
             if (server == null)
             {
                 var tenant = _repository.GetByKey<Tenant>(tenantId);
-                Datavail.Delta.Infrastructure.Util.Guard.IsNotNull(tenant, "Invalid TenantId Specified");
+                Guard.IsNotNull(tenant, "Invalid TenantId Specified");
 
                 server = Server.NewServer(tenant, serverId, hostname, ipAddress);
 
@@ -1270,7 +1335,7 @@ namespace Datavail.Delta.Application
                         server.Customer = customer;
                         server.Status = Status.Active;
 
-                        serverGroup = customer.ServerGroups.Where(s => s.Name == "Default").FirstOrDefault();
+                        serverGroup = customer.ServerGroups.FirstOrDefault(s => s.Name == "Default");
                         if (serverGroup != null)
                         {
                             serverGroup.Servers.Add(server);
@@ -1366,13 +1431,13 @@ namespace Datavail.Delta.Application
                 //DiskPlugin
                 if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskPlugin" && x.Status != Status.Deleted))
                 {
-                    var serverDisks = _repository.Find<ServerDisk>(x => x.Server.Id.Equals(server.Id)).ToList();
+                    var serverDisks = _repository.Find<ServerDisk>(x => x.Server.Id == server.Id).ToList();
                     var diskMetric = _repository.Find<Metric>(x => x.AdapterClass == "DiskPlugin").OrderBy(x => x.AdapterVersion).LastOrDefault();
 
                     foreach (var disk in serverDisks)
                     {
                         var metricData = GetMetricData(diskMetric.Id, serverId);
-                        var pathData = metricData.Data.Where(x => x.TagName == "Path").FirstOrDefault();
+                        var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
 
                         pathData.Value = disk.Path;
 
@@ -1390,11 +1455,11 @@ namespace Datavail.Delta.Application
 
         public bool AddDefaultVirtualServerMetrics(Guid virtualServerId)
         {
-            var success = true;
+            const bool SUCCESS = true;
 
             AddDefaultServerMetrics(virtualServerId);
 
-            return success;
+            return SUCCESS;
         }
 
         public bool AddDefaultDatabaseInstanceMetrics(Guid databaseInstanceId)
@@ -1409,7 +1474,7 @@ namespace Datavail.Delta.Application
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "DatabaseInventoryPlugin" &&
                                                                         x.Status != Status.Deleted &&
                                                                         x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
-                                                                        x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
+                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseInventoryPlugin" &&
                                                                                     x.DatabaseVersion == databaseInstance.DatabaseVersion)
@@ -1423,7 +1488,7 @@ namespace Datavail.Delta.Application
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "SqlAgentJobInventoryPlugin" &&
                                                                         x.Status != Status.Deleted &&
                                                                         x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
-                                                                        x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
+                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "SqlAgentJobInventoryPlugin" &&
                                                                                     x.DatabaseVersion == databaseInstance.DatabaseVersion)
@@ -1444,16 +1509,16 @@ namespace Datavail.Delta.Application
                     var existingJobsMetrics = databaseInstance.Server.MetricInstances.Where(x => x.Metric.AdapterClass == "DatabaseServerJobsPlugin" &&
                                                                                                 x.Status != Status.Deleted &&
                                                                                                 x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
-                                                                                                x.DatabaseInstance.Id.Equals(databaseInstance.Id)).ToList();
+                                                                                                x.DatabaseInstance.Id == databaseInstance.Id).ToList();
 
                     foreach (var job in databaseInstance.Jobs)
                     {
                         //Check existing job metrics to see if it exists already
-                        if (!existingJobsMetrics.Any(x => XElement.Parse(x.Data).Attribute("JobName").Value.Equals(job.Name)))
+                        if (existingJobsMetrics.All(x => XElement.Parse(x.Data).Attribute("JobName").Value != job.Name))
                         {
                             var metricData = GetMetricData(databaseServerJobsMetric.Id, databaseInstance.Id);
 
-                            var jobData = metricData.Data.Where(x => x.TagName == "JobName").FirstOrDefault();
+                            var jobData = metricData.Data.FirstOrDefault(x => x.TagName == "JobName");
                             jobData.Value = job.Name;
 
                             SaveMetricInstance(Guid.Empty, databaseServerJobsMetric.Id, databaseInstance.Id, metricData, Status.Active, MetricInstanceParentType.Instance);
@@ -1465,7 +1530,7 @@ namespace Datavail.Delta.Application
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "SqlAgentStatusPlugin" &&
                                                                         x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
                                                                         x.Status != Status.Deleted &&
-                                                                        x.DatabaseInstance.Id.Equals(databaseInstance.Id)))
+                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
                 {
                     var sqlAgentStatusMetric = _repository.Find<Metric>(x => x.AdapterClass == "SqlAgentStatusPlugin" &&
                                                                                     x.DatabaseVersion == databaseInstance.DatabaseVersion)
@@ -1495,7 +1560,7 @@ namespace Datavail.Delta.Application
 
                                                                         x.Metric.DatabaseVersion == database.Instance.DatabaseVersion &&
                                                                         x.Status != Status.Deleted &&
-                                                                        x.Database.Id.Equals(database.Id)))
+                                                                        x.Database.Id == database.Id))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseBackupStatusPlugin" &&
                                                                                     x.DatabaseVersion == database.Instance.DatabaseVersion)
@@ -1509,7 +1574,7 @@ namespace Datavail.Delta.Application
                 if (!database.Instance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "DatabaseStatusPlugin" &&
                                                                         x.Metric.DatabaseVersion == database.Instance.DatabaseVersion &&
                                                                         x.Status != Status.Deleted &&
-                                                                        x.Database.Id.Equals(database.Id)))
+                                                                        x.Database.Id == database.Id))
                 {
                     var databaseInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DatabaseStatusPlugin" &&
                                                                                     x.DatabaseVersion == database.Instance.DatabaseVersion)
@@ -1582,7 +1647,7 @@ namespace Datavail.Delta.Application
                 miXml.Add(new XAttribute("ScheduleType", (int)schedule.ScheduleType));
                 miXml.Add(new XAttribute("ScheduleInterval", schedule.Interval));
                 miXml.Add((new XAttribute("MetricConfigurationId", metricConfiguration.Id)));
-
+                // ReSharper disable AssignNullToNotNullAttribute
                 switch (schedule.ScheduleType)
                 {
                     case ScheduleType.Seconds:
@@ -1593,7 +1658,9 @@ namespace Datavail.Delta.Application
                         miXml.Add(new XAttribute("ScheduleMinute", schedule.Minute));
                         break;
                     case ScheduleType.Days:
+
                         miXml.Add(new XAttribute("ScheduleMinute", schedule.Minute));
+
                         miXml.Add(new XAttribute("ScheduleHour", schedule.Hour));
                         break;
                     case ScheduleType.Weeks:
@@ -1614,6 +1681,7 @@ namespace Datavail.Delta.Application
                 }
                 nodes.Add(miXml);
             }
+            // ReSharper restore AssignNullToNotNullAttribute
             return nodes;
         }
         #endregion
@@ -1622,7 +1690,7 @@ namespace Datavail.Delta.Application
         public bool ValidateCustomer(Customer customer, out List<string> errors)
         {
             errors = new List<string>();
-            var customers = _repository.Find<Customer>(x => x.Name.Equals(customer.Name) && x.Id != customer.Id);
+            var customers = _repository.Find<Customer>(x => x.Name == customer.Name && x.Id != customer.Id);
 
             if (customers.Any())
             {
@@ -1683,12 +1751,12 @@ namespace Datavail.Delta.Application
                 errors.Add("The user is missing the required fields: Email Address, First Name, or Last Name");
             }
 
-            if (user.Id.Equals(Guid.Empty) && (string.IsNullOrEmpty(user.PasswordHash) || string.IsNullOrEmpty(user.PasswordSalt)))
+            if (user.Id == Guid.Empty && (string.IsNullOrEmpty(user.PasswordHash) || string.IsNullOrEmpty(user.PasswordSalt)))
             {
                 errors.Add("The user password is a required field");
             }
 
-            if (user.Id.Equals(Guid.Empty) && _repository.GetQuery<User>().Any(x => x.EmailAddress.Equals(user.EmailAddress)))
+            if (user.Id == Guid.Empty && _repository.GetQuery<User>().Any(x => x.EmailAddress == user.EmailAddress))
             {
                 errors.Add("The supplied email address is already in use");
             }
@@ -1700,11 +1768,11 @@ namespace Datavail.Delta.Application
         {
             errors = new List<string>();
             Specification<ServerGroup> criteria = new ServerGroupsByParentSpecification(parentId);
-            criteria = criteria.And(x => !x.Id.Equals(serverGroup.Id));
-            criteria = criteria.And(x => x.Priority.Equals(serverGroup.Priority));
+            criteria = criteria.And(x => x.Id != serverGroup.Id);
+            criteria = criteria.And(x => x.Priority == serverGroup.Priority);
             criteria = criteria.And(x => x.Status != Status.Deleted);
 
-            var serverGroups = _repository.Find<ServerGroup>(criteria);
+            var serverGroups = _repository.Find(criteria);
 
             if (serverGroups.Any())
             {
@@ -1721,14 +1789,14 @@ namespace Datavail.Delta.Application
         public bool DeleteDefaultServerGroup(Guid customerId)
         {
             var deleteSuccess = true;
-            var serverGroup = _repository.Find<ServerGroup>(x => x.ParentCustomer.Id.Equals(customerId) && x.Name.Equals("Default")).FirstOrDefault();
+            var serverGroup = _repository.Find<ServerGroup>(x => x.ParentCustomer.Id == customerId && x.Name == "Default").FirstOrDefault();
 
             if (serverGroup != null)
             {
                 serverGroup.Status = Status.Deleted;
 
                 //Remove existing servers from the group
-                for (int i = 0; i < serverGroup.Servers.Count; i++)
+                for (var i = 0; i < serverGroup.Servers.Count; i++)
                 {
                     serverGroup.Servers.Remove(serverGroup.Servers[i]);
                 }
@@ -1788,26 +1856,10 @@ namespace Datavail.Delta.Application
         }
         #endregion
 
-        public IEnumerable<object> GetCustomerNames(string searchTerm)
-        {
-            var customerNames = _repository.Find<Customer>(x => x.Name.StartsWith(searchTerm))
-                                            .Where(x => x.Status != Status.Deleted)
-                                            .Select(x => new { name = x.Name, id = x.Id }).OrderBy(x => x.name).ToList();
-
-            return customerNames;
-        }
-
-        public IEnumerable<object> GetServerNames(Guid customerId, string searchTerm)
-        {
-            var serverNames = _repository.Find<Server>(x => x.Customer.Id.Equals(customerId) && x.Hostname.StartsWith(searchTerm))
-                                        .Select(x => new { name = x.Hostname, id = x.Id }).OrderBy(x => x.name).ToList();
-
-            return serverNames;
-        }
-
+        #region Delete
         public bool DeleteCustomers(List<Guid> customerIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<Customer>(x => customerIds.Contains(x.Id)).ToList();
 
             foreach (var customer in entities)
@@ -1843,7 +1895,7 @@ namespace Datavail.Delta.Application
 
 
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteMaintenanceWindows(List<Guid> maintenanceWindowIds)
@@ -1874,7 +1926,7 @@ namespace Datavail.Delta.Application
 
         public bool DeleteMetricThresholds(List<Guid> metricThresholdIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<MetricThreshold>(x => metricThresholdIds.Contains(x.Id));
 
             foreach (var metricThreshold in entities)
@@ -1884,17 +1936,17 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteMetricConfigurations(List<Guid> metricConfigurationIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<MetricConfiguration>(x => metricConfigurationIds.Contains(x.Id)).ToList();
 
             foreach (var id in metricConfigurationIds)
             {
-                var metricConfig = entities.Where(x => x.Id.Equals(id)).FirstOrDefault();
+                var metricConfig = entities.FirstOrDefault(x => x.Id == id);
 
                 if (metricConfig != null)
                 {
@@ -1914,12 +1966,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteSchedules(List<Guid> scheduleIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<Schedule>(x => scheduleIds.Contains(x.Id));
 
             foreach (var schedule in entities)
@@ -1929,12 +1981,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteServers(List<Guid> serverIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<Server>(x => serverIds.Contains(x.Id)).ToList();
 
             foreach (var server in entities)
@@ -1946,8 +1998,9 @@ namespace Datavail.Delta.Application
                 var instanceIds = server.Instances.Select(x => x.Id).ToList();
                 DeleteInstances(instanceIds);
 
+                var tmpServer = server;
                 var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
-                                                                                                x.Server.Id.Equals(server.Id) &&
+                                                                                                x.Server.Id == tmpServer.Id &&
                                                                                                 x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
@@ -1961,12 +2014,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteUsers(List<Guid> userIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<User>(x => userIds.Contains(x.Id));
 
             foreach (var user in entities)
@@ -1976,12 +2029,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteClusters(List<Guid> clusterIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<Cluster>(x => clusterIds.Contains(x.Id)).ToList();
 
             foreach (var cluster in entities)
@@ -1989,13 +2042,15 @@ namespace Datavail.Delta.Application
                 cluster.Status = Status.Deleted;
 
                 //Remove Nodes
-                foreach (var node in _repository.Find<Server>(x => x.Cluster.Id.Equals(cluster.Id)).ToList())
+                var tmpCluster = cluster;
+                foreach (var node in _repository.Find<Server>(x => x.Cluster.Id == tmpCluster.Id).ToList())
                 {
                     cluster.Nodes.Remove(node);
                 }
 
                 //Remove virtual servers
-                foreach (var virtualServer in _repository.Find<Server>(x => x.VirtualServerParent.Id.Equals(cluster.Id)).ToList())
+                var tmpVirtualCluster = cluster;
+                foreach (var virtualServer in _repository.Find<Server>(x => x.VirtualServerParent.Id == tmpVirtualCluster.Id).ToList())
                 {
                     cluster.VirtualServers.Remove(virtualServer);
                 }
@@ -2005,13 +2060,13 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
 
         }
 
         public bool DeleteInstances(List<Guid> instanceIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<DatabaseInstance>(x => instanceIds.Contains(x.Id)).ToList();
 
             foreach (var instance in entities)
@@ -2023,8 +2078,9 @@ namespace Datavail.Delta.Application
                 var databaseIds = instance.Databases.Select(x => x.Id).ToList();
                 DeleteDatabases(databaseIds);
 
+                var tmpInstance = instance;
                 var metricInstanceIds = instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
-                                                                                                x.DatabaseInstance.Id.Equals(instance.Id) &&
+                                                                                                x.DatabaseInstance.Id == tmpInstance.Id &&
                                                                                                 x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
@@ -2035,12 +2091,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteDatabases(List<Guid> datbaseIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<Database>(x => datbaseIds.Contains(x.Id)).ToList();
 
             foreach (var database in entities)
@@ -2049,8 +2105,9 @@ namespace Datavail.Delta.Application
                 _repository.Update(database);
 
                 //Delete the associated metric instances
+                var tmpDatabase = database;
                 var metricInstanceIds = database.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Database) == MetricType.Database &&
-                                                                                                x.Database.Id.Equals(database.Id) &&
+                                                                                                x.Database.Id == tmpDatabase.Id &&
                                                                                                 x.Status != Status.Deleted))
                                                                                         .Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
@@ -2058,12 +2115,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteJobs(List<Guid> jobIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<SqlAgentJob>(x => jobIds.Contains(x.Id)).ToList();
 
             foreach (var job in entities)
@@ -2078,7 +2135,8 @@ namespace Datavail.Delta.Application
                 //                                                                        .Select(x => x.Id).ToList();
 
                 var label = string.Format("Job Status for '{0}' on Instance '{1}'", job.Name, job.Instance.Name);
-                var metricInstanceIds =_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == job.Instance.Server.Id &&
+                var tmpJob = job;
+                var metricInstanceIds = _repository.GetQuery<MetricInstance>(mi => mi.Server.Id == tmpJob.Instance.Server.Id &&
                                                                (mi.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
                                                                mi.Label == label &&
                                                                mi.Status != Status.Deleted).Select(x => x.Id).ToList();
@@ -2088,12 +2146,12 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
 
         public bool DeleteMetricInstances(List<Guid> metricInstanceIds)
         {
-            var deleteSuccess = true;
+            const bool DELETE_SUCCESS = true;
             var entities = _repository.Find<MetricInstance>(x => metricInstanceIds.Contains(x.Id)).ToList();
 
             foreach (var metricInstance in entities)
@@ -2111,8 +2169,9 @@ namespace Datavail.Delta.Application
 
             _repository.UnitOfWork.SaveChanges();
 
-            return deleteSuccess;
+            return DELETE_SUCCESS;
         }
+        #endregion
 
         public bool ServerExists(Guid serverId)
         {
@@ -2120,70 +2179,9 @@ namespace Datavail.Delta.Application
             return server != null;
         }
 
-        public string GetServerInfo(Guid serverId)
-        {
-            var server = _repository.GetByKey<Server>(serverId);
-            var xml = new XElement("ServerInfo", new XAttribute("serverId", server.Id.ToString()), new XAttribute("hostName", server.Hostname), new XAttribute("ipAddress", server.IpAddress));
-            return xml.ToString();
-        }
 
-        public string GetServerInfoFromMetricInstanceId(Guid metricInstanceId)
-        {
-            var metricInstance = _repository.GetByKey<MetricInstance>(metricInstanceId);
-            var server = metricInstance.Server;
 
-            var xml = new XElement("ServerInfo", new XAttribute("serverId", server.Id.ToString()), new XAttribute("hostName", server.Hostname), new XAttribute("ipAddress", server.IpAddress));
-            return xml.ToString();
-        }
 
-        public Dictionary<String, String> GetAssembliesForServer(Guid serverId)
-        {
-            var assemblies = new Dictionary<String, String>();
-            
-            //Get the server
-            var server = _repository.GetByKey<Server>(serverId);
-            if (server == null)
-                return assemblies;
-
-            assemblies.Add("Datavail.Delta.Agent.SharedCode", "4.1.3061.0");
-
-            var metricInstanceList = new List<MetricInstance>();
-
-            //Add all of the server's direct metric instances
-            metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi=>mi.Server.Id==serverId && mi.Status!=Status.Deleted));
-
-            //Add metric instances from each VirtualServer of the cluster that this server belongs to (if any)
-            if (server.Cluster != null)
-            {
-                foreach (var virtualServer in server.Cluster.VirtualServers)
-                {
-                    metricInstanceList.AddRange(_repository.GetQuery<MetricInstance>(mi => mi.Server.Id == virtualServer.Id && mi.Status != Status.Deleted));
-                }
-            }
-
-            //Loop through the MetricInstances
-            foreach (var metricInstance in metricInstanceList)
-            {
-                //For each MetricInstance, Get the Metric
-                var metric = metricInstance.Metric;
-
-                //Determine if adapter already added
-                if (!assemblies.ContainsKey(metric.AdapterAssembly))
-                {
-                    assemblies.Add(metric.AdapterAssembly, metric.AdapterVersion);
-                }
-                else
-                {
-                    if (assemblies[metric.AdapterAssembly] != metric.AdapterVersion)
-                    {
-                        assemblies.Add(metric.AdapterAssembly, metric.AdapterVersion);
-                    }
-                }
-            }
-
-            //Return an IEnumerable of AssemblyVersion objects
-            return assemblies;
-        }
 
         #region Inventory Update Methods
         public void UpdateServerDiskInventory(Guid serverId, string drivePath, string label, long totalBytes)
@@ -2199,19 +2197,20 @@ namespace Datavail.Delta.Application
                 _repository.UnitOfWork.SaveChanges();
             }
 
-            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id.Equals(serverId)
+            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == serverId
                                                                          && x.Status != Status.Deleted
-                                                                         && x.Metric.AdapterClass.Equals("DiskPlugin")
+                                                                         && x.Metric.AdapterClass == "DiskPlugin"
                                                                          && x.Data.Contains(drivePath)).FirstOrDefault();
 
             //Create the disk metric if it doesn't exist
             if (diskStatusMetric == null)
             {
-                var metric = _repository.Find<Metric>(x => x.AdapterClass.Equals("DiskPlugin")).FirstOrDefault();
-                //SaveMetricInstance(Guid.Empty, metric.Id, virtualServer.Id, GetMetricData(metric.Id, virtualServer.Id), Status.Active, MetricInstanceParentType.Server);
+                var metric = _repository.Find<Metric>(x => x.AdapterClass == "DiskPlugin").FirstOrDefault();
+
 
                 var metricData = GetMetricData(metric.Id, serverId);
-                var pathData = metricData.Data.Where(x => x.TagName == "Path").FirstOrDefault();
+
+                var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
 
                 pathData.Value = disk.Path;
 
@@ -2222,7 +2221,7 @@ namespace Datavail.Delta.Application
         public void UpdateClusterDiskInventory(Guid serverId, string clusterName, string resourceGroupName, string drivePath, string label, long totalBytes)
         {
             var server = _repository.GetByKey<Server>(serverId);
-            var disk = _repository.FindOne(new Specification<ServerDisk>(s => s.Server.Id == server.Id && s.Path == drivePath));
+            var disk = _repository.GetQuery<ServerDisk>(s => s.Server.Id == server.Id && s.Path == drivePath).FirstOrDefault();
 
             if (disk == null)
             {
@@ -2232,19 +2231,18 @@ namespace Datavail.Delta.Application
                 _repository.UnitOfWork.SaveChanges();
             }
 
-            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id.Equals(server.Id)
+            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == server.Id
                                                                          && x.Status != Status.Deleted
-                                                                         && x.Metric.AdapterClass.Equals("DiskPlugin")
+                                                                         && x.Metric.AdapterClass == "DiskPlugin"
                                                                          && x.Data.Contains(drivePath)).FirstOrDefault();
 
             //Create the disk metric if it doesn't exist
             if (diskStatusMetric == null)
             {
-                var metric = _repository.Find<Metric>(x => x.AdapterClass.Equals("DiskPlugin")).FirstOrDefault();
-                //SaveMetricInstance(Guid.Empty, metric.Id, virtualServer.Id, GetMetricData(metric.Id, virtualServer.Id), Status.Active, MetricInstanceParentType.Server);
+                var metric = _repository.Find<Metric>(x => x.AdapterClass == "DiskPlugin").FirstOrDefault();
 
                 var metricData = GetMetricData(metric.Id, serverId);
-                var pathData = metricData.Data.Where(x => x.TagName == "Path").FirstOrDefault();
+                var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
 
                 pathData.Value = disk.Path;
 
@@ -2345,10 +2343,7 @@ namespace Datavail.Delta.Application
                     {
                         throw;
                     }
-                    else
-                    {
-                        Trace.WriteLine("ServerService::UpdateInstanceSqlJobInventory::Violation of UNIQUE KEY constraint");
-                    }
+                    Trace.WriteLine("ServerService::UpdateInstanceSqlJobInventory::Violation of UNIQUE KEY constraint");
                 }
             }
 
@@ -2387,15 +2382,15 @@ namespace Datavail.Delta.Application
         }
 
         #region "Private Methods"
-        private MetricData GetMetricData(string adapterClass, string metricXMLData, Guid parentId)
+        private MetricData GetMetricData(string adapterClass, string metricXmlData, Guid parentId)
         {
             var metricData = new MetricData();
             var existingData = false;
             XElement xmlData = null;
 
-            if (!string.IsNullOrEmpty(metricXMLData))
+            if (!string.IsNullOrEmpty(metricXmlData))
             {
-                xmlData = XElement.Parse(metricXMLData);
+                xmlData = XElement.Parse(metricXmlData);
                 existingData = true;
             }
 
@@ -2416,7 +2411,7 @@ namespace Datavail.Delta.Application
                 case "DatabaseFileSizePlugin":
                     break;
                 case "DatabaseServerJobsPlugin":
-                    var jobs = _repository.Find<SqlAgentJob>(x => x.Instance.Id.Equals(parentId));
+                    var jobs = _repository.Find<SqlAgentJob>(x => x.Instance.Id == parentId);
 
                     metricData.Data.Add(new MetricDataItem
                     {
@@ -2459,7 +2454,7 @@ namespace Datavail.Delta.Application
                     });
                     break;
                 case "DiskPlugin":
-                    var disks = _repository.Find<ServerDisk>(x => x.Server.Id.Equals(parentId));
+                    var disks = _repository.Find<ServerDisk>(x => x.Server.Id == parentId);
 
                     metricData.Data.Add(new MetricDataItem
                     {
@@ -2489,7 +2484,7 @@ namespace Datavail.Delta.Application
                         MultipleValues = true,
                         IsRequired = true
                     });
-                    var matchExpressions = metricData.Data.Where(x => x.TagName == "MatchExpressions").FirstOrDefault();
+                    var matchExpressions = metricData.Data.FirstOrDefault(x => x.TagName == "MatchExpressions");
 
                     if (existingData)
                     {
@@ -2568,7 +2563,7 @@ namespace Datavail.Delta.Application
 
                     if (existingData)
                     {
-                        var excludeExpressions = metricData.Data.Where(x => x.TagName == "ExcludeExpressions").FirstOrDefault();
+                        var excludeExpressions = metricData.Data.FirstOrDefault(x => x.TagName == "ExcludeExpressions");
                         excludeExpressions.Children = new List<MetricDataItem>();
 
                         foreach (var element in xmlData.Elements("ExcludeExpressions").Elements("ExcludeExpression"))
@@ -2607,7 +2602,7 @@ namespace Datavail.Delta.Application
                     //Program Names
                     if (existingData)
                     {
-                        var programNames = metricData.Data.Where(x => x.TagName == "ProgramNames").FirstOrDefault();
+                        var programNames = metricData.Data.FirstOrDefault(x => x.TagName == "ProgramNames");
                         programNames.Children = new List<MetricDataItem>();
 
                         foreach (var element in xmlData.Elements("ProgramNames").Elements("ProgramName"))
@@ -2623,8 +2618,6 @@ namespace Datavail.Delta.Application
                         }
                     }
                     break;
-                default:
-                    break;
             }
 
             return metricData;
@@ -2636,8 +2629,6 @@ namespace Datavail.Delta.Application
             DatabaseInstance instance = null;
             Database database = null;
             server = null;
-            metric = null;
-            var connectionString = "";
 
             //out params
             label = "";
@@ -2673,6 +2664,7 @@ namespace Datavail.Delta.Application
                         break;
                 }
 
+                string connectionString;
                 switch (metric.AdapterClass)
                 {
                     case "CheckInPlugin":
@@ -2693,7 +2685,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseInventoryPlugin":
                         label = "Database Inventory on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseInventoryPluginInput");
@@ -2703,7 +2695,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "SqlAgentJobInventoryPlugin":
                         label = "SQL Agent Job Inventory on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "msdb",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "msdb",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("SqlAgentJobInventoryPluginInput");
@@ -2713,7 +2705,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseServerBlockingPlugin":
                         label = "Blocking Status on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerBlockingPluginInput");
@@ -2722,7 +2714,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseServerPerformanceCountersPlugin":
                         label = "Performance Counters for Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerPerformanceCountersPluginInput");
@@ -2731,7 +2723,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseBackupStatusPlugin":
                         label = "Backup Status for Database '" + database.Name + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, database.Name,
+                        connectionString = BuildEncryptedConnectionString(instance.Name, database.Name,
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseBackupStatusPluginInput");
@@ -2741,7 +2733,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseStatusPlugin":
                         label = "Database Status for for Database '" + database.Name + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseStatusPluginInput");
@@ -2759,7 +2751,7 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseFileSizePlugin":
                         label = "File Size for Database '" + database.Name + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, database.Name,
+                        connectionString = BuildEncryptedConnectionString(instance.Name, database.Name,
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseFileSizePluginInput");
@@ -2768,9 +2760,9 @@ namespace Datavail.Delta.Application
                         xml.Add(new XAttribute("InstanceName", instance.Name));
                         break;
                     case "DatabaseServerJobsPlugin":
-                        var jobnameMetricData = metricData.Data.Where(x => x.TagName == "JobName").FirstOrDefault();
+                        var jobnameMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "JobName");
                         label = "Job Status for '" + jobnameMetricData.Value + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "msdb",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "msdb",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerJobsPluginInput");
@@ -2780,8 +2772,8 @@ namespace Datavail.Delta.Application
                         break;
                     case "DatabaseServerLongRunningProcessPlugin":
                         label = "Long Running Process Status on Instance '" + instance.Name + "'";
-                        var thresholdMetricData = metricData.Data.Where(x => x.TagName == "Threshold").FirstOrDefault();
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        var thresholdMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "Threshold");
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerLongRunningProcessPluginInput");
@@ -2790,24 +2782,24 @@ namespace Datavail.Delta.Application
                         xml.Add(new XAttribute("InstanceName", instance.Name));
                         break;
                     case "DatabaseServerMergeReplicationPlugin":
-                        var distDBMetricData = metricData.Data.Where(x => x.TagName == "DistributionDatabaseName").FirstOrDefault();
-                        label = "Merge Replication Status for Distribution Database '" + distDBMetricData.Value + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        var distDbMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "DistributionDatabaseName");
+                        label = "Merge Replication Status for Distribution Database '" + distDbMetricData.Value + "' on Instance '" + instance.Name + "'";
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerMergeReplicationPlugin");
-                        xml.Add(new XAttribute("DistributionDatabaseName", distDBMetricData.Value));
+                        xml.Add(new XAttribute("DistributionDatabaseName", distDbMetricData.Value));
                         xml.Add(new XAttribute("ConnectionString", connectionString));
                         xml.Add(new XAttribute("InstanceName", instance.Name));
                         break;
                     case "DatabaseServerTransactionalReplicationPlugin":
-                        var distribDBRepMetricData = metricData.Data.Where(x => x.TagName == "DistributionDatabaseName").FirstOrDefault();
-                        label = "Transactional Replication Status for Distribution Database '" + distribDBRepMetricData.Value + "' on Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        var distribDbRepMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "DistributionDatabaseName");
+                        label = "Transactional Replication Status for Distribution Database '" + distribDbRepMetricData.Value + "' on Instance '" + instance.Name + "'";
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
 
                         xml = new XElement("DatabaseServerTransactionalReplicationPlugin");
-                        xml.Add(new XAttribute("DistributionDatabaseName", distribDBRepMetricData.Value));
+                        xml.Add(new XAttribute("DistributionDatabaseName", distribDbRepMetricData.Value));
                         xml.Add(new XAttribute("ConnectionString", connectionString));
                         xml.Add(new XAttribute("InstanceName", instance.Name));
                         break;
@@ -2820,15 +2812,15 @@ namespace Datavail.Delta.Application
                         xml.Add(new XAttribute("Path", pathMetricData.Value));
                         break;
                     case "LogWatcherPlugin":
-                        var fileName = metricData.Data.Where(x => x.TagName == "FileNameToWatch").FirstOrDefault().Value;
-                        var matchExprData = metricData.Data.Where(x => x.TagName == "MatchExpressions").FirstOrDefault();
-                        var excludeExprData = metricData.Data.Where(x => x.TagName == "ExcludeExpressions").FirstOrDefault();
+                        var fileName = metricData.Data.FirstOrDefault(x => x.TagName == "FileNameToWatch").Value;
+                        var matchExprData = metricData.Data.FirstOrDefault(x => x.TagName == "MatchExpressions");
+                        var excludeExprData = metricData.Data.FirstOrDefault(x => x.TagName == "ExcludeExpressions");
                         label = "Log Watcher for '" + fileName + "'";
                         xml = new XElement("LogWatcherPluginInput");
                         xml.Add(new XAttribute("FileNameToWatch", fileName));
                         var matchExpressionElem = new XElement("MatchExpressions");
 
-                        if (matchExprData != null && matchExprData.Children != null && matchExprData.Children.Count() > 0)
+                        if (matchExprData != null && matchExprData.Children != null && matchExprData.Children.Any())
                         {
                             foreach (var item in matchExprData.Children)
                             {
@@ -2840,7 +2832,7 @@ namespace Datavail.Delta.Application
 
                         var excludeExpressionElem = new XElement("ExcludeExpressions");
 
-                        if (excludeExprData != null && excludeExprData.Children != null && excludeExprData.Children.Count() > 0)
+                        if (excludeExprData != null && excludeExprData.Children != null && excludeExprData.Children.Any())
                         {
                             foreach (var item in excludeExprData.Children)
                             {
@@ -2854,16 +2846,16 @@ namespace Datavail.Delta.Application
                         xml.Add(excludeExpressionElem);
                         break;
                     case "ServiceStatusPlugin":
-                        var serviceName = metricData.Data.Where(x => x.TagName == "ServiceName").FirstOrDefault().Value;
+                        var serviceName = metricData.Data.FirstOrDefault(x => x.TagName == "ServiceName").Value;
                         label = "Service Status for Service '" + serviceName + "'";
                         xml = new XElement("ServiceStatusPluginInput");
                         xml.Add(new XAttribute("ServiceName", serviceName));
                         break;
                     case "SqlAgentStatusPlugin":
                         label = "SQL Agent Status for Instance '" + instance.Name + "'";
-                        connectionString = BuildEncryptedConnectionString(server.Hostname, instance.Name, "master",
+                        connectionString = BuildEncryptedConnectionString(instance.Name, "master",
                                                 instance.UseIntegratedSecurity, instance.Username, instance.Password);
-                        var programNameMetricData = metricData.Data.Where(x => x.TagName == "ProgramNames").FirstOrDefault();
+                        var programNameMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "ProgramNames");
 
                         xml = new XElement("SqlAgentStatusPluginInput");
                         xml.Add(new XAttribute("ConnectionString", connectionString));
@@ -2871,7 +2863,7 @@ namespace Datavail.Delta.Application
 
                         var programNamesElem = new XElement("ProgramNames");
 
-                        if (programNameMetricData != null && programNameMetricData.Children != null && programNameMetricData.Children.Count() > 0)
+                        if (programNameMetricData != null && programNameMetricData.Children != null && programNameMetricData.Children.Any())
                         {
                             foreach (var item in programNameMetricData.Children)
                             {
@@ -2881,8 +2873,6 @@ namespace Datavail.Delta.Application
                             }
                         }
                         xml.Add(programNamesElem);
-                        break;
-                    default:
                         break;
                 }
 
@@ -2900,9 +2890,9 @@ namespace Datavail.Delta.Application
             return success;
         }
 
-        private static string BuildEncryptedConnectionString(string hostName, string instanceName, string initialCatalog, bool useIntegratedSecurity, string userId, string password)
+        private static string BuildEncryptedConnectionString(string instanceName, string initialCatalog, bool useIntegratedSecurity, string userId, string password)
         {
-            var connectionString = "";
+            string connectionString;
 
             if (useIntegratedSecurity)
             {
@@ -2921,7 +2911,7 @@ namespace Datavail.Delta.Application
 
         private IMaintenanceWindowParent GetMaintenanceWindowParent(Guid maintenanceWindowParentId, MaintenanceWindowParentType parentType)
         {
-            if (maintenanceWindowParentId.Equals(Guid.Empty))
+            if (maintenanceWindowParentId == Guid.Empty)
             {
                 return null;
             }
@@ -2948,8 +2938,6 @@ namespace Datavail.Delta.Application
                 case MaintenanceWindowParentType.Metric:
                     parent = _repository.GetByKey<Metric>(maintenanceWindowParentId);
                     break;
-                default:
-                    break;
             }
 
             return parent;
@@ -2957,7 +2945,7 @@ namespace Datavail.Delta.Application
 
         private IMetricConfigurationParent GetMetricConfigurationParent(Guid metricConfigParentId, MetricConfigurationParentType parentType)
         {
-            if (metricConfigParentId.Equals(Guid.Empty))
+            if (metricConfigParentId == Guid.Empty)
             {
                 return null;
             }
@@ -2984,8 +2972,6 @@ namespace Datavail.Delta.Application
                 case MetricConfigurationParentType.Metric:
                     parent = _repository.GetByKey<Metric>(metricConfigParentId);
                     break;
-                default:
-                    break;
             }
 
             return parent;
@@ -2993,3 +2979,5 @@ namespace Datavail.Delta.Application
         #endregion
     }
 }
+// ReSharper restore PossibleNullReferenceException
+// ReSharper restore ImplicitlyCapturedClosure

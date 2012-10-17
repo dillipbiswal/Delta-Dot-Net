@@ -1,17 +1,15 @@
-﻿using System.Text.RegularExpressions;
-using System.Web.Configuration;
-using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Domain;
+﻿using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
 using Datavail.Delta.Infrastructure.Repository;
-using Datavail.Delta.Infrastructure.Resources;
 using Datavail.Delta.Repository.Interface;
 using Datavail.Delta.RestServices.Models;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Web.Configuration;
 using System.Web.Http;
 
 namespace Datavail.Delta.RestServices.Controllers
