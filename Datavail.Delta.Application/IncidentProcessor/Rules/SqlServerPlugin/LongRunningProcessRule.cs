@@ -22,9 +22,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private string _instanceName;
 
         private const string SERVICE_DESK_MESSAGE_HEADER = "The Delta monitoring application has detected the following Long Running Process(s).";
-        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\n\nAgent Timestamp: {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
+        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp (UTC): {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nProgram Name: {2}\nSQL Statement: {3}\nSPID: {4}\n\nMatch Value: {5}\n\nAgent Timestamp (UTC): {9}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\n\nAgent Timestamp (UTC): {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Long Running Process(s) detected.";
 
         public LongRunningProcessRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)

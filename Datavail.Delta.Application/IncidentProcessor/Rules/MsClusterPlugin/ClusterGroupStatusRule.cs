@@ -11,8 +11,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
         private string _groupName;
         private string _status;
 
-        private const string SERVICE_DESK_MATCH_MESSAGE = "The Delta monitoring application has detected that the cluster group {0} is {1} (metricInstanceId: {2}).\n\nStatus: {1}\n\nAgent Timestamp: {7}\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {5}\nIp Address: {6}\n";
-        private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that cluster group {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nStatus: {1}\n\nAgent Timestamp: {9}\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "The Delta monitoring application has detected that the cluster group {0} is {1} (metricInstanceId: {2}).\n\nStatus: {1}\n\nAgent Timestamp (UTC): {7}\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {5}\nIp Address: {6}\n";
+        private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that cluster group {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nStatus: {1}\n\nAgent Timestamp (UTC): {9}\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Cluster Group {2} is {3}";
 
         public ClusterGroupStatusRule(IIncidentService incidentService, XDocument dataCollection,

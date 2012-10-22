@@ -22,9 +22,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private string _instanceName;
 
         private const string SERVICE_DESK_MESSAGE_HEADER = "The Delta monitoring application has detected the following blocking command(s).";
-        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {9} \nRequest Session Command: {3}\nRequest Session Id: {10}\nDatabase: {4}\n\nMatch Value: {5}\n\nAgent Timestamp: {11}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
-        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\n\nAgent Timestamp: {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
-        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nBlocking Command: {4}\nBlocking Id: {5} \nRequest Session Command: {6}\nRequest Session Id: {7}\nDatabase: {8}\n\nMatch Value: {9}\n\nAgent Timestamp: {13}\nMetric Threshold: {10}\nServer: {11}\nIp Address: {12}\n";
+        private const string SERVICE_DESK_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {9} \nRequest Session Command: {3}\nRequest Session Id: {10}\nDatabase: {4}\n\nMatch Value: {5}\n\nAgent Timestamp (UTC): {11}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\n\nAgent Timestamp (UTC): {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
+        private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nBlocking Command: {4}\nBlocking Id: {5} \nRequest Session Command: {6}\nRequest Session Id: {7}\nDatabase: {8}\n\nMatch Value: {9}\n\nAgent Timestamp (UTC): {13}\nMetric Threshold: {10}\nServer: {11}\nIp Address: {12}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Blocking Command(s) detected.";
 
         public DatabaseServerBlockingRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)

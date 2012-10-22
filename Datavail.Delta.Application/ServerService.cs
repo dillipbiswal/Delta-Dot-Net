@@ -196,8 +196,8 @@ namespace Datavail.Delta.Application
             {
                 case MetricType.VirtualServer:
                 case MetricType.Server:
-                    var server = _repository.GetByKey<Server>(itemId);
-                    var existingMetricIds = server.MetricInstances.Where(x => x.Status != Status.Deleted
+                    var existingMetricIds = _repository.GetQuery<MetricInstance>(x => x.Server.Id == itemId
+                                                                                     && x.Status != Status.Deleted
                                                                                      && x.Database == null
                                                                                      && x.DatabaseInstance == null
                                                                                      && x.Metric.AdapterClass != "LogWatcherPlugin"
@@ -1950,12 +1950,14 @@ namespace Datavail.Delta.Application
 
                 if (metricConfig != null)
                 {
-                    foreach (var threshold in metricConfig.MetricThresholds.ToList())
+                    var thresholdList = _repository.Find<MetricThreshold>(c => c.MetricConfiguration.Id == metricConfig.Id).ToList();
+                    foreach (var threshold in thresholdList)
                     {
                         _repository.Delete(threshold);
                     }
 
-                    foreach (var schedule in metricConfig.Schedules.ToList())
+                    var scheduleList = _repository.Find<Schedule>(s => s.MetricConfiguration.Id == metricConfig.Id).ToList();
+                    foreach (var schedule in scheduleList)
                     {
                         _repository.Delete(schedule);
                     }
@@ -1999,10 +2001,9 @@ namespace Datavail.Delta.Application
                 DeleteInstances(instanceIds);
 
                 var tmpServer = server;
-                var metricInstanceIds = server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
+                var metricInstanceIds = _repository.GetQuery<MetricInstance>(x => x.Id == tmpServer.Id && ((x.Metric.MetricType & MetricType.Server) == MetricType.Server &&
                                                                                                 x.Server.Id == tmpServer.Id &&
-                                                                                                x.Status != Status.Deleted))
-                                                                                        .Select(x => x.Id).ToList();
+                                                                                                x.Status != Status.Deleted)).Select(x => x.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
 
                 var metricConfigurationIds = server.MetricConfigurations.Select(x => x.Id).ToList();
@@ -2079,10 +2080,17 @@ namespace Datavail.Delta.Application
                 DeleteDatabases(databaseIds);
 
                 var tmpInstance = instance;
-                var metricInstanceIds = instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
-                                                                                                x.DatabaseInstance.Id == tmpInstance.Id &&
-                                                                                                x.Status != Status.Deleted))
-                                                                                        .Select(x => x.Id).ToList();
+                //var metricInstanceIds = instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
+                //                                                                                x.DatabaseInstance.Id == tmpInstance.Id &&
+                //                                                                                x.Status != Status.Deleted))
+                //                                                                        .Select(x => x.Id).ToList();
+
+                var instance1 = instance;
+                var metricInstanceIds = _repository.GetQuery<MetricInstance>(i => i.Server.Id == instance1.Server.Id &&
+                                                                                   ((i.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
+                                                                                    i.DatabaseInstance.Id == tmpInstance.Id &&
+                                                                                    i.Status != Status.Deleted)).Select(x => x.Id).ToList();
+
                 DeleteMetricInstances(metricInstanceIds);
 
                 var jobIds = instance.Jobs.Select(x => x.Id).ToList();
@@ -2106,10 +2114,16 @@ namespace Datavail.Delta.Application
 
                 //Delete the associated metric instances
                 var tmpDatabase = database;
-                var metricInstanceIds = database.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Database) == MetricType.Database &&
-                                                                                                x.Database.Id == tmpDatabase.Id &&
-                                                                                                x.Status != Status.Deleted))
-                                                                                        .Select(x => x.Id).ToList();
+                //var metricInstanceIds = database.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Database) == MetricType.Database &&
+                //                                                                                x.Database.Id == tmpDatabase.Id &&
+                //                                                                                x.Status != Status.Deleted))
+                //                                                                        .Select(x => x.Id).ToList();
+
+                var database1 = database;
+                var metricInstanceIds = _repository.GetQuery<MetricInstance>(i => i.Server.Id == database1.Instance.Server.Id &&
+                                                                   (i.Metric.MetricType & MetricType.Database) == MetricType.Database &&
+                                                                   i.Database.Id == tmpDatabase.Id &&
+                                                                   i.Status != Status.Deleted).Select(i => i.Id).ToList();
                 DeleteMetricInstances(metricInstanceIds);
             }
 
@@ -2256,11 +2270,13 @@ namespace Datavail.Delta.Application
             Guard.IsNotNull(databaseInstance, "Invalid Database Instance Id Specified");
 
             //Mark any physically deleted databases as deleted
-            var databasesToDelete = databaseInstance.Databases.Where(database => !databaseNames.Contains(database.Name)).Select(database => database.Id).ToList();
+            //var databasesToDelete = databaseInstance.Databases.Where(database => !databaseNames.Contains(database.Name)).Select(database => database.Id).ToList();
+            var databasesToDelete = _repository.GetQuery<Database>(database => database.Instance.Id == databaseInstance.Id && !databaseNames.Contains(database.Name)).Select(database => database.Id).ToList();
             DeleteDatabases(databasesToDelete);
 
             //Mark any recreated (previously deleted) databases back to Active
-            foreach (var database in databaseInstance.Databases.Where(database => databaseNames.Contains(database.Name)))
+            var previouslyDeleted = _repository.GetQuery<Database>(database => database.Instance.Id == databaseInstance.Id && databaseNames.Contains(database.Name));
+            foreach (var database in previouslyDeleted)
             {
                 if (database.Status == Status.Deleted)
                 {
@@ -2303,11 +2319,14 @@ namespace Datavail.Delta.Application
             Guard.IsNotNull(databaseInstance, "Invalid Database Instance Id Specified");
 
             //Mark any physically deleted jobs as deleted
-            var jobsToDelete = databaseInstance.Jobs.Where(job => !jobNames.Contains(job.Name)).Select(job => job.Id).ToList();
+            //var jobsToDelete = databaseInstance.Jobs.Where(job => !jobNames.Contains(job.Name)).Select(job => job.Id).ToList();
+
+            var jobsToDelete = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id && !jobNames.Contains(job.Name)).Select(job => job.Id).ToList();
             DeleteJobs(jobsToDelete);
 
             //Mark any recreated (previously deleted) jobs back to Active
-            foreach (var job in databaseInstance.Jobs.Where(job => job.Status == Status.Deleted && jobNames.Contains(job.Name)))
+            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id && job.Status == Status.Deleted && jobNames.Contains(job.Name));
+            foreach (var job in previouslyDeleted)
             {
                 hasUpdates = true;
                 job.Status = Status.Active;
@@ -2324,7 +2343,6 @@ namespace Datavail.Delta.Application
             }
 
             //Add newly discovered jobs
-
             foreach (var job in jobNames.Select(job => SqlAgentJob.NewSqlAgentJob(job, databaseInstance)))
             {
                 hasUpdates = true;

@@ -13,7 +13,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.MsClusterPlugin
         private Guid _virtualServerId;
         private string _groupName;
 
-        private const string SERVICE_DESK_MESSAGE = "The Delta monitoring application has detected a Cluster Group Failover for '{0}' (metricInstanceId: {1}).\n\nAgent Timestamp: {7}\nNew Active Node: {2}\nPrevious Node: {3}\n\nServer: {4} ({5})\nIp Address: {6}\n";
+        private const string SERVICE_DESK_MESSAGE = "The Delta monitoring application has detected a Cluster Group Failover for '{0}' (metricInstanceId: {1}).\n\nAgent Timestamp (UTC): {7}\nNew Active Node: {2}\nPrevious Node: {3}\n\nServer: {4} ({5})\nIp Address: {6}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Cluster Group Failover for {2}";
 
         public ClusterGroupSwitchedRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)

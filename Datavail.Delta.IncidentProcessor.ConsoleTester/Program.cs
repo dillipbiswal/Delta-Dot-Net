@@ -23,7 +23,7 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
         private static IUnityContainer _container;
         private static Thread[] _workerThreads;
         private static WorkerBase[] _workers;
-        private const int NUMBER_OF_WORKER_THREADS = 5;
+        private const int NUMBER_OF_WORKER_THREADS = 25;
         private static int _totalNumberOfThreads;
 
         static void Main(string[] args)

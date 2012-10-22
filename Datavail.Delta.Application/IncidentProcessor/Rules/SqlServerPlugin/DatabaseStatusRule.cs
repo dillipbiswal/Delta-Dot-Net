@@ -12,8 +12,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private string _instanceName;
         private string _databaseId;
 
-        private const string SERVICE_DESK_MATCH_MESSAGE = "The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}).\n\nAgent Timestamp: {9}\nInstance Name: {8}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {6}\nIp Address: {7}\n";
-        private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nAgent Timestamp: {11}\nInstance Name: {10}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {8}\nIp Address: {9}\n";
+        private const string SERVICE_DESK_MATCH_MESSAGE = "The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}).\n\nAgent Timestamp (UTC): {9}\nInstance Name: {8}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {6}\nIp Address: {7}\n";
+        private const string SERVICE_DESK_MATCH_COUNT_MESSAGE = "The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nAgent Timestamp (UTC): {11}\nInstance Name: {10}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {8}\nIp Address: {9}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Database {2} is {3}";
 
         public DatabaseStatusRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)

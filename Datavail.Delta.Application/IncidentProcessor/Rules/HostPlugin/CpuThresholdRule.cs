@@ -10,9 +10,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
     {
         private float _percentageCpuUsed;
 
-        private const string ServiceDeskMessage = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}).\n\nCPU Utilization Percentage: {1:0.00}%\n\nAgent Timestamp: {8}\nMetric Threshold: {2}\nFloor Value: {3:N2}\nCeiling Value: {4:N2}\nServer: {5} ({6})\nIp Address: {7}\n";
-        private const string ServiceDeskMessageCount = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nCPU Utilization Percentage: {3:0.00}%\n\nAgent Timestamp: {10}\nMetric Threshold: {4}\nFloor Value: {5:N2}\nCeiling Value: {6:N2}\nServer: {7}({8})\nIp Address: {9}\n";
-        private const string ServiceDeskMessageAverage = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}). The average has been {1:0.00} over the last {2} samples.\n\nCPU Utilization Percentage: {3:0.00}%\n\nAgent Timestamp: {10}\nMetric Threshold: {4}\nFloor Value: {5:N2}\nCeiling Value: {6:N2}\nServer: {7} ({8})\nIp Address: {9}\n";
+        private const string ServiceDeskMessage = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}).\n\nCPU Utilization Percentage: {1:0.00}%\n\nAgent Timestamp (UTC): {8}\nMetric Threshold: {2}\nFloor Value: {3:N2}\nCeiling Value: {4:N2}\nServer: {5} ({6})\nIp Address: {7}\n";
+        private const string ServiceDeskMessageCount = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nCPU Utilization Percentage: {3:0.00}%\n\nAgent Timestamp (UTC): {10}\nMetric Threshold: {4}\nFloor Value: {5:N2}\nCeiling Value: {6:N2}\nServer: {7}({8})\nIp Address: {9}\n";
+        private const string ServiceDeskMessageAverage = "The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}). The average has been {1:0.00} over the last {2} samples.\n\nCPU Utilization Percentage: {3:0.00}%\n\nAgent Timestamp (UTC): {10}\nMetric Threshold: {4}\nFloor Value: {5:N2}\nCeiling Value: {6:N2}\nServer: {7} ({8})\nIp Address: {9}\n";
         private const string ServiceDeskSummary = "P{0}/{1}/CPU threshold breach";
 
         public CpuThresholdRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
