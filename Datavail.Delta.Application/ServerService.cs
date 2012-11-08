@@ -2274,8 +2274,8 @@ namespace Datavail.Delta.Application
             var databasesToDelete = _repository.GetQuery<Database>(database => database.Instance.Id == databaseInstance.Id && !databaseNames.Contains(database.Name)).Select(database => database.Id).ToList();
             DeleteDatabases(databasesToDelete);
 
-            //Mark any recreated (previously deleted) databases back to Active
-            var previouslyDeleted = _repository.GetQuery<Database>(database => database.Instance.Id == databaseInstance.Id && databaseNames.Contains(database.Name));
+            //Mark any recreated (previously deleted) databases back to Active and remove existing database from list to add
+            var previouslyDeleted = _repository.GetQuery<Database>(database => database.Instance.Id == databaseInstance.Id && databaseNames.Contains(database.Name)).ToList();
             foreach (var database in previouslyDeleted)
             {
                 if (database.Status == Status.Deleted)
@@ -2286,7 +2286,6 @@ namespace Datavail.Delta.Application
 
                     AddDefaultDatabaseMetrics(database.Id);
                 }
-
                 databaseNames.Remove(database.Name);
             }
 
@@ -2325,25 +2324,27 @@ namespace Datavail.Delta.Application
             DeleteJobs(jobsToDelete);
 
             //Mark any recreated (previously deleted) jobs back to Active
-            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id && job.Status == Status.Deleted && jobNames.Contains(job.Name));
+            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id &&  jobNames.Contains(job.Name)).ToList();
             foreach (var job in previouslyDeleted)
             {
-                hasUpdates = true;
-                job.Status = Status.Active;
-                _repository.Update(job);
-                _repository.UnitOfWork.SaveChanges();
-
+                if (job.Status == Status.Deleted)
+                {
+                    hasUpdates = true;
+                    job.Status = Status.Active;
+                    _repository.Update(job);
+                    _repository.UnitOfWork.SaveChanges();
+                }
                 jobNames.Remove(job.Name);
             }
 
             //Remove any existing jobs from the list
-            foreach (var job in databaseInstance.Jobs.Where(job => jobNames.Contains(job.Name)))
+            foreach (var job in databaseInstance.Jobs.Where(job => jobNames.Contains(job.Name)).ToList())
             {
                 jobNames.Remove(job.Name);
             }
 
             //Add newly discovered jobs
-            foreach (var job in jobNames.Select(job => SqlAgentJob.NewSqlAgentJob(job, databaseInstance)))
+            foreach (var job in jobNames.Select(job => SqlAgentJob.NewSqlAgentJob(job, databaseInstance)).ToList())
             {
                 hasUpdates = true;
                 _repository.Add(job);

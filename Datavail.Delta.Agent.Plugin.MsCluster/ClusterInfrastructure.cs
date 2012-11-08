@@ -11,26 +11,27 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
             var scope = new ManagementScope(sServerPath);
 
             scope.Connect();
-
+            
             if (scope.IsConnected)
             {
                 var objectQuery = new ObjectQuery("select groupcomponent, partcomponent from mscluster_nodetoactivegroup");
-                var searcher = new ManagementObjectSearcher(scope, objectQuery);
-
-                foreach (ManagementObject clusterNode in searcher.Get())
+                using (var searcher = new ManagementObjectSearcher(scope, objectQuery))
                 {
-                    var nodeNameString = clusterNode["GroupComponent"].ToString();
-                    var groupNameString = clusterNode["PartComponent"].ToString();
-
-                    var node = nodeNameString.Split('=');
-                    node[1] = node[1].Replace("\"", "");
-
-                    var group = groupNameString.Split('=');
-                    group[1] = group[1].Replace("\"", "");
-
-                    if (group[1].ToLower() == clusterGroupName.ToLower())
+                    foreach (ManagementObject clusterNode in searcher.Get())
                     {
-                        return node[1].ToLower();
+                        var nodeNameString = clusterNode["GroupComponent"].ToString();
+                        var groupNameString = clusterNode["PartComponent"].ToString();
+
+                        var node = nodeNameString.Split('=');
+                        node[1] = node[1].Replace("\"", "");
+
+                        var group = groupNameString.Split('=');
+                        group[1] = group[1].Replace("\"", "");
+
+                        if (group[1].ToLower() == clusterGroupName.ToLower())
+                        {
+                            return node[1].ToLower();
+                        }
                     }
                 }
             }
@@ -55,14 +56,15 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
                 {
                     var objectQuery = new ObjectQuery("SELECT * FROM MSCluster_Cluster");
 
-                    var searcher = new ManagementObjectSearcher(scope, objectQuery);
-
-                    foreach (var cluster in searcher.Get())
+                    using (var searcher = new ManagementObjectSearcher(scope, objectQuery))
                     {
-                        var clusterName = cluster["Name"].ToString();
-                        return clusterName;
+                        foreach (var cluster in searcher.Get())
+                        {
+                            var clusterName = cluster["Name"].ToString();
+                            return clusterName;
+                        }
+                        return string.Empty;
                     }
-                    return string.Empty;
                 }
 
                 return string.Empty;
@@ -75,8 +77,8 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
 
         public string GetStatusForGroup(string clusterGroupName)
         {
-            const string sServerPath = @"\\localhost\root\mscluster";
-            var scope = new ManagementScope(sServerPath);
+            const string S_SERVER_PATH = @"\\localhost\root\mscluster";
+            var scope = new ManagementScope(S_SERVER_PATH);
 
             scope.Connect();
 

@@ -1,44 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Datavail.Delta.Domain.Cluster">
-    <Position X="13.5" Y="3.25" Width="1.5" />
+  <Class Name="Datavail.Delta.Domain.Cluster" Collapsed="true">
+    <Position X="9.5" Y="5.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAEgAEAEAAAAAQAAAAAAAgQAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAEgAAAEAAAAAUAAAAAAAAQAAIAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Cluster.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
-      <Property Name="Groups" />
       <Property Name="Nodes" />
+      <Property Name="VirtualServers" />
     </ShowAsCollectionAssociation>
-    <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Datavail.Delta.Domain.ClusterGroup">
-    <Position X="10.5" Y="3.25" Width="1.75" />
+  <Class Name="Datavail.Delta.Domain.DatabaseInstance" Collapsed="true">
+    <Position X="15" Y="1.25" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAEAgQAAAAAAAQAAAAAAAgQAAAAAAAAAQAAAAAAAAAA=</HashCode>
-      <FileName>ClusterGroup.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="Datavail.Delta.Domain.DatabaseInstance">
-    <Position X="6.5" Y="3" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAECUAAAQAAAQAAAgQAAAAAAAACAAAAAgAAAEA=</HashCode>
+      <HashCode>AAAAAAAEAUAAASAAAUAAAAQAAAAAAAACAAAAAgAAAEA=</HashCode>
       <FileName>DatabaseInstance.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Property Name="ClusterGroup" />
       <Property Name="Server" />
     </ShowAsAssociation>
-    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Datavail.Delta.Domain.Server" Collapsed="true">
-    <Position X="13.5" Y="1.25" Width="1.75" />
+    <Position X="12.5" Y="3.25" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>CGEAAAgEAAAACQACAACAAgAAAAAAAAAAQCABAAAEAAA=</HashCode>
+      <HashCode>CGEAgAgEBAAACQACAACABAAAAAAAAAAAQCKBAAAEAAA=</HashCode>
       <FileName>Server.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Tenant" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricInstances" />
+      <Property Name="MetricConfigurations" />
+      <Property Name="MaintenanceWindows" />
+      <Property Name="ServerGroups" />
+    </ShowAsCollectionAssociation>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Tenant" Collapsed="true">
+    <Position X="9.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAEBAAACQAAAAAAAAQAIAAAAAAAADABAAAAAAA=</HashCode>
+      <FileName>Tenant.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricInstance" Collapsed="true">
+    <Position X="15.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEFEAAAQAAAIAAAAAAAAEAABACACAAAgAAAAA=</HashCode>
+      <FileName>MetricInstance.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricConfiguration" Collapsed="true">
+    <Position X="9.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAABAAAQAQgCEAAABACAIBAAIAACAA=</HashCode>
+      <FileName>MetricConfiguration.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Metric" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricThresholds" />
+      <Property Name="Schedules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MaintenanceWindow" Collapsed="true">
+    <Position X="12.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACEAAAAAAAAACQIAAAAEQAAgAAAAAAACAAAgAgAEAAA=</HashCode>
+      <FileName>MaintenanceWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.ServerGroup" Collapsed="true">
+    <Position X="12.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAEBAAAAQAEAAAAQAQAAAAAABAAADBAAAAAAAA=</HashCode>
+      <FileName>ServerGroup.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Metric" Collapsed="true">
+    <Position X="6.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAACEBAAAASAAAAAAAAQAAAgAAAABACAAAAAAAQA=</HashCode>
+      <FileName>Metric.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricThreshold" Collapsed="true">
+    <Position X="6.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAQoAIIAAAAIQAgAAAAAAAAgAAAQAAAA=</HashCode>
+      <FileName>MetricThreshold.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Schedule" Collapsed="true">
+    <Position X="6.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQIAAAAQAAAIEEAQAQAAIAACIEAAAEAAEAAAA=</HashCode>
+      <FileName>Schedule.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

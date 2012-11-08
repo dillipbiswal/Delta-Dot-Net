@@ -2,7 +2,7 @@
 
 namespace Datavail.Delta.Domain
 {
-    public class ServerDisk : DomainBase
+    public class ServerDisk : DomainBase, IEquatable<ServerDisk>
     {
         #region Fields
         #endregion
@@ -44,6 +44,40 @@ namespace Datavail.Delta.Domain
         #endregion
 
         #region Methods
+        #endregion
+
+        #region Equality
+
+        public virtual bool Equals(ServerDisk other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(other.Path, Path);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != typeof(ServerDisk)) return false;
+            return Equals((ServerDisk)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Path != null ? Path.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(ServerDisk left, ServerDisk right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ServerDisk left, ServerDisk right)
+        {
+            return !Equals(left, right);
+        }
+
         #endregion
     }
 }

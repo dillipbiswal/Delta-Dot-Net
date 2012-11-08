@@ -173,6 +173,13 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Controllers\AssemblyController.cs" />
+    <Compile Include="Controllers\SqlAgentJobsController.cs" />
+    <Compile Include="Controllers\ServerGroupsController.cs" />
+    <Compile Include="Controllers\ServerDisksController.cs" />
+    <Compile Include="Controllers\DatabasesController.cs" />
+    <Compile Include="Controllers\DatabaseInstancesController.cs" />
+    <Compile Include="Controllers\TenantsController.cs" />
+    <Compile Include="Controllers\MetricsController.cs" />
     <Compile Include="Controllers\MetricInstancesController.cs" />
     <Compile Include="Controllers\ServersController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
@@ -192,6 +199,13 @@
     <Compile Include="Models\AssemblyListModel.cs" />
     <Compile Include="Models\CheckInModel.cs" />
     <Compile Include="Models\ConfigModel.cs" />
+    <Compile Include="Models\SqlAgentJobModel.cs" />
+    <Compile Include="Models\ServerGroupModel.cs" />
+    <Compile Include="Models\ServerDiskModel.cs" />
+    <Compile Include="Models\DatabaseModel.cs" />
+    <Compile Include="Models\DatabaseInstanceModel.cs" />
+    <Compile Include="Models\TenantModel.cs" />
+    <Compile Include="Models\MetricModel.cs" />
     <Compile Include="Models\ServerActivationModel.cs" />
     <Compile Include="Models\ServerModel.cs" />
     <Compile Include="Models\CustomerModel.cs" />

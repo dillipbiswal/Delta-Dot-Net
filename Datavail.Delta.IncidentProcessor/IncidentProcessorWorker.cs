@@ -1,4 +1,16 @@
-﻿using System;
+﻿using AutoMapper;
+using Datavail.Delta.Application.IncidentProcessor;
+using Datavail.Delta.Application.Interface;
+using Datavail.Delta.Domain;
+using Datavail.Delta.Infrastructure.Logging;
+using Datavail.Delta.Infrastructure.Queues;
+using Datavail.Delta.Infrastructure.Queues.Messages;
+using Datavail.Delta.Infrastructure.Repository;
+using Datavail.Delta.Repository.EfWithMigrations;
+using Ninject;
+using Ninject.Activation.Blocks;
+using Ninject.Extensions.ChildKernel;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -6,24 +18,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
-using AutoMapper;
-using Datavail.Delta.Application.IncidentProcessor;
-using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Domain;
-
-using Datavail.Delta.Infrastructure.Logging;
-using Datavail.Delta.Infrastructure.Queues;
-using Datavail.Delta.Infrastructure.Queues.Messages;
-using Datavail.Delta.Infrastructure.Repository;
-using Datavail.Delta.Repository.EfWithMigrations;
-using Microsoft.Practices.Unity;
 
 namespace Datavail.Delta.IncidentProcessor
 {
 
     public class IncidentProcessorWorker : WorkerBase
     {
-        private readonly IUnityContainer _container;
+        private readonly IKernel _kernel;
         private IIncidentService _incidentService;
         private readonly IQueue<DataCollectionMessage> _incidentQueue;
         private readonly IQueue<OpenIncidentMessage> _openIncidentQueue;
@@ -35,9 +36,9 @@ namespace Datavail.Delta.IncidentProcessor
         private DataCollectionMessage _message;
 
 
-        public IncidentProcessorWorker(IUnityContainer container, IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
+        public IncidentProcessorWorker(IKernel kernel, IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
         {
-            _container = container;
+            _kernel = kernel;
             _logger = logger;
             _incidentQueue = incidentQueue;
             _openIncidentQueue = openIncidentQueue;
@@ -68,12 +69,11 @@ namespace Datavail.Delta.IncidentProcessor
 
                             var xml = XDocument.Parse(_message.Data);
 
+                            var childKernel = new ChildKernel(_kernel);
+                            SetupPerMessageChildContainer(childKernel);
 
-                            using (var childContainer = _container.CreateChildContainer())
+                            using (var block = new ActivationBlock(childKernel))
                             {
-
-                                SetupPerMessageChildContainer(childContainer);
-
                                 //Instantiate each rule class with the message data
                                 var param = new object[] { _incidentService, xml, _serverService };
                                 var rules = new List<IIncidentProcessorRule>();
@@ -121,6 +121,8 @@ namespace Datavail.Delta.IncidentProcessor
                                     _openIncidentQueue.AddMessage(openIncidentMessage);
                                 }
                             }
+
+                            childKernel.Dispose();
                         }
                         else
                         {
@@ -131,6 +133,7 @@ namespace Datavail.Delta.IncidentProcessor
                     }
                     catch (Exception ex)
                     {
+
                         try
                         {
                             Mapper.CreateMap<DataCollectionMessage, DataCollectionMessageWithError>();
@@ -172,13 +175,13 @@ namespace Datavail.Delta.IncidentProcessor
             }
         }
 
-        private void SetupPerMessageChildContainer(IUnityContainer childContainer)
+        private void SetupPerMessageChildContainer(IKernel childKernel)
         {
-            childContainer.RegisterType<DbContext, DeltaDbContext>(new ContainerControlledLifetimeManager());
+            childKernel.Bind<DbContext>().To<DeltaDbContext>().InSingletonScope();
 
-            _repository = childContainer.Resolve<IRepository>();
-            _serverService = childContainer.Resolve<IServerService>();
-            _incidentService = childContainer.Resolve<IIncidentService>();
+            _repository = childKernel.Get<IRepository>();
+            _serverService = childKernel.Get<IServerService>();
+            _incidentService = childKernel.Get<IIncidentService>();
         }
 
         private bool IsInMaintenanceMode(IIncidentProcessorRule rule)

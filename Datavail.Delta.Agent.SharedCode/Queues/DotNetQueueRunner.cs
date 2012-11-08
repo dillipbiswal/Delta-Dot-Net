@@ -66,21 +66,34 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
                 //Push the serialized messages into the queue
                 if (File.Exists(_path))
                 {
-                    var deserializer = new XmlSerializer(typeof(List<QueueMessage>));
-                    var tr = new StreamReader(_path);
-                    var tempQueue = (List<QueueMessage>)deserializer.Deserialize(tr);
-                    tr.Close();
-
-                    foreach (var queueMessage in tempQueue)
+                    try
                     {
-                        _queue.Add(queueMessage);
-                    }
+                        var deserializer = new XmlSerializer(typeof(List<QueueMessage>));
+                        using (var tr = new StreamReader(_path))
+                        {
+                            var tempQueue = (List<QueueMessage>) deserializer.Deserialize(tr);
+                            tr.Close();
 
-                    File.Delete(_path);
+                            foreach (var queueMessage in tempQueue)
+                            {
+                                _queue.Add(queueMessage);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+                    finally
+                    {
+                        if (File.Exists(_path))
+                            File.Delete(_path);
+                    }
                 }
 
                 var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
-
+                
                 while (true)
                 {
                     try
@@ -96,21 +109,21 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
 
                             try
                             {
-                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage,
-                                                         "Posting " + msg.Data);
+                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
 
-
-                                var request = new RestRequest("Server/PostData/{id}", Method.POST);
-
+                                var request = new RestRequest("Server/PostData/{id}", Method.POST) { RequestFormat = DataFormat.Json };
+                                
                                 //Add ServerId to the URL
                                 request.AddUrlSegment("id", serverId.ToString());
 
                                 //Create JSON body
-                                request.AddParameter("Data", msg.Data);
-                                request.AddParameter("Hostname", hostname);
-                                request.AddParameter("IpAddress", ipaddress);
-                                request.AddParameter("Timestamp", msg.Timestamp);
-                                request.AddParameter("TenantId", tenantId.ToString());
+                                request.AddBody(new { Data = msg.Data, Hostname = hostname, IpAddress = ipaddress, Timestamp = msg.Timestamp, TenantId = tenantId.ToString() });
+
+                                //request.AddParameter("Data", msg.Data);
+                                //request.AddParameter("Hostname", hostname);
+                                //request.AddParameter("IpAddress", ipaddress);
+                                //request.AddParameter("Timestamp", msg.Timestamp);
+                                //request.AddParameter("TenantId", tenantId.ToString());
 
                                 response = client.Execute(request);
 

@@ -366,8 +366,9 @@ namespace Datavail.Delta.RestServices.Controllers
                 connectionString = string.Format(connectionString, instanceName, initialCatalog, userId, password);
             }
 
-            var crypto = new Encryption();
-            return crypto.EncryptToString(connectionString);
+            //var crypto = new Encryption();
+            //return crypto.EncryptToString(connectionString);
+            return string.Empty;
         }
 
         #endregion
