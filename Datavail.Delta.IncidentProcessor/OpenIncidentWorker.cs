@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading;
-using Datavail.Delta.Application.Interface;
+﻿using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
-using Microsoft.Practices.Unity;
 using Ninject;
+using System;
+using System.Threading;
 
 namespace Datavail.Delta.IncidentProcessor
 {

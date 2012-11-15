@@ -7,20 +7,20 @@ using Datavail.Delta.Infrastructure.Queues.Messages;
 using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
 using Datavail.Delta.Repository.Interface;
-using Microsoft.Practices.Unity;
 using System;
 using System.Configuration;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
+using Ninject;
 using Database = System.Data.Entity.Database;
 
 namespace Datavail.Delta.IncidentProcessor
 {
     public partial class IncidentProcessor : ServiceBase
     {
-        private IUnityContainer _container;
+        private static IKernel _kernel;
         Thread[] _workerThreads;
         WorkerBase[] _workers;
         private readonly int _numberOfWorkerThreads = 5;
@@ -44,18 +44,18 @@ namespace Datavail.Delta.IncidentProcessor
 
             Database.SetInitializer<DeltaDbContext>(null);
 
-            _workers[0] = _container.Resolve<OpenIncidentWorker>();
+            _workers[0] = _kernel.Get<OpenIncidentWorker>();
             _workers[0].ServiceStarted = true;
             var incst = new ThreadStart(_workers[0].Run);
 
             _workerThreads[0] = new Thread(incst) { Name = "OpenIncidentWorker" };
 
-            _workers[1] = _container.Resolve<CheckInWorker>();
+            _workers[1] = _kernel.Get<CheckInWorker>();
             _workers[1].ServiceStarted = true;
             var checkst = new ThreadStart(_workers[1].Run);
             _workerThreads[1] = new Thread(checkst) { Name = "CheckInWorker" }; ;
 
-            _workers[2] = _container.Resolve<UpdateTicketClosedWorker>();
+            _workers[2] = _kernel.Get<UpdateTicketClosedWorker>();
             _workers[2].ServiceStarted = true;
             var updateTicketClosedst = new ThreadStart(_workers[2].Run);
             _workerThreads[2] = new Thread(updateTicketClosedst) { Name = "UpdateTicketClosedWorker" }; ;
@@ -64,7 +64,7 @@ namespace Datavail.Delta.IncidentProcessor
             for (var i = firstWorkerThread; i < _totalNumberOfThreads; i++)
             {
                 // create an object
-                _workers[i] = _container.Resolve<IncidentProcessorWorker>();
+                _workers[i] = _kernel.Get<IncidentProcessorWorker>();
 
                 // set properties on the object
                 _workers[i].ServiceStarted = true;
@@ -95,37 +95,31 @@ namespace Datavail.Delta.IncidentProcessor
 
         public void BootstrapIoc()
         {
-            _container = new UnityContainer();
-            _container.RegisterInstance(_container);
-
+            _kernel = new StandardKernel();
+            
             //Common
-            _container.RegisterType<IDeltaLogger, DeltaIncidentProcessorLogger>();
+            _kernel.Bind<IDeltaLogger>().To<DeltaIncidentProcessorLogger>().InSingletonScope();
 
             //Repositories
-            _container.RegisterType<DbContext, DeltaDbContext>(new ContainerControlledLifetimeManager());
+            _kernel.Bind<DbContext>().To<DeltaDbContext>().InThreadScope();
 
+            _kernel.Bind<IRepository>().To<GenericRepository>().InThreadScope();
 
-            _container.RegisterType<IRepository, GenericRepository>(new InjectionConstructor(typeof(DbContext), _container.Resolve<IDeltaLogger>()));
-            _container.RegisterType<IServerRepository, ServerRepository>(new InjectionConstructor(typeof(DbContext), _container.Resolve<IDeltaLogger>()));
-            _container.RegisterType<IIncidentRepository, IncidentRepository>(new InjectionConstructor(typeof(DbContext), typeof(IDeltaLogger)));
+            _kernel.Bind<IServerRepository>().To<ServerRepository>().InThreadScope();
+            _kernel.Bind<IIncidentRepository>().To<IncidentRepository>().InThreadScope();
 
             //Application Facades
-            _container.RegisterType<IIncidentService, IncidentService>();
-            _container.RegisterType<IServerService, ServerService>();
-            _container.RegisterType<IServiceDesk, ServiceDesk>();
+            _kernel.Bind<IIncidentService>().To<IncidentService>().InThreadScope();
+            _kernel.Bind<IServerService>().To<ServerService>().InThreadScope();
+            _kernel.Bind<IServiceDesk>().To<ServiceDesk>().InThreadScope();
 
             //Queues
-            _container.RegisterType<IQueue<CheckInMessage>, SqlQueue<CheckInMessage>>(new InjectionConstructor(QueueNames.CheckInQueue));
-            _container.RegisterType<IQueue<DataCollectionMessage>, SqlQueue<DataCollectionMessage>>(new InjectionConstructor(QueueNames.IncidentProcessorQueue));
-            _container.RegisterType<IQueue<DataCollectionArchiveMessage>, SqlQueue<DataCollectionArchiveMessage>>(new InjectionConstructor(QueueNames.DataWarehouseQueue));
-            _container.RegisterType<IQueue<DataCollectionMessageWithError>, SqlQueue<DataCollectionMessageWithError>>(new InjectionConstructor(QueueNames.ErrorQueue));
-            _container.RegisterType<IQueue<DataCollectionTestMessage>, SqlQueue<DataCollectionTestMessage>>(new InjectionConstructor(QueueNames.TestQueue));
-            _container.RegisterType<IQueue<OpenIncidentMessage>, SqlQueue<OpenIncidentMessage>>(new InjectionConstructor(QueueNames.OpenIncidentQueue));
-
-            //Make a DB Call to force DbContext Initialization
-
-            //var dbContext = _container.Resolve<DbContext>();
-            //dbContext.Set<Tenant>().Any();
+            _kernel.Bind<IQueue<CheckInMessage>>().To<SqlQueue<CheckInMessage>>().WithConstructorArgument("queueTableName", QueueNames.CheckInQueue);
+            _kernel.Bind<IQueue<DataCollectionMessage>>().To<SqlQueue<DataCollectionMessage>>().WithConstructorArgument("queueTableName", QueueNames.IncidentProcessorQueue);
+            _kernel.Bind<IQueue<DataCollectionArchiveMessage>>().To<SqlQueue<DataCollectionArchiveMessage>>().WithConstructorArgument("queueTableName", QueueNames.DataWarehouseQueue);
+            _kernel.Bind<IQueue<DataCollectionMessageWithError>>().To<SqlQueue<DataCollectionMessageWithError>>().WithConstructorArgument("queueTableName", QueueNames.ErrorQueue);
+            _kernel.Bind<IQueue<DataCollectionTestMessage>>().To<SqlQueue<DataCollectionTestMessage>>().WithConstructorArgument("queueTableName", QueueNames.TestQueue);
+            _kernel.Bind<IQueue<OpenIncidentMessage>>().To<SqlQueue<OpenIncidentMessage>>().WithConstructorArgument("queueTableName", QueueNames.OpenIncidentQueue);
         }
     }
 }

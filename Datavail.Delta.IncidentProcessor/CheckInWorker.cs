@@ -1,17 +1,16 @@
-﻿using System;
-using System.Configuration;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading;
-using System.Xml.Linq;
-using Datavail.Delta.Domain;
+﻿using Datavail.Delta.Domain;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
 using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
-using Microsoft.Practices.Unity;
 using Ninject;
+using System;
+using System.Configuration;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading;
+using System.Xml.Linq;
 
 namespace Datavail.Delta.IncidentProcessor
 {
@@ -90,11 +89,11 @@ namespace Datavail.Delta.IncidentProcessor
             }
         }
 
-        private void SetupPerLoopChildContainer(IUnityContainer childContainer)
+        private void SetupPerLoopChildContainer(IKernel childKernel)
         {
-            childContainer.RegisterType<DbContext, DeltaDbContext>(new ContainerControlledLifetimeManager());
+            childKernel.Bind<DbContext>().To<DeltaDbContext>().InSingletonScope();
 
-            _repository = childContainer.Resolve<IRepository>();
+            _repository = childKernel.Get<IRepository>();
         }
     }
 }
