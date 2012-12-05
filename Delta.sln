@@ -130,6 +130,13 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Datavail.Delta.IncidentProc
 		{D604A714-4255-40FA-916B-F448683BE51B} = {D604A714-4255-40FA-916B-F448683BE51B}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3EFE71D7-171F-4F4C-A971-7BBBF6DA32A6}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
