@@ -125,7 +125,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             sql.Append("j.job_id , j.description as JobDescription,  ");
             sql.Append("h.run_date as LastStatusDate,   ");
             sql.Append("h.*,   ");
-            sql.Append("case h.run_status when 0 then 'Failed' when 1 then 'Successful' when 3 then 'Cancelled' when 4 then 'In Progress' end as JobStatus  ");
+            sql.Append("case h.run_status when 0 then 'Failed' when 1 then 'Successful' when 2 then 'Retry' when 3 then 'Cancelled' when 4 then 'In Progress' end as JobStatus  ");
             sql.Append("FROM   ");
             sql.Append("sysjobhistory h,   ");
             sql.Append("sysjobs j   ");
