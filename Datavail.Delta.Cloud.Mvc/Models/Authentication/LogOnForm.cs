@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.Web.Mvc;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace Datavail.Delta.Cloud.Mvc.Models.Authentication
 {
     public class LogOnForm
     {
         [Required]
-        [EmailAddress]
+        [Microsoft.Web.Mvc.EmailAddress]
         public string EmailAddress { get; set; }
 
         [Required]
