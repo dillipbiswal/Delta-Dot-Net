@@ -53,7 +53,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 - Infrastructure", "00 -
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.ServiceDesk.Nimsoft", "Datavail.Delta.Application.ServiceDesk.Nimsoft\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj", "{08B92495-142A-4556-BABB-BFC1FDA47560}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3EFE71D7-171F-4F4C-A971-7BBBF6DA32A6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7700909F-2130-47CE-B83A-7AD1DD4A91F1}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
