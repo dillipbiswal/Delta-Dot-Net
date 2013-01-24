@@ -1,7 +1,6 @@
-﻿using System;
-using log4net;
+﻿using log4net;
 using log4net.Config;
-using log4net.Core;
+using System;
 
 namespace Datavail.Delta.Infrastructure.Logging
 {
