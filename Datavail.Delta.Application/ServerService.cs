@@ -8,8 +8,7 @@ using AutoMapper;
 using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Domain;
 using Datavail.Delta.Domain.Specifications;
-using Datavail.Delta.Infrastructure.Agent.Common;
-
+using Datavail.Delta.Infrastructure.Encryption;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Resources;
 using Datavail.Delta.Infrastructure.Specification;
