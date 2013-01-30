@@ -1,0 +1,48 @@
+﻿@model TabModel
+<div id="@Model.Id" class="tabs-nohdr">
+    <ul class="tablist tabletab clearfix">
+        @foreach (var item in Model.TabList)
+        {
+            <li><a href="#@item.TabListId" id="@item.TabListId-trigger">
+                @item.TabListName</a></li>
+        }
+    </ul>
+        @foreach (var item in Model.TabList)
+        {
+            <div id="@item.TabListId" class="tablist-tab">
+                @{
+                    Html.RenderPartial(item.ViewName, item);
+                }
+            </div>        
+        }
+    
+</div>
+<script type="text/javascript">
+    $(function () {
+        var target = "#" + '@Model.Id';
+
+        $("div.main-content-page").bind('maincontentresize', function () {
+            resizeTabs($(target).data('selectedpanelid'));
+        });
+
+        $(target).tabs({
+            show: function (event, ui) {
+                resizeTabs("#" + ui.panel.id);
+                $(target).data('selectedpanelid', "#" + ui.panel.id)
+            }
+        });
+    });
+
+    
+
+    function resizeTabs(selector) {
+        if (typeof selector != 'undefined') {
+            var parentBottom = $(selector).parent().parent().offset().top + $(selector).parent().parent().height();
+            var tabsTop = $(selector).offset().top;
+            $(selector).height(parentBottom - tabsTop);
+            $(selector).trigger('tabresize');
+        }
+    }
+
+    
+</script>

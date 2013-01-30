@@ -1,0 +1,18 @@
+﻿@model DatabaseVersion
+
+@{
+    var allValues = Enum.GetValues(typeof(DatabaseVersion)).Cast<DatabaseVersion>();
+    allValues = allValues.Where(x => x != DatabaseVersion.None).ToArray();
+   
+}
+
+@Html.DropDownListFor(m => m, allValues
+    .Select(m => {
+        string enumVal = Enum.GetName(Model.GetType(), m);
+        return new SelectListItem() {
+            Selected = (Model.ToString() == enumVal),
+            Text = enumVal,
+            Value = enumVal
+        };
+    }))
+

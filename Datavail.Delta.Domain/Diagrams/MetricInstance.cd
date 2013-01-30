@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Datavail.Delta.Domain.MetricConfiguration">
+    <Position X="8" Y="6.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAQAQACEAAAAACAAAAAAAACAA=</HashCode>
+      <FileName>MetricConfiguration.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricThresholds" />
+      <Property Name="Schedules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Schedule">
+    <Position X="7.5" Y="1.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQIAAAAQAAAIEEAQAQAAIAACIEAAAEAAEAAAA=</HashCode>
+      <FileName>Schedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricThreshold">
+    <Position X="12.25" Y="6.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAIAAQoAIAAAAAAAAAAAAAAAAgAAAAAAAQA=</HashCode>
+      <FileName>MetricThreshold.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricInstance">
+    <Position X="3.75" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAQAAAAAAAAAAAAEAABACACAAAgAAAAA=</HashCode>
+      <FileName>MetricInstance.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Metric" />
+      <Property Name="Server" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Metric">
+    <Position X="3.75" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AQAAAACAAAAAAQAAAAAAAAQAAAAAAAABACAAAAAAAQA=</HashCode>
+      <FileName>Metric.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Server">
+    <Position X="6" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CGEAAAgEAAAACQACAACAAAAAAAAAAAAAACAAAAAEAAA=</HashCode>
+      <FileName>Server.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricInstances" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

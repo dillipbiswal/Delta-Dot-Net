@@ -1,0 +1,20 @@
+﻿@model Datavail.Delta.Cloud.Mvc.Models.Authentication.LogOnForm
+
+@using (Html.BeginForm())
+{
+    <div class="form-content">
+        @Html.Label("Email Address")
+        <br />
+        @Html.TextBoxFor(model => model.EmailAddress)
+        @Html.ValidationMessage("EmailAddress")
+        <br />
+        @Html.Label("Password")
+        <br />
+        @Html.PasswordFor(model => model.Password)
+        @Html.ValidationMessage("Password")
+        <br />
+        <input type="submit" value="Submit" />
+        Don't have an account...
+        <a href="#signup" id="signUpDialogLink">Sign Up!</a>
+    </div>
+}

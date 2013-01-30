@@ -1,0 +1,146 @@
+﻿@model TableModel
+<div id='@Model.Id-container'>
+    <header class="toolbar-header">
+        <ul class="toolbar clearfix f1">
+            <li>
+                <h3 class="fl partialpageheader" style="display: inline;">@Model.Caption</h3>
+            </li>
+            @foreach (var item in Model.ToolbarItems)
+            {
+                Html.RenderPartial("ToolbarItem", item);
+            }
+            @if (Model.IsSearchEnabled)
+            {
+                <li class="search fr">
+                    <div class="searchbox" id="@Model.Id-search">
+                        <input type="text" name="@Model.Id-search-text" id="@Model.Id-search-text" autocomplete="off" placeholder="Search...">
+                    </div>
+                </li>
+            }
+        </ul>
+    </header>
+    <table id="@Model.Id">
+    </table>
+    <div id="@Model.Pager">
+    </div>
+</div>
+<script type="text/javascript">
+    
+    
+    @if (Model.IsTabTable)
+    {
+    <text>
+    //Tab Click
+    $("#" + "@Model.Id" + "-trigger").click(function() {
+        //Setup the grid options
+        var options = {
+            datatype: "@Model.DataType",
+            rowNum: "@Model.RowNum",
+            rowList: @Html.Raw(Model.RowList),
+            sortname: "@Model.SortName",
+            viewrecords: @Html.Raw(Model.ViewRecords),
+            sortorder: "@Model.SortOrder",
+            autowidth: @Html.Raw(Model.AutoWidth),
+            shrinkToFit: @Html.Raw(Model.ShrinkToFit),
+            loadtext: "@Model.LoadText",
+            pgtext: "@Model.PgText",
+            url: "@Model.Url",
+            editurl: "@Model.EditUrl",
+            colNames: @Html.Raw(Model.ColumnNames),
+            colModel: @Html.Raw(Model.ColumnModel),
+            pager: "@Model.Pager",
+            caption: "@Model.Caption",
+            recordtext: "@Model.RecordText",
+            emptyrecords: "@Model.EmptyRecords",
+            hoverrows: @Html.Raw(Model.HoverRows),
+            gridComplete: @Html.Raw(Model.GridComplete),
+            multiselect: @Html.Raw(Model.MultiSelect),
+            multikey: "@Model.MultiKey",
+            loadui: "block",
+            postData: {specType: "@Model.SpecType"}
+        };
+        
+        //Because of the tab animation, we need to wait 500 ms before loading the table
+        setTimeout(function() {
+            initializeTable(options, "@Model.Id", "@Model.Pager", @Html.Raw(Model.NavGridOptions), true);
+        }, 250)
+    });
+        </text>
+    }
+    else
+    {
+    <text>
+    //Document Load
+    $(function () {
+        var options = {
+            datatype: "@Model.DataType",
+            rowNum: "@Model.RowNum",
+            rowList: @Html.Raw(Model.RowList),
+            sortname: "@Model.SortName",
+            viewrecords: @Html.Raw(Model.ViewRecords),
+            sortorder: "@Model.SortOrder",
+            autowidth: @Html.Raw(Model.AutoWidth),
+            shrinkToFit: @Html.Raw(Model.ShrinkToFit),
+            loadtext: "@Model.LoadText",
+            pgtext: "@Model.PgText",
+            url: "@Model.Url",
+            editurl: "@Model.EditUrl",
+            colNames: @Html.Raw(Model.ColumnNames),
+            colModel: @Html.Raw(Model.ColumnModel),
+            pager: "@Model.Pager",
+            caption: "@Model.Caption",
+            recordtext: "@Model.RecordText",
+            emptyrecords: "@Model.EmptyRecords",
+            hoverrows: @Html.Raw(Model.HoverRows),
+            gridComplete: @Html.Raw(Model.GridComplete),
+            multiselect: @Html.Raw(Model.MultiSelect),
+            multikey: "@Model.MultiKey",
+            loadui: "block",
+            postData: {specType: "@Model.SpecType"},
+            ajaxSelectOptions: { data: {    data: function() {
+                var row_id = $("#" + "@Model.Id").data("editrowid");
+                $("#" + "@Model.Id").removeData("editrowid");
+                return JSON.stringify({ 
+                    rowid: row_id
+                }); 
+            }}}
+        };
+
+        initializeTable(options, "@Model.Id", "@Model.Pager", @Html.Raw(Model.NavGridOptions), false);
+    });
+    </text>
+    }
+
+    function initializeTable(options, tableid, pagerid, navgridoptions, triggerResize)
+    {
+        if($("#" + tableid).parents(".ui-jqgrid-bdiv").size() == 0)
+        {
+            $("#" + tableid).jqGrid(options).navGrid("#" + pagerid, navgridoptions );
+            $(".ui-jqgrid-titlebar").hide();
+            $("#" + tableid).hideCol("cb");
+        }
+        
+        $("div.partial-page").bind('partialresize', function () {
+            //Set the height
+            var parentContainerTop = $("#" + tableid).parents(".container-table").offset().top;
+            var parentContainerBottom = parentContainerTop + $("#" + tableid).parents(".container-table").height();
+            var tableTop = $("#" + tableid).offset().top;
+            var tableHeight = (parentContainerBottom - tableTop);
+            var pagerHeight = $("#" + tableid + "-pager").height();
+            
+            $("#" + tableid).jqGrid("setGridHeight", (tableHeight - pagerHeight) - 15);
+            
+            //Set the width
+            var parentContainerLeft = $("#" + tableid).parents(".container-table").offset().left;
+            var parentContainerRight = parentContainerLeft + $("#" + tableid).parents(".container-table").width();
+            var tableLeft = $("#" + tableid).offset().left;
+            var tableWidth = parentContainerRight - tableLeft;
+
+            $("#" + tableid).jqGrid("setGridWidth", tableWidth + 10);
+        })
+
+        if(triggerResize){
+            $("div.partial-page").trigger('partialresize');            
+        }
+    }
+</script>

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6431E019-BDF9-4C95-AB24-69A94E8C14FF}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Datavail.Delta.TestConsoleApp</RootNamespace>
+    <AssemblyName>Datavail.Delta.TestConsoleApp</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Datavail.Delta.Domain\Datavail.Delta.Domain.csproj">
+      <Project>{1ed99dc3-2840-4d7a-a65c-ca03324cc55d}</Project>
+      <Name>Datavail.Delta.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Infrastructure\Datavail.Delta.Infrastructure.csproj">
+      <Project>{ae54d8de-e7be-4ebc-a667-325d1a1c73c6}</Project>
+      <Name>Datavail.Delta.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Repository.EfWithMigrations\Datavail.Delta.Repository.EfWithMigrations.csproj">
+      <Project>{600f9f0c-fc33-4644-a116-82618fc58bbf}</Project>
+      <Name>Datavail.Delta.Repository.EfWithMigrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Repository.Interface\Datavail.Delta.Repository.Interface.csproj">
+      <Project>{c8f6ee1c-b0d9-4721-9137-c926d16c8dfb}</Project>
+      <Name>Datavail.Delta.Repository.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Repository.MongoDb\Datavail.Delta.Repository.MongoDb.csproj">
+      <Project>{0ad08856-865f-4169-a9e2-9296be4a5b6a}</Project>
+      <Name>Datavail.Delta.Repository.MongoDb</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

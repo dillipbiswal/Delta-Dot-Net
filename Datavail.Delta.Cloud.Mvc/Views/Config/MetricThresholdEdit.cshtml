@@ -1,0 +1,256 @@
+﻿@model MetricThresholdModel
+<div id="metricthresholdedit-container">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.MetricConfigId)
+        if (((int)Model.MetricThresholdType & (int)MetricThresholdType.MatchComparison) == (int)MetricThresholdType.MatchComparison)
+        {
+            @Html.HiddenFor(x => x.ThresholdComparisonFunction)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Raise an alert level of:
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Severity)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    If the metric value matches:
+                </td>
+                <td class="form-data">
+                    @Html.TextBoxFor(x => x.MatchValue)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    And occurs:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.NumberOfOccurrences) <span>Times</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    In a time period of:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.TimePeriod) <span>Minutes</span>
+                </td>
+            </tr>
+        </table>
+        <script type="text/javascript">
+            $(function () {
+                $("form", "#metricthresholdedit-container").validate({
+                    errorContainer: $("#form-errors-container", "#metricthresholdedit-container"),
+                    errorLabelContainer: $("ul", $("#form-errors-container", "#metricthresholdedit-container")),
+                    wrapper: 'li',
+                    rules: {
+                        MatchValue: {
+                            required: true
+                        },
+                        NumberOfOccurrences: {
+                            required: true,
+                            number: true
+                        },
+                        TimePeriod: {
+                            required: true,
+                            number: true
+                        }
+                    },
+                    messages: {
+                        MatchValue: "Please supply a value to match",
+                        NumberOfOccurrences: {
+                            required: "Please specify the number of occurences",
+                            number: "The value must be a number"
+                        },
+                        TimePeriod: {
+                            required: "Please specify a time period in minutes",
+                            number: "The value must be a number"
+                        }
+                    }
+                });
+            });
+        </script>
+        }
+        else
+        {
+        <table>
+            <tr>
+                <td class="form-label">
+                    Raise an alert level of:
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Severity)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    If the metric:
+                </td>
+                <td class="form-data">
+                    <select name='ThresholdComparisonFunction' id='ThresholdComparisonFunction'>
+                        @if (((int)Model.MetricThresholdType & (int)MetricThresholdType.AverageComparison) == (int)MetricThresholdType.AverageComparison)
+                        {
+                            var selected = Model.ThresholdComparisonFunction == ThresholdComparisonFunction.Average ? "selected=selected" : string.Empty;
+                            var text = ThresholdComparisonFunction.Average.ToString();
+                            
+                            @: <option value="@text" @selected>@text</option>
+                        }
+                        @if (((int)Model.MetricThresholdType & (int)MetricThresholdType.ValueComparison) == (int)MetricThresholdType.ValueComparison)
+                        {
+                            var selected = Model.ThresholdComparisonFunction == ThresholdComparisonFunction.Value ? "selected=selected" : string.Empty;
+                            var text = ThresholdComparisonFunction.Value.ToString();
+                            
+                            @: <option value="@text" @selected>@text</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Measured as a:
+                </td>
+                <td class="form-data">
+                    <select name='ThresholdValueType' id='ThresholdValueType'>
+                        @if (((int)Model.MetricThresholdType & (int)MetricThresholdType.ValueType) == (int)MetricThresholdType.ValueType)
+                        {
+                            var selected = Model.ThresholdValueType == ThresholdValueType.Value ? "selected=selected" : string.Empty;
+                            var text = ThresholdValueType.Value.ToString();
+                            
+                            @: <option value="@text" @selected>@text</option>
+                                                                        }
+                        @if (((int)Model.MetricThresholdType & (int)MetricThresholdType.PercentageType) == (int)MetricThresholdType.PercentageType)
+                        {
+                            var selected = Model.ThresholdValueType == ThresholdValueType.Percentage ? "selected=selected" : string.Empty;
+                            var text = ThresholdValueType.Percentage.ToString();
+                            
+                            @: <option value="@text" @selected>@text</option>
+                                                }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Is greater than, or equal To:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.FloorValue)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    And less than, or equal to:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.CeilingValue)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    And occurs:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.NumberOfOccurrences) <span>Times</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    In a time period of:
+                </td>
+                <td class="form-data digits">
+                    @Html.TextBoxFor(x => x.TimePeriod) <span>Minutes</span>
+                </td>
+            </tr>
+        </table>
+        <script type="text/javascript">
+            $(function () {
+                $("form", "#metricthresholdedit-container").validate({
+                    errorContainer: $("#form-errors-container", "#metricthresholdedit-container"),
+                    errorLabelContainer: $("ul", $("#form-errors-container", "#metricthresholdedit-container")),
+                    wrapper: 'li',
+                    rules: {
+                        FloorValue: {
+                            required: true,
+                            number: true
+                        },
+                        CeilingValue: {
+                            required: true,
+                            number: true
+                        },
+                        NumberOfOccurrences: {
+                            required: true,
+                            number: true
+                        },
+                        TimePeriod: {
+                            required: true,
+                            number: true
+                        }
+                    },
+                    messages: {
+                        FloorValue: {
+                            required: "Please Specify a lower boundary",
+                            number: "The value must be a number"
+                        },
+                        CeilingValue: {
+                            required: "Please Specify a lower boundary",
+                            number: "The value must be a number"
+                        },
+                        NumberOfOccurrences: {
+                            required: "Please specify the number of occurences",
+                            number: "The value must be a number"
+                        },
+                        TimePeriod: {
+                            required: "Please specify a time period in minutes",
+                            number: "The value must be a number"
+                        }
+                    }
+                });
+
+                setThresholdFormElements($("#ThresholdComparisonFunction").val());
+
+                $("#ThresholdComparisonFunction").change(function () {
+                    $("form", "#metricthresholdedit-container").validate().resetForm();
+                    setThresholdFormElements($(this).val());
+                });
+
+                setThresholdValueIndicator($("#ThresholdValueType").val());
+
+                $("#ThresholdValueType").change(function () {
+                    var value = $(this).val();
+                    setThresholdValueIndicator(value);
+                });
+
+                function setThresholdValueIndicator(value) {
+                    if (value == 'Percentage') {
+                        $("#FloorValue").parent().append("<span>%</span>");
+                        $("#CeilingValue").parent().append("<span>%</span>");
+                    }
+                    else {
+                        $("#FloorValue").parent().children("span").remove();
+                        $("#CeilingValue").parent().children("span").remove();
+                    }
+                }
+
+                function setThresholdFormElements(comparisonValue) {
+                    if (comparisonValue == 'Average') {
+                        $("#NumberOfOccurrences").val('');
+                        $("#NumberOfOccurrences").attr('disabled', 'disabled');
+                        $("#NumberOfOccurrences").parent().parent().hide();
+                    }
+                    else if (comparisonValue == 'Value') {
+                        $("#NumberOfOccurrences").removeAttr('disabled');
+                        $("#NumberOfOccurrences").parent().parent().show();
+                    }
+                }
+            });
+        </script>
+        }
+    }
+</div>

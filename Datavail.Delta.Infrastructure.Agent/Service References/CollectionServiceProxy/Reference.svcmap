@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="76364c38-4bfe-45b5-a11a-b4349327dbb2" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://ws.delta.cloud.datavail.com/CollectionService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="CollectionService.wsdl" MetadataType="Wsdl" ID="43d9e52c-233d-4ee5-97fc-1624a525fb94" SourceId="1" SourceUrl="http://ws.delta.cloud.datavail.com/CollectionService.svc?wsdl" />
+    <MetadataFile FileName="CollectionService.xsd" MetadataType="Schema" ID="29d2f332-9dac-4203-a144-80f5b761b440" SourceId="1" SourceUrl="http://ws.delta.cloud.datavail.com/CollectionService.svc?xsd=xsd0" />
+    <MetadataFile FileName="CollectionService1.xsd" MetadataType="Schema" ID="f1326724-c2eb-493e-bb9c-ac5e5dfcb4fc" SourceId="1" SourceUrl="http://ws.delta.cloud.datavail.com/CollectionService.svc?xsd=xsd1" />
+    <MetadataFile FileName="CollectionService.disco" MetadataType="Disco" ID="1bbccfc3-f9d8-477c-b993-12fdcedf6c24" SourceId="1" SourceUrl="http://ws.delta.cloud.datavail.com/CollectionService.svc?disco" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Datavail.Delta.Domain.Customer">
+    <Position X="7.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAIAACQAAAAAAAAQAAAAAAAAAACAAAAAEAAA=</HashCode>
+      <FileName>Customer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Tenant" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+      <Property Name="ServerGroups" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Server" Collapsed="true">
+    <Position X="7" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CGEAAAgEAAAACQACAACAAAAAAAAAAAAAACAAAAAEAAA=</HashCode>
+      <FileName>Server.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Tenant" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+      <Property Name="MetricInstances" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Metric" Collapsed="true">
+    <Position X="2.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAQAAAAAAAAQAAAAAAAABACAAAAAAAQA=</HashCode>
+      <FileName>Metric.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricInstance">
+    <Position X="0.5" Y="1.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAQAAAAAAAAAAAEEAABACACAAAAAAAAA=</HashCode>
+      <FileName>MetricInstance.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Metric" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricConfigurations" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.ServerGroup">
+    <Position X="10.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAQAEAAAAQAQAAAAAAAAAADAAAAAAAAA=</HashCode>
+      <FileName>ServerGroup.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Tenant" Collapsed="true">
+    <Position X="8.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAEAAAACQAAAAAAAAQAIAAAAAAAADAAAAAAAAA=</HashCode>
+      <FileName>Tenant.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Customers" />
+      <Property Name="MetricConfigurations" />
+      <Property Name="ServerGroups" />
+      <Property Name="Servers" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricConfiguration">
+    <Position X="5" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAQAQACEAAAAACAAAAAAAACAA=</HashCode>
+      <FileName>MetricConfiguration.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Metric" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="MetricThresholds" />
+      <Property Name="Schedules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.MetricThreshold" Collapsed="true">
+    <Position X="4.25" Y="6.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAIAAQoAIAAAAAAAAAAAAAAAAgAAAAAAAQA=</HashCode>
+      <FileName>MetricThreshold.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Datavail.Delta.Domain.Schedule" Collapsed="true">
+    <Position X="4.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQIAAAAQAAAIEEAQAQAAIAACIEAAAEAAEAAAA=</HashCode>
+      <FileName>Schedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

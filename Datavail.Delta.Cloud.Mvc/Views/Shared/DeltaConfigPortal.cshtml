@@ -1,0 +1,27 @@
+﻿@model DeltaConfigPortalModel
+@{
+    ViewBag.Title = Model.Title;
+}
+<script type="text/javascript" src="@Url.Content("~/Scripts/tables/tables.js")"></script>
+<div id="wrapper">
+    <div id="content-header">
+        <div class="fl">
+            @Html.MainMenu(Model.MainMenuItems)
+        </div>
+        <div class="logoff fr">
+            <a href="@Model.LogOffUrl" title="@Model.LogOffTitle">
+                <img src="@Url.Content(Model.LogOffImageUrl)" alt=""/>@Model.LogOffTitle</a>
+        </div>
+        <div class="user-info fr">
+            @Model.LoginMessage
+        </div>
+    </div>
+    <div id="content">
+        @{
+            Html.RenderPartial(@Model.ContentPageView, Model.ContentPageModel);
+        }
+        <!-- Main Section End -->
+        <div id="content-overlay" class="content-overlay" style="position: absolute">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<SelectListItem>
+@{
+    ViewBag.Title = "Delta Configuration Portal - Home";
+}
+@*---Begin Customer Widget---*@
+<div class="container_12 clearfix leading">
+    <section class="portlet grid_4 leading">
+    <header>
+        <h2>
+            Customers</h2>
+    </header>
+    <section>
+        <div class="form-content">
+            @Html.Label("Customer Name: ")
+            @Html.DropDownList("Customers", Model)
+            <br />
+            @Html.Label("Customer Status: ")
+            <label class="customer-status">
+            </label>
+        </div>
+    </section>
+</section>
+
+    <div class="clear">
+    </div>
+    
+    @*---Begin Server Widget---*@
+    <section class="portlet grid_12 leading">
+    <header>
+        <h2>
+            Server Maintenance</h2>
+    </header>
+    <section>
+        <div class="form-content">
+            <div id="jstree-container" class="server-maintenance-tree">
+            </div>
+        </div>
+    </section>
+</section>
+</div>

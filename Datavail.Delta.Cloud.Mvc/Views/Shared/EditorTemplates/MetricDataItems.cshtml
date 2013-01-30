@@ -1,0 +1,84 @@
+﻿@model IEnumerable<MetricDataItemModel>
+    
+    @foreach (var item in Model)
+    {
+        @Html.EditorFor(x => item)
+    }
+
+<script type="text/javascript">
+    $(function () {
+        $(".add-metricdata-value-button").button({
+            icons: {
+                primary: "ui-icon-plusthick"
+            },
+            text: false
+        });
+
+        $(".metricdata-value-delete").button({
+            icons: {
+                primary: "ui-icon-closethick"
+            },
+            text: false
+        });
+
+        clearMultiValueTables();
+
+        $(".add-metricdata-value-button").click(function () {
+            //Get the item id, and value
+            var itemId = $(this).attr('id').replace("-button", "");
+            var itemValue = $("#" + itemId).val();
+            var index = $('tr.multivalue-item', "#" + itemId + "-table").size();
+
+            var inputId = itemId + "_" + index;
+
+            if (itemValue != '') {
+                $("#" + itemId + "-table").append("<tr class='multivalue-item'><td><button class='metricdata-value-delete small-button' title='Remove Value'>Remove</button></td><td>" + itemValue + "<input type='hidden' id='" + inputId + "' name='" + inputId + "' value='" + itemValue + "'/></td></tr>");
+                $("#" + itemId).val('');
+
+                if (!$("#" + itemId + "-table").is(":visible")) {
+                    $("#" + itemId + "-table").show();
+                }
+            }
+
+            $(".metricdata-value-delete").button({
+                icons: {
+                    primary: "ui-icon-closethick"
+                },
+                text: false
+            });
+
+            //Rebind the delete click handler
+            $(".metricdata-value-delete").unbind('click');
+            $(".metricdata-value-delete").click(function () {
+                removeRow(this);
+                clearMultiValueTables();
+                validateMetricData();
+            });
+
+            validateMetricData();
+            return false;
+        })
+
+        $(".metricdata-value-delete").click(function () {
+            removeRow(this);
+            clearMultiValueTables();
+            validateMetricData();
+        });
+    });
+
+    function clearMultiValueTables() {
+        $(".metricdata-values-table").each(function () {
+            if ($("tr.multivalue-item", $(this)).size() == 0) {
+                $(this).hide();
+            }
+        });
+    }
+
+    function validateMetricData() {
+        $("#metric-data-form").validate().form();
+    }
+
+    function removeRow(deleteButton) {
+        $(deleteButton).parent().parent().remove();
+    }
+</script>

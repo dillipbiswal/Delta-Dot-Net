@@ -1,0 +1,16 @@
+﻿@model Datavail.Delta.Cloud.Mvc.Models.ContentPageModel
+<div class="main-content-page container_12">
+    @if (Model.ShowBreadCrumb)
+    {
+        <div class="breadCrumb grid_12 leading">
+            <ul id="content-breadcrumb">
+            </ul>
+        </div>
+    }
+    <div id="page-content">
+        @{
+            Html.RenderPartial(@Model.PartialPageView, Model);    
+        }
+        
+    </div>
+</div>

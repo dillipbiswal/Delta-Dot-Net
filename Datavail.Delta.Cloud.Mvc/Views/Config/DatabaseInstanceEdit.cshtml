@@ -1,0 +1,110 @@
+﻿@model DatabaseInstanceModel
+           
+<div id="databaseinstanceedit-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        <table>
+            <tr>
+                <td class="form-label">
+                    Name
+                </td>
+                <td class="form-data">
+                    @Html.TextBoxFor(x => x.Name)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Integrated Security
+                </td>
+                <td class="form-data">
+                    @Html.CheckBoxFor(x => x.UseIntegratedSecurity)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Username
+                </td>
+                <td class="form-data">
+                    @Html.TextBoxFor(x => x.Username)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Password
+                </td>
+                <td class="form-data">
+                    @Html.PasswordFor(x => x.Password, new { value = Model.Password}) 
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Database Version
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.DatabaseVersion)
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    Status
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.Status)
+                </td>
+            </tr>
+        </table>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("form", "#databaseinstanceedit-form").validate({
+            errorContainer: $("#form-errors-container", "#databaseinstanceedit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#databaseinstanceedit-form")),
+            wrapper: 'li',
+            rules: {
+                Name: {
+                    required: true
+                },
+                Username: {
+                    required: true
+                },
+                Password: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: "Please supply a Configuration Name",
+                Username: "Username is required",
+                Password: "Password is required"
+            }
+        });
+
+        if ($("#UseIntegratedSecurity", "#databaseinstanceedit-form").is(":checked")) {
+            $("#Username", "#databaseinstanceedit-form").attr('disabled', 'disabled');
+            $("#Password", "#databaseinstanceedit-form").attr('disabled', 'disabled');
+        }
+        else {
+            $("#Username", "#databaseinstanceedit-form").removeAttr('disabled');
+            $("#Password", "#databaseinstanceedit-form").removeAttr('disabled');
+        }
+
+        $("#UseIntegratedSecurity").click(function () {
+            $("form", "#databaseinstanceedit-form").validate().resetForm();
+            if ($(this).is(":checked")) {
+                $("#Username", "#databaseinstanceedit-form").attr('disabled', 'disabled');
+                $("#Password", "#databaseinstanceedit-form").attr('disabled', 'disabled');
+            }
+            else {
+                $("#Username", "#databaseinstanceedit-form").removeAttr('disabled');
+                $("#Password", "#databaseinstanceedit-form").removeAttr('disabled');
+            }
+            return true;
+        });
+    });
+</script>
+

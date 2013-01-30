@@ -1,0 +1,67 @@
+/* 
+	LEVEL ONE
+*/
+ul.mainmenu                         { position: relative; height: 40px; list-style: none; left: 170px;}
+ul.mainmenu > li                    { font-size: 14px; width: 150px; background-repeat:repeat-x; float: left; zoom: 1; height: 100%; }
+ul.mainmenu > li a:active           { color: Gray; }
+ul.mainmenu > li a                  { display: block; padding: 4px 8px; padding-top: 10px; border-left: 1px solid #06335C;
+	 								  color: White; text-decoration: none; height: inherit;  -moz-box-sizing: border-box; 
+	 								  -ms-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;}
+ul.mainmenu > li:last-child a       { border-right: 1px solid #06335C; }
+ul.mainmenu > li.hover,
+ul.mainmenu > li:hover              { position: relative; }
+ul.mainmenu > li.hover a            { font-weight: bold; }
+ul.mainmenu > li.current > a        { font-weight: bold;}
+
+/* 
+	LEVEL TWO
+*/
+ul.mainmenu ul                      { width: 100%; visibility: hidden; position: absolute; top: 100%; left: 0; z-index: 100; background-image: none; background-color: White; list-style: none; }
+ul.mainmenu ul > li 			    { font-weight: normal; background: #f6f6f6; color: #000; float: none; background-image: none;}
+ul.mainmenu ul > li:hover           { font-weight: normal; background: #cccccc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x; color: #000; float: none;}
+									  
+                                    /* IE 6 & 7 Needs Inline Block */
+ul.mainmenu ul li a			        { width: 100%; display: inline-block; color: #000; border: 1px solid #ccc; }
+ul.mainmenu ul li a:hover           { text-decoration: underline; font-weight: normal; color: #0066ff;}
+
+/* 
+	LEVEL THREE
+*/
+ul.mainmenu ul ul 					{ left: 100%; top: 0; list-style: none; }
+ul.mainmenu li:hover > ul 			{ visibility: visible; }
+
+
+/*-----------------------NON-DROPDOWN-------------------------------------------------------*/
+/* 
+	LEVEL ONE
+*/
+ul.dropdown                         { position: relative; list-style: none;}
+ul.dropdown li                      { float: left; zoom: 1; background: transparent; }
+ul.dropdown a:hover		            { color: #000; }
+ul.dropdown a:active                { color: #ffa500; }
+ul.dropdown li a                    { display: block; padding: 4px 8px; border-right: 1px solid #333;
+	 								  color: #222; }
+ul.dropdown li:last-child a         { border-right: none; } /* Doesn't work in IE */
+ul.dropdown li.hover,
+ul.dropdown li:hover                { background: #f6f6f6; color: black; position: relative; }
+ul.dropdown li.hover a              { color: black; }
+
+
+/* 
+	LEVEL TWO
+*/
+ul.dropdown ul 						{ width: 220px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index: 5; list-style: none; }
+ul.dropdown ul li 					{ font-weight: normal; background: #f6f6f6; color: #000; 
+									  border-bottom: 1px solid #ccc; float: none; }
+ul.dropdown ul li:hover             {font-weight: normal; background: #cccccc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x; color: #000; 
+									  border-bottom: 1px solid #ccc; float: none;}
+						  
+                                    /* IE 6 & 7 Needs Inline Block */
+ul.dropdown ul li a					{ border-right: none; width: 100%; display: inline-block; color: #0066ff; text-decoration: none }
+ul.dropdown ul li:hover a           { text-decoration: underline; color: #0066ff}
+
+/* 
+	LEVEL THREE
+*/
+ul.dropdown ul ul 					{ left: 100%; top: 0; list-style: none; }
+ul.dropdown li:hover > ul 			{ visibility: visible; }
