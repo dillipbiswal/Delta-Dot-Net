@@ -1,4 +1,7 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Domain;
 
@@ -23,6 +26,121 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             XmlMatchString = "LogWatcherPluginOutput";
 
             SetupMatchParams();
+        }
+
+        public override bool IsMatch()
+        {
+            if (DataCollection.Root != null && DataCollection.Root.Name != XmlMatchString)
+                return false;
+
+            var matchFound = false;
+            var incidentDetailMesages = new List<string>();
+
+            const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";
+            var data = string.Empty;
+
+            if (Regex.IsMatch(_matchingLine, timeStampSpidRegEx))
+            {
+                data = Regex.Replace(_matchingLine, timeStampSpidRegEx, string.Empty);
+            }
+
+            AdditionalData = string.Format("<AdditionalData><LastMatchingLine>{0}</LastMatchingLine></AdditionalData>", data);
+
+            foreach (var metricThreshold in Thresholds)
+            {
+                //Setup Common Items
+                var isPercentageType = metricThreshold.ThresholdValueType == ThresholdValueType.Percentage;
+                var isCountType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Value;
+                var isAverageType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Average;
+                var isMatchType = metricThreshold.ThresholdComparisonFunction == ThresholdComparisonFunction.Match;
+                var isSingleMatchType = metricThreshold.NumberOfOccurrences <= 1;
+
+                var metricTypeDescription = isPercentageType ? PercentageTypeLabel : ValueTypeLabel;
+                double metricValue = isPercentageType ? PercentageTypeValue : ValueTypeValue;
+
+                if (isCountType)
+                {
+                    if (metricValue >= metricThreshold.FloorValue && metricValue <= metricThreshold.CeilingValue)
+                    {
+                        if (isPercentageType)
+                        {
+                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue, additionalData: AdditionalData);
+                        }
+                        else
+                        {
+                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue, additionalData: AdditionalData);
+                        }
+                        if (isSingleMatchType)
+                        {
+                            IncidentPriority = (int)metricThreshold.Severity;
+                            IncidentMesage = FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold);
+                            IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
+                            return true;
+                        }
+                        else
+                        {
+                            var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
+                            IncidentPriority = (int)metricThreshold.Severity;
+                            IncidentMesage = FormatCountServiceDeskMessage(count, metricTypeDescription, metricThreshold);
+                            IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
+                            if (count >= metricThreshold.NumberOfOccurrences) return true;
+                        }
+                    }
+                }
+
+                if (isAverageType)
+                {
+                    if (isPercentageType)
+                    {
+                        IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue, additionalData: AdditionalData);
+                    }
+                    else
+                    {
+                        IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue, additionalData: AdditionalData);
+                    }
+
+                    var average = isPercentageType
+                                      ? IncidentService.GetAveragePercentage(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod)
+                                      : IncidentService.GetAverageValue(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
+
+                    if (!float.IsNaN(average) && average >= metricThreshold.FloorValue && average <= metricThreshold.CeilingValue)
+                    {
+                        IncidentPriority = (int)metricThreshold.Severity;
+                        IncidentMesage = FormatAverageServiceDeskMessage(average, metricTypeDescription, metricThreshold);
+                        IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
+                        return true;
+                    }
+                }
+
+                if (isMatchType)
+                {
+
+                    if (Regex.IsMatch(MatchTypeValue, metricThreshold.MatchValue))
+                    {
+                        IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id,
+                                                                    matchValue: MatchTypeValue, additionalData: AdditionalData);
+
+                        if (isSingleMatchType)
+                        {
+                            IncidentPriority = (int)metricThreshold.Severity;
+                            IncidentMesage = FormatMatchServiceDeskMessage(metricThreshold);
+                            IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
+                            return true;
+                        }
+                        else
+                        {
+                            var count = IncidentService.GetCount(MetricInstance.Id, metricThreshold.Id, metricThreshold.TimePeriod);
+                            IncidentPriority = (int)metricThreshold.Severity;
+                            IncidentMesage = FormatMatchCountServiceDeskMessage(count, metricThreshold);
+                            IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
+                            if (count >= metricThreshold.NumberOfOccurrences) return true;
+                        }
+                    }
+                }
+            }
+
+            //None of the thresholds match, so don't open an incident
+            return false;
         }
 
         protected override void SetupMatchParams()
