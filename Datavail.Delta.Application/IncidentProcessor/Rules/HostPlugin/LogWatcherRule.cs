@@ -36,8 +36,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             var matchFound = false;
             var incidentDetailMesages = new List<string>();
 
-            const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";
-            var data = string.Empty;
+            const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} (spid)?[0-9?]{0,10} {1,7}";
+            var data = _matchingLine;
 
             if (Regex.IsMatch(_matchingLine, timeStampSpidRegEx))
             {
