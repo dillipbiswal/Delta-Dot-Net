@@ -114,16 +114,6 @@
     <Compile Include="UsersWithDbaRolePlugin_Tests\WhenRunningExecuteMethod.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Oracle10G\Datavail.Delta.Agent.Plugin.Oracle10G.csproj">
-      <Project>{268E707C-BF9B-49C4-A32A-9DAFB8469986}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.Oracle10G</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

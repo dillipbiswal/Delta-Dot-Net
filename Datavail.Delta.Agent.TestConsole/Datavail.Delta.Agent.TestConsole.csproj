@@ -110,38 +110,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Host\Datavail.Delta.Agent.Plugin.Host.csproj">
-      <Project>{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.Host</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.LogWatcher\Datavail.Delta.Agent.Plugin.LogWatcher.csproj">
-      <Project>{A330076E-B858-47CC-A47A-7112F5F67924}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.LogWatcher</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.MsCluster\Datavail.Delta.Agent.Plugin.MsCluster.csproj">
-      <Project>{F0040611-81A1-4982-B2CB-CFF28ED004E3}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.MsCluster</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Oracle10G\Datavail.Delta.Agent.Plugin.Oracle10G.csproj">
-      <Project>{268E707C-BF9B-49C4-A32A-9DAFB8469986}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.Oracle10G</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.SqlServer2000\Datavail.Delta.Agent.Plugin.SqlServer2000.csproj">
-      <Project>{F26E3E21-3217-4C3E-ABA2-A0CE2D2E2BC5}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.SqlServer2000</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.SqlServer2005\Datavail.Delta.Agent.Plugin.SqlServer2005.csproj">
-      <Project>{FCEE28C7-12F7-4137-A3D2-ADBE35F35955}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.SqlServer2005</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.SqlServer2008\Datavail.Delta.Agent.Plugin.SqlServer2008.csproj">
-      <Project>{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.SqlServer2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Application.Interface\Datavail.Delta.Application.Interface.csproj">
       <Project>{5D28D78D-F5AA-40FB-A3F4-AA88BA81AECD}</Project>
       <Name>Datavail.Delta.Application.Interface</Name>

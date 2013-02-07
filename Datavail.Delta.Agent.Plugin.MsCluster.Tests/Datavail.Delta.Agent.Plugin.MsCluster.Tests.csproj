@@ -94,20 +94,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.MsCluster\Datavail.Delta.Agent.Plugin.MsCluster.csproj">
-      <Project>{F0040611-81A1-4982-B2CB-CFF28ED004E3}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.MsCluster</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
-      <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
-      <Name>Datavail.Delta.Agent.SharedCode</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

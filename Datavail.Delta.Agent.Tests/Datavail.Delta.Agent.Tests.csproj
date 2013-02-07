@@ -96,12 +96,6 @@
     <Compile Include="Scheduler_Tests\WhenCreatingScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>

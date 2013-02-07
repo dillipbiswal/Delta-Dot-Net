@@ -100,20 +100,6 @@
     <Compile Include="SystemInfo_Tests\WhenRunningGetOsPlatformMethod.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Host\Datavail.Delta.Agent.Plugin.Host.csproj">
-      <Project>{A7A92A26-7BCC-448F-AE07-F74710EC5AC4}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.Host</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
-      <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
-      <Name>Datavail.Delta.Agent.SharedCode</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

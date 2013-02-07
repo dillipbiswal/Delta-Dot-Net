@@ -92,16 +92,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.LogWatcher\Datavail.Delta.Agent.Plugin.LogWatcher.csproj">
-      <Project>{A330076E-B858-47CC-A47A-7112F5F67924}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.LogWatcher</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
-      <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
-      <Name>Datavail.Delta.Agent.SharedCode</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

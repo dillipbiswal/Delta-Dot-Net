@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
+﻿using System.ServiceProcess;
 
 namespace Datavail.Delta.IncidentProcessor
 {
@@ -14,13 +9,7 @@ namespace Datavail.Delta.IncidentProcessor
         /// </summary>
         static void Main()
         {
-
-            Debugger.Launch();
-
-            var servicesToRun = new ServiceBase[] 
-                                              { 
-                                                  new IncidentProcessor() 
-                                              };
+            var servicesToRun = new ServiceBase[] { new IncidentProcessor() };
             ServiceBase.Run(servicesToRun);
         }
     }

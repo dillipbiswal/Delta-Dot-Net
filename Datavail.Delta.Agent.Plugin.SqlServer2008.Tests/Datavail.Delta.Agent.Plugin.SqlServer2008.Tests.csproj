@@ -107,20 +107,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.SqlServer2008\Datavail.Delta.Agent.Plugin.SqlServer2008.csproj">
-      <Project>{14176043-FEA1-4C0F-BF0C-8D9EE97FFE02}</Project>
-      <Name>Datavail.Delta.Agent.Plugin.SqlServer2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
-      <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
-      <Name>Datavail.Delta.Agent.SharedCode</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
-      <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
-      <Name>Datavail.Delta.Infrastructure.Agent</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

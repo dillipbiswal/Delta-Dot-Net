@@ -1,6 +1,5 @@
 ﻿using Datavail.Delta.Application;
 using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Application.ServiceDesk.ConnectWise;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
@@ -28,8 +27,6 @@ namespace Datavail.Delta.IncidentProcessor
 
         public IncidentProcessor()
         {
-            Debugger.Launch();
-
             Int32.TryParse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"], out _numberOfWorkerThreads);
             _totalNumberOfThreads = _numberOfWorkerThreads + 3;
 
@@ -96,7 +93,7 @@ namespace Datavail.Delta.IncidentProcessor
         public void BootstrapIoc()
         {
             _kernel = new StandardKernel();
-            
+
             //Common
             _kernel.Bind<IDeltaLogger>().To<DeltaIncidentProcessorLogger>().InSingletonScope();
 
@@ -111,7 +108,13 @@ namespace Datavail.Delta.IncidentProcessor
             //Application Facades
             _kernel.Bind<IIncidentService>().To<IncidentService>().InThreadScope();
             _kernel.Bind<IServerService>().To<ServerService>().InThreadScope();
-            _kernel.Bind<IServiceDesk>().To<ServiceDesk>().InThreadScope();
+
+            //ServiceDesks
+            if (bool.Parse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"]))
+                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ConnectWise.ServiceDesk>().InThreadScope();
+
+            if (bool.Parse(ConfigurationManager.AppSettings["ServiceDeskEmailerEnabled"]))
+                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.Email.ServiceDesk>().InThreadScope();
 
             //Queues
             _kernel.Bind<IQueue<CheckInMessage>>().To<SqlQueue<CheckInMessage>>().WithConstructorArgument("queueTableName", QueueNames.CheckInQueue);
