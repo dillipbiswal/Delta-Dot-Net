@@ -98,8 +98,7 @@ namespace Datavail.Delta.Application
             }
             else
             {
-                //Allow duplicate incidents to be opened by LogWatcher, but not by others
-                if (!HasOpenIncident(metricInstance.Id) || metricInstance.Metric.AdapterClass == "LogWatcherPlugin")
+                if (!HasOpenIncident(metricInstance.Id))
                 {
                     var incidentHistory = new IncidentHistory { MetricInstance = metricInstance, OpenTimestamp = DateTime.UtcNow };
 
