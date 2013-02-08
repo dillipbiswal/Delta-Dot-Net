@@ -1538,6 +1538,20 @@ namespace Datavail.Delta.Application
 
                     SaveMetricInstance(Guid.Empty, sqlAgentStatusMetric.Id, databaseInstance.Id, GetMetricData(sqlAgentStatusMetric.Id, databaseInstance.Id), Status.Active, MetricInstanceParentType.Instance);
                 }
+
+                //TODO: ServiceStatusPlugin
+                if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "ServiceStatusPlugin" &&
+                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
+                                                                        x.Status != Status.Deleted &&
+                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
+                {
+                    var serviceStatusPlugin = _repository.Find<Metric>(x => x.AdapterClass == "ServiceStatusPlugin" &&
+                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
+                                                                                    .OrderBy(x => x.AdapterVersion)
+                                                                                    .LastOrDefault();
+
+                    SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Id, GetMetricData(serviceStatusPlugin.Id, databaseInstance.Id), Status.Active, MetricInstanceParentType.Instance);
+                }
             }
             else
             {
