@@ -113,7 +113,7 @@ namespace Datavail.Delta.IncidentProcessor
             bool serviceDeskConnectwiseEnabled;
             bool serviceDeskEmailerEnabled;
 
-            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"],out serviceDeskConnectwiseEnabled;
+            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"],out serviceDeskConnectwiseEnabled);
             bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskEmailerEnabled"], out serviceDeskEmailerEnabled);
 
             if (serviceDeskConnectwiseEnabled)
