@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <Product Id="*" Name="Delta Incident Processor" Language="1033" Version="!(bind.FileVersion.Datavail.Delta.IncidentProcessor.exe)" Manufacturer="Datavail Corporation" UpgradeCode="527b7ee7-7e74-4164-9610-335822789752">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platforms="x64" InstallPrivileges="elevated"  />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <PropertyRef Id="NETFRAMEWORK45"/>
+
+    <Condition Message="This application requires .NET Framework 4.5. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR NETFRAMEWORK45]]>
+    </Condition>
 
     <Media Id="1" Cabinet="Datavail.Delta.IncidentProcessor.cab" EmbedCab="yes"  />
 
