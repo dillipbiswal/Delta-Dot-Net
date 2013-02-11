@@ -1585,8 +1585,6 @@ namespace Datavail.Delta.Application
                         SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
                                            sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
                     }
-                    /*SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id, GetMetricData(serviceStatusPlugin.Id, databaseInstance.Id), Status.Active,
-                        MetricInstanceParentType.Instance);*/
                 }
             }
             else
