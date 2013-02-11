@@ -1539,7 +1539,7 @@ namespace Datavail.Delta.Application
                     SaveMetricInstance(Guid.Empty, sqlAgentStatusMetric.Id, databaseInstance.Id, GetMetricData(sqlAgentStatusMetric.Id, databaseInstance.Id), Status.Active, MetricInstanceParentType.Instance);
                 }
 
-                //TODO: ServiceStatusPlugin
+                //ServiceStatusPlugin
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "ServiceStatusPlugin" &&
                                                                         x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
                                                                         x.Status != Status.Deleted &&
@@ -1550,7 +1550,43 @@ namespace Datavail.Delta.Application
                                                                                     .OrderBy(x => x.AdapterVersion)
                                                                                     .LastOrDefault();
 
-                    SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Id, GetMetricData(serviceStatusPlugin.Id, databaseInstance.Id), Status.Active, MetricInstanceParentType.Instance);
+                    var sqlServerMetricData = GetMetricData(serviceStatusPlugin.Id, databaseInstance.Server.Id);
+                    var sqlServerServiceNameData = sqlServerMetricData.Data.FirstOrDefault(x => x.TagName == "ServiceName");
+
+                    if (databaseInstance.Name == databaseInstance.Server.Hostname)
+                    {
+                        if (sqlServerServiceNameData != null)
+                        {
+                            sqlServerServiceNameData.Value = "MSSQLSERVER";
+                        }
+                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
+                        
+                        if (sqlServerServiceNameData != null)
+                        {
+                            sqlServerServiceNameData.Value = "SQLSERVERAGENT"; 
+                        }
+                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
+                    }
+                    else
+                    {
+                        if (sqlServerServiceNameData != null)
+                        {
+                            sqlServerServiceNameData.Value = "SQLAGENT$INSTANCE";
+                        }
+                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
+
+                        if (sqlServerServiceNameData != null)
+                        {
+                            sqlServerServiceNameData.Value = "MSSQL$INSTANCE";
+                        }
+                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
+                    }
+                    /*SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id, GetMetricData(serviceStatusPlugin.Id, databaseInstance.Id), Status.Active,
+                        MetricInstanceParentType.Instance);*/
                 }
             }
             else
