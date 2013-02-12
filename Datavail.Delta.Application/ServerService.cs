@@ -1571,16 +1571,24 @@ namespace Datavail.Delta.Application
                     }
                     else
                     {
+                        var dbInstanceName = databaseInstance.Name;
+                        const string backslash = @"\";
+                        var backSlashIndex  = dbInstanceName.LastIndexOf(backslash, System.StringComparison.Ordinal);
+                        var startIndex = backSlashIndex + 1;
+                        var instance = dbInstanceName.Substring(startIndex, dbInstanceName.Length - startIndex);
+
                         if (sqlServerServiceNameData != null)
                         {
-                            sqlServerServiceNameData.Value = "SQLAGENT$INSTANCE";
+                            var sqlAgentInstance = string.Format("SQLAGENT${0}", instance);
+                            sqlServerServiceNameData.Value = sqlAgentInstance;
                         }
                         SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
                                            sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
 
                         if (sqlServerServiceNameData != null)
                         {
-                            sqlServerServiceNameData.Value = "MSSQL$INSTANCE";
+                            var msSQLInstance = string.Format("MSSQL${0}", instance);
+                            sqlServerServiceNameData.Value = msSQLInstance;
                         }
                         SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
                                            sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
