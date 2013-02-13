@@ -78,7 +78,7 @@ namespace Datavail.Delta.Application
             if (!string.IsNullOrEmpty(additionalData))
             {
                 //Make sure that there isn't an open ticket for the metric instance or a closed ticket matching the additionalData
-                if (!HasOpenIncident(metricInstance.Id) && !HasOpenIncident(metricInstance.Id, additionalData))
+                if ((metricInstance.Metric.AdapterClass == "LogWatcherPlugin" && !HasOpenIncident(metricInstance.Id, additionalData)) || (!HasOpenIncident(metricInstance.Id) && !HasOpenIncident(metricInstance.Id, additionalData)))
                 {
                     var incidentHistory = new IncidentHistory { MetricInstance = metricInstance, OpenTimestamp = DateTime.UtcNow, AdditionalData = additionalData };
 
