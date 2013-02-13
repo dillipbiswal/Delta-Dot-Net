@@ -15,7 +15,7 @@ namespace Datavail.Delta.Agent.TestConsole
 {
     class Program
     {
-        static void Main(string[] args) { RestDataUploadTest(); }
+        static void Main(string[] args) { TransReplicationPluginTest(); }
 
         static void LogWatcherTest()
         {

@@ -264,7 +264,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
         }
         #endregion
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenItIsAMatch()
         {
             
@@ -277,7 +277,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(true, rule.IsMatch());
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenAThresholdHistoryRecordIsLogged()
         {
             
@@ -291,7 +291,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskMessageIsCorrect()
         {
             
@@ -299,15 +299,17 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             var serverService = SetupServerService();
             var xml = GetSingleFaultMatchingXml();
             var rule = new MergeReplicationStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\nMetric Threshold: {30}\nMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress);
-
+            
             var match = rule.IsMatch();
+
+            var _timeStamp = rule.Timestamp;
+            var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\n\nAgent Timestamp (UTC): {35}\nMetric Threshold: {30}\nMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, _timeStamp);
 
             Assert.AreEqual(expectedMessage, rule.IncidentMesage);
         }
 
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskMessageIsCorrectWithMultipleFaults()
         {
             
@@ -315,16 +317,18 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             var serverService = SetupServerService();
             var xml = GetMultipleMatchingXml();
             var rule = new MergeReplicationStatusRule(incidentService.Object, xml, serverService);
-            //var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\nMetric Threshold: {30}\nMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\nMetric Threshold: {30}\nMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {35}\nPublisher: {36}\nPublication: {37}\nSubscriber: {38}\nSubscriber DB: {39}\nType: {40}\nAgent Name: {41}\nLast Action: {42}\nStart Time: {43}\nAction Time: {44}\nDuration: {45}\nDelivery Rate: {46}\nPublisher Conflicts: {47}\nSubscriber Conflicts: {48}\nInsert uploads/downloads: {49}\\{50}\nUpdate uploads/downloads: {51}\\{52}\nDelete uploads/downloads: {53}\\{54}\nError ID: {55}\nJod ID: {56}\nLocal Job: {57}\nProfile ID: {58}\nAgent ID: {59}\nOffload Enabled: {60}\nOffload Server: {61}\nMetric Threshold: {62}\nMatch Value: {63}\nServer: {64} ({65})\nIp Address: {66}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, Status2, Publisher2, Publication2, Subscriber2, SubscriberDb2, Type2, AgentName2, LastAction2, StartTime2, ActionTime2, Duration2, DeliveryRate2, PublisherConflicts2, SubscriberConflicts2, DownloadInserts2, UploadInserts2, DownloadUpdates2, UploadUpdates2, DownloadDeletes2, UploadDeletes2, ErrorId2, JobId2, LocalJob2, ProfileId2, AgentId2, OffloadEnabled2, OffloadServer2, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress);
-
-
+            //var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\nMetric Threshold: {30}\nAgent Timestamp (UTC): 2/12/2013 9:23:44 PMMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress);
+             
             var match = rule.IsMatch();
+
+            var _timeStamp = rule.Timestamp;
+            var expectedMessage = string.Format("The Delta monitoring application has detected the following Merge Replication fault(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {3}\nPublisher: {4}\nPublication: {5}\nSubscriber: {6}\nSubscriber DB: {7}\nType: {8}\nAgent Name: {9}\nLast Action: {10}\nStart Time: {11}\nAction Time: {12}\nDuration: {13}\nDelivery Rate: {14}\nPublisher Conflicts: {15}\nSubscriber Conflicts: {16}\nInsert uploads/downloads: {17}\\{18}\nUpdate uploads/downloads: {19}\\{20}\nDelete uploads/downloads: {21}\\{22}\nError ID: {23}\nJod ID: {24}\nLocal Job: {25}\nProfile ID: {26}\nAgent ID: {27}\nOffload Enabled: {28}\nOffload Server: {29}\n\nAgent Timestamp (UTC): {67}\nMetric Threshold: {30}\nMatch Value: {31}\nServer: {32} ({33})\nIp Address: {34}\n----------------------------------------------------------------------\r\n\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nDistribution Host: {2}\nReplication Status: {35}\nPublisher: {36}\nPublication: {37}\nSubscriber: {38}\nSubscriber DB: {39}\nType: {40}\nAgent Name: {41}\nLast Action: {42}\nStart Time: {43}\nAction Time: {44}\nDuration: {45}\nDelivery Rate: {46}\nPublisher Conflicts: {47}\nSubscriber Conflicts: {48}\nInsert uploads/downloads: {49}\\{50}\nUpdate uploads/downloads: {51}\\{52}\nDelete uploads/downloads: {53}\\{54}\nError ID: {55}\nJod ID: {56}\nLocal Job: {57}\nProfile ID: {58}\nAgent ID: {59}\nOffload Enabled: {60}\nOffload Server: {61}\n\nAgent Timestamp (UTC): {67}\nMetric Threshold: {62}\nMatch Value: {63}\nServer: {64} ({65})\nIp Address: {66}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, InstanceName, Hostname, Status, Publisher, Publication, Subscriber, SubscriberDb, Type, AgentName, LastAction, StartTime, ActionTime, Duration, DeliveryRate, PublisherConflicts, SubscriberConflicts, DownloadInserts, UploadInserts, DownloadUpdates, UploadUpdates, DownloadDeletes, UploadDeletes, ErrorId, JobId, LocalJob, ProfileId, AgentId, OffloadEnabled, OffloadServer, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, Status2, Publisher2, Publication2, Subscriber2, SubscriberDb2, Type2, AgentName2, LastAction2, StartTime2, ActionTime2, Duration2, DeliveryRate2, PublisherConflicts2, SubscriberConflicts2, DownloadInserts2, UploadInserts2, DownloadUpdates2, UploadUpdates2, DownloadDeletes2, UploadDeletes2, ErrorId2, JobId2, LocalJob2, ProfileId2, AgentId2, OffloadEnabled2, OffloadServer2, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, _timeStamp);
+           
 
             Assert.AreEqual(expectedMessage, rule.IncidentMesage);
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             
@@ -339,7 +343,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(expectedMessage, rule.IncidentSummary);
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskPriorityIsCorrect()
         {
             
