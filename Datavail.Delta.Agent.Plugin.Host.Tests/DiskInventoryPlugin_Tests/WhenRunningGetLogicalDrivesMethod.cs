@@ -11,7 +11,7 @@ namespace Datavail.Delta.Agent.Plugin.Host.Tests.CpuPlugin_Tests
     public class WhenRunningGetLogicalDrivesMethod
     {
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThenValueAsFloatIsReturned()
         {
             //Arrange

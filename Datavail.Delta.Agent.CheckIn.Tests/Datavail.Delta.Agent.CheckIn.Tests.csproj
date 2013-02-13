@@ -116,6 +116,16 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
+      <Project>{084d55c7-3ea3-4715-b2bc-88b4769b2de7}</Project>
+      <Name>Datavail.Delta.Infrastructure.Agent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\plugins\Datavail.Delta.Agent.Plugin.CheckIn\Datavail.Delta.Agent.Plugin.CheckIn.csproj">
+      <Project>{8a53d5f7-1530-4f03-8345-383a9fb54f5f}</Project>
+      <Name>Datavail.Delta.Agent.Plugin.CheckIn</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -141,6 +141,16 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.SqlServer2005\Datavail.Delta.Agent.Plugin.SqlServer2005.csproj">
+      <Project>{fcee28c7-12f7-4137-a3d2-adbe35f35955}</Project>
+      <Name>Datavail.Delta.Agent.Plugin.SqlServer2005</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
+      <Project>{084d55c7-3ea3-4715-b2bc-88b4769b2de7}</Project>
+      <Name>Datavail.Delta.Infrastructure.Agent</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

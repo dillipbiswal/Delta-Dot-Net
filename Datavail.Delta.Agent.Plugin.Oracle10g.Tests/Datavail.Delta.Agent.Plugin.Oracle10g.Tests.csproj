@@ -138,6 +138,16 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Datavail.Delta.Agent.Plugin.Oracle10G\Datavail.Delta.Agent.Plugin.Oracle10G.csproj">
+      <Project>{268e707c-bf9b-49c4-a32a-9dafb8469986}</Project>
+      <Name>Datavail.Delta.Agent.Plugin.Oracle10G</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
+      <Project>{084d55c7-3ea3-4715-b2bc-88b4769b2de7}</Project>
+      <Name>Datavail.Delta.Infrastructure.Agent</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
