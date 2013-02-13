@@ -65,7 +65,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
 
         public void Execute(Guid metricInstance, string label, string data)
         {
-            _logger.LogDebug(String.Format("DatabaseServerMergeReplication.Execute called. MetricInstanceId: {0} Label: {1} Data: {2}",
+            _logger.LogDebug(String.Format("DatabaseServerMergeReplication. Execute called. MetricInstanceId: {0} Label: {1} Data: {2}",
                                            metricInstance, label, data));
             try
             {

@@ -111,6 +111,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                 _subscriberType = node["SubscriberType"];
                 _instanceName = node["InstanceName"];
 
+                AdditionalData = string.Format("<AdditionalData><Publication>{0}</Publication><Subscriber>{1}</Subscriber></AdditionalData>", _publication, _subscriber);
+               
                 ValueTypeValue = _status;
 
                 foreach (var metricThreshold in Thresholds)
@@ -134,11 +136,11 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                         {
                             if (isPercentageType)
                             {
-                                IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue);
+                                IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue, additionalData: AdditionalData);
                             }
                             else
                             {
-                                IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue);
+                                IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue, additionalData: AdditionalData);
                             }
                             if (isSingleMatchType)
                             {
@@ -164,11 +166,11 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                     {
                         if (isPercentageType)
                         {
-                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue);
+                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, percentage: (float)metricValue, additionalData: AdditionalData);
                         }
                         else
                         {
-                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue);
+                            IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id, value: (long)metricValue, additionalData: AdditionalData);
                         }
 
                         var average = isPercentageType
@@ -192,7 +194,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                         if (Regex.IsMatch(MatchTypeValue, metricThreshold.MatchValue))
                         {
                             IncidentService.AddMetricThresholdHistory(Timestamp, MetricInstance.Id, metricThreshold.Id,
-                                                                       matchValue: MatchTypeValue);
+                                                                       matchValue: MatchTypeValue, additionalData: AdditionalData);
 
                             if (isSingleMatchType)
                             {
@@ -311,7 +313,14 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                 var xStatus = dataCollection.Attribute("status");
                 if (xStatus != null)
                 {
-                    _status = long.Parse(xStatus.Value);
+                    if (long.TryParse(xStatus.Value.ToString(), out _status))
+                    {
+
+                    }
+                    else
+                    {
+                        _status = 0;
+                    }
                     collection.Add("Status", _status.ToString());
                 }
 

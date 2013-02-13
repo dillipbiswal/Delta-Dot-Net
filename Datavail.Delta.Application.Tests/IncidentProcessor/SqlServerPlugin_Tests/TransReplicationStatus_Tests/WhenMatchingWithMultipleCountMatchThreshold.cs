@@ -252,7 +252,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
         }
         #endregion
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenItIsNotAMatchOnFirstOccurrence()
         {
             
@@ -267,7 +267,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(false, rule.IsMatch());
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenItIsAMatchOnSecondOccurrence()
         {
             
@@ -285,7 +285,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(true, rule.IsMatch());
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenAThresholdHistoryRecordIsLogged()
         {
             
@@ -299,7 +299,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskMessageIsCorrect()
         {
             
@@ -308,16 +308,17 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             var serverService = SetupServerService();
             var xml = GetMatchingXml();
             var rule = new TransReplicationStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following Transactional Replication fault(s).\r\n(metricInstanceId: {0}).\n\nThis has occurred {18} times in the last {19} minutes.\n\nInstance Name: {20}\nDistribution Host: {1}\nPublisher: {2}\nPublication: {3}\nSubscriber: {4}\nReplication Exception: {5}\nInsert uploads/downloads: {6}\\{7}\nUpdate uploads/downloads: {8}\\{9}\nDelete uploads/downloads: {10}\\{11}\nLast Action: {12}\n\nMetric Threshold: {13}\nMatch Value: {14}\nServer: {15} ({16})\nIp Address: {17}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, "", Publisher, Publication, Subscriber, Status, UploadInserts, DownloadInserts, UploadUpdates, DownloadUpdates, UploadDeletes, DownloadDeletes, LastAction, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, MatchCount, _metricThreshold.TimePeriod, InstanceName);
-
+            
             var match = rule.IsMatch();
+            var _timestamp = rule.Timestamp;
+            var expectedMessage = string.Format("The Delta monitoring application has detected the following Transactional Replication fault(s).\r\n(metricInstanceId: {0}).\n\nThis has occurred {18} times in the last {19} minutes.\n\nInstance Name: {20}\nDistribution Host: {1}\nPublisher: {2}\nPublication: {3}\nSubscriber: {4}\nReplication Exception: {5}\nInsert uploads/downloads: {6}\\{7}\nUpdate uploads/downloads: {8}\\{9}\nDelete uploads/downloads: {10}\\{11}\nLast Action: {12}\n\nAgent Timestamp (UTC): {21}\nMetric Threshold: {13}\nMatch Value: {14}\nServer: {15} ({16})\nIp Address: {17}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, "", Publisher, Publication, Subscriber, Status, UploadInserts, DownloadInserts, UploadUpdates, DownloadUpdates, UploadDeletes, DownloadDeletes, LastAction, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, ServerId, IpAddress, MatchCount, _metricThreshold.TimePeriod, InstanceName, _timestamp);
 
             Assert.AreEqual(expectedMessage, rule.IncidentMesage);
         }
 
 
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             
@@ -332,7 +333,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             Assert.AreEqual(expectedMessage, rule.IncidentSummary);
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void ThenServiceDeskPriorityIsCorrect()
         {
             
