@@ -1573,7 +1573,7 @@ namespace Datavail.Delta.Application
                     var sqlServerMetricData = GetMetricData(serviceStatusPlugin.Id, databaseInstance.Server.Id);
                     var sqlServerServiceNameData = sqlServerMetricData.Data.FirstOrDefault(x => x.TagName == "ServiceName");
 
-                    sqlServerServiceNameData.Value = sqlServerServiceName;
+                    sqlServerServiceNameData.Value = sqlAgentServiceName;
 
                     SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
                                        sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
