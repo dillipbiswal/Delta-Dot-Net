@@ -1525,74 +1525,58 @@ namespace Datavail.Delta.Application
                     }
                 }
 
-                //SqlAgentStatusPlugin
-                if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "SqlAgentStatusPlugin" &&
-                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
-                                                                        x.Status != Status.Deleted &&
-                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
-                {
-                    var sqlAgentStatusMetric = _repository.Find<Metric>(x => x.AdapterClass == "SqlAgentStatusPlugin" &&
-                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
-                                                                                    .OrderBy(x => x.AdapterVersion)
-                                                                                    .LastOrDefault();
+                //ServiceStatusPlugin
+                var sqlServerServiceName = "MSSQLSERVER";
+                var sqlAgentServiceName = "SQLSERVERAGENT";
 
-                    SaveMetricInstance(Guid.Empty, sqlAgentStatusMetric.Id, databaseInstance.Id, GetMetricData(sqlAgentStatusMetric.Id, databaseInstance.Id), Status.Active, MetricInstanceParentType.Instance);
+                if (databaseInstance.Name != databaseInstance.Server.Hostname)
+                {
+                    var dbInstanceName = databaseInstance.Name;
+                    const string backslash = @"\";
+                    var backSlashIndex = dbInstanceName.LastIndexOf(backslash, System.StringComparison.Ordinal);
+                    var startIndex = backSlashIndex + 1;
+                    var instance = dbInstanceName.Substring(startIndex, dbInstanceName.Length - startIndex);
+                    sqlServerServiceName = string.Format("MSSQL${0}", instance);
+                    sqlAgentServiceName = string.Format("SQLAGENT${0}", instance);
                 }
 
-                //ServiceStatusPlugin
+                //SQL Server
                 if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "ServiceStatusPlugin" &&
-                                                                        x.Metric.DatabaseVersion == databaseInstance.DatabaseVersion &&
-                                                                        x.Status != Status.Deleted &&
-                                                                        x.DatabaseInstance.Id == databaseInstance.Id))
+                                                                      x.Server.Id == databaseInstance.Server.Id &&
+                                                                      x.Data.Contains(sqlServerServiceName) &&
+                                                                      x.Status != Status.Deleted))
                 {
-                    var serviceStatusPlugin = _repository.Find<Metric>(x => x.AdapterClass == "ServiceStatusPlugin" &&
-                                                                                    x.DatabaseVersion == databaseInstance.DatabaseVersion)
-                                                                                    .OrderBy(x => x.AdapterVersion)
-                                                                                    .LastOrDefault();
+                    var serviceStatusPlugin = _repository.Find<Metric>(x => x.AdapterClass == "ServiceStatusPlugin")
+                                                         .OrderBy(x => x.AdapterVersion)
+                                                         .LastOrDefault();
+
+                    var sqlServerMetricData = GetMetricData(serviceStatusPlugin.Id, databaseInstance.Server.Id);
+                    var sqlServerServiceNameData =
+                        sqlServerMetricData.Data.FirstOrDefault(x => x.TagName == "ServiceName");
+
+                    sqlServerServiceNameData.Value = sqlServerServiceName;
+
+                    SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                       sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
+                }
+
+                //SQL Agent
+                if (!databaseInstance.Server.MetricInstances.Any(x => x.Metric.AdapterClass == "ServiceStatusPlugin" &&
+                                                                      x.Server.Id == databaseInstance.Server.Id &&
+                                                                      x.Data.Contains(sqlAgentServiceName) &&
+                                                                      x.Status != Status.Deleted))
+                {
+                    var serviceStatusPlugin = _repository.Find<Metric>(x => x.AdapterClass == "ServiceStatusPlugin")
+                                                         .OrderBy(x => x.AdapterVersion)
+                                                         .LastOrDefault();
 
                     var sqlServerMetricData = GetMetricData(serviceStatusPlugin.Id, databaseInstance.Server.Id);
                     var sqlServerServiceNameData = sqlServerMetricData.Data.FirstOrDefault(x => x.TagName == "ServiceName");
 
-                    if (databaseInstance.Name == databaseInstance.Server.Hostname)
-                    {
-                        if (sqlServerServiceNameData != null)
-                        {
-                            sqlServerServiceNameData.Value = "MSSQLSERVER";
-                        }
-                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
-                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
-                        
-                        if (sqlServerServiceNameData != null)
-                        {
-                            sqlServerServiceNameData.Value = "SQLSERVERAGENT"; 
-                        }
-                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
-                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
-                    }
-                    else
-                    {
-                        var dbInstanceName = databaseInstance.Name;
-                        const string backslash = @"\";
-                        var backSlashIndex  = dbInstanceName.LastIndexOf(backslash, System.StringComparison.Ordinal);
-                        var startIndex = backSlashIndex + 1;
-                        var instance = dbInstanceName.Substring(startIndex, dbInstanceName.Length - startIndex);
+                    sqlServerServiceNameData.Value = sqlServerServiceName;
 
-                        if (sqlServerServiceNameData != null)
-                        {
-                            var sqlAgentInstance = string.Format("SQLAGENT${0}", instance);
-                            sqlServerServiceNameData.Value = sqlAgentInstance;
-                        }
-                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
-                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
-
-                        if (sqlServerServiceNameData != null)
-                        {
-                            var msSQLInstance = string.Format("MSSQL${0}", instance);
-                            sqlServerServiceNameData.Value = msSQLInstance;
-                        }
-                        SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
-                                           sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
-                    }
+                    SaveMetricInstance(Guid.Empty, serviceStatusPlugin.Id, databaseInstance.Server.Id,
+                                       sqlServerMetricData, Status.Active, MetricInstanceParentType.Server);
                 }
             }
             else
@@ -2379,7 +2363,7 @@ namespace Datavail.Delta.Application
             DeleteJobs(jobsToDelete);
 
             //Mark any recreated (previously deleted) jobs back to Active
-            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id &&  jobNames.Contains(job.Name)).ToList();
+            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id && jobNames.Contains(job.Name)).ToList();
             foreach (var job in previouslyDeleted)
             {
                 if (job.Status == Status.Deleted)
