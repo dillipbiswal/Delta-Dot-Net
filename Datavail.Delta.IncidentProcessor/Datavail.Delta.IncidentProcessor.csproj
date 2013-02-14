@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckInWorker.cs" />
+    <None Include="Datavail.Delta.IncidentProcessor.nuspec" />
     <Compile Include="UpdateTicketClosedWorker.cs" />
     <Compile Include="DeltaIncidentProcessorLogger.cs" />
     <Compile Include="OpenIncidentWorker.cs" />
