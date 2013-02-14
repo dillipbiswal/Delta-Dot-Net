@@ -42,6 +42,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
+  <Import Project="$(SolutionDir)\.octopack\OctoPack.targets" />
   <Target Name="BeforeBuild">
     <PropertyGroup>
       <DefineConstants>configuration=$(Configuration)</DefineConstants>
