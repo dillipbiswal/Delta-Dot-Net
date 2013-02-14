@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>Datavail.Delta.IncidentProcessor.Installer</id>
+        <authors>Datavail Corporation</authors>
+    </metadata>
+    <files src="bin\debug\Datavail.Delta.IncidentProcessor.Installer"/>
+</package>
