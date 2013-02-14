@@ -73,6 +73,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3EFE71
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.ServiceDesk.Email", "Datavail.Delta.Application.ServiceDesk.Email\Datavail.Delta.Application.ServiceDesk.Email.csproj", "{1E58952B-411A-4727-B7C8-F06E3BD15F13}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".octopack", ".octopack", "{7F75CE89-DDDC-4618-B803-A647E5E637B6}"
+	ProjectSection(SolutionItems) = preProject
+		.octopack\NuGet.exe = .octopack\NuGet.exe
+		.octopack\OctoPack.targets = .octopack\OctoPack.targets
+		.octopack\OctoPack.Tasks.dll = .octopack\OctoPack.Tasks.dll
+		.octopack\OctoPack.Tasks.pdb = .octopack\OctoPack.Tasks.pdb
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Delta1.vsmdi
