@@ -7,7 +7,6 @@
         <authors>Datavail Corporation</authors>
         <owners />
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>My package description.</description>
     </metadata>
     <files>
 		<file src="Datavail.Delta.IncidentProcessor.Installer\bin\Debug\Datavail.Delta.IncidentProcessor.Installer.msi" />

@@ -83,7 +83,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".octopack", ".octopack", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGetSpecs", "NuGetSpecs", "{096A788D-3294-44AF-813F-5322046314BF}"
 	ProjectSection(SolutionItems) = preProject
-		NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.nuspec = NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.nuspec
+		NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.debug.nuspec = NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.debug.nuspec
+		NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.release.nuspec = NuGetSpecs\Datavail.Delta.IncidentProcessor.Installer.release.nuspec
 	EndProjectSection
 EndProject
 Global

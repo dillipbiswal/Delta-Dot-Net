@@ -41,9 +41,6 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Datavail.Delta.IncidentProcessor.Installer.nuspec" />
-  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <Target Name="BeforeBuild">
     <PropertyGroup>
