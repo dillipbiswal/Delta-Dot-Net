@@ -152,7 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckInWorker.cs" />
-    <None Include="Datavail.Delta.IncidentProcessor.nuspec" />
     <Compile Include="UpdateTicketClosedWorker.cs" />
     <Compile Include="DeltaIncidentProcessorLogger.cs" />
     <Compile Include="OpenIncidentWorker.cs" />
@@ -264,6 +263,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <Import Project="$(SlowCheetahTargets)" Condition="Exists('$(SlowCheetahTargets)')" />
+  <Import Project="$(SolutionDir)\.octopack\OctoPack.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -272,6 +272,7 @@
   </Target>
   -->
   <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
+  
   <Target Name="AfterCompile" Condition="exists('app.$(Configuration).config')">
     <!-- Generate transformed app config in the intermediate directory -->
     <TransformXml Source="app.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="app.$(Configuration).config" />
