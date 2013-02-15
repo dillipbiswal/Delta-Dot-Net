@@ -13,5 +13,6 @@
     <file src="Datavail.Delta.IncidentProcessor.Installer\bin\release\Datavail.Delta.IncidentProcessor.Installer.msi" />
     <file src="Datavail.Delta.IncidentProcessor.Installer\PreDeploy.ps1"/>
     <file src="Datavail.Delta.IncidentProcessor.Installer\Deploy.ps1"/>
+    <file src="Datavail.Delta.IncidentProcessor.Installer\PostDeploy.ps1"/>
   </files>
 </package>
