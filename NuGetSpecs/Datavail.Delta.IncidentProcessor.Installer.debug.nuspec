@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <metadata>
-        <id>Datavail.Delta.IncidentProcessor.Installer</id>
-        <version>1.0.0</version>
-        <title />
-        <authors>Datavail Corporation</authors>
-        <owners />
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>The incident processor for the Datavail Delta application</description>
-    </metadata>
-    <files>
-		<file src="Datavail.Delta.IncidentProcessor.Installer\bin\Debug\Datavail.Delta.IncidentProcessor.Installer.msi" />
-	</files>
+  <metadata>
+    <id>Datavail.Delta.IncidentProcessor.Installer</id>
+    <version>1.0.0</version>
+    <title />
+    <authors>Datavail Corporation</authors>
+    <owners />
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The incident processor for the Datavail Delta application</description>
+  </metadata>
+  <files>
+    <file src="Datavail.Delta.IncidentProcessor.Installer\bin\Debug\Datavail.Delta.IncidentProcessor.Installer.msi" />
+    <file src="Deploy.ps1"/>
+  </files>
 </package>
