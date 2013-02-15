@@ -42,6 +42,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PreDeploy.ps1" />
     <Content Include="Deploy.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
