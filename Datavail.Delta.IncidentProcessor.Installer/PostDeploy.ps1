@@ -1,4 +1,7 @@
-﻿# get the full path and file name of the App.config file in the same directory as this script
+﻿Start-Sleep -s 30
+Stop-Service DeltaIp
+
+# get the full path and file name of the App.config file in the same directory as this script
 $appConfigFile = [IO.Path]::Combine(${env:ProgramFiles}, 'Datavail\Delta Incident Processor\Datavail.Delta.IncidentProcessor.exe.config')
 
 # initialize the xml object
@@ -38,3 +41,5 @@ foreach($appSetting in $appConfig.configuration.appSettings.add)
 
 # save the updated config file
 $appConfig.Save($appConfigFile)
+
+Stop-Service DeltaIp	
