@@ -11,6 +11,6 @@
   </metadata>
   <files>
     <file src="Datavail.Delta.IncidentProcessor.Installer\bin\Debug\Datavail.Delta.IncidentProcessor.Installer.msi" />
-    <file src="Deploy.ps1"/>
+    <file src="Datavail.Delta.IncidentProcessor.Installer\bin\Debug\Deploy.ps1"/>
   </files>
 </package>
