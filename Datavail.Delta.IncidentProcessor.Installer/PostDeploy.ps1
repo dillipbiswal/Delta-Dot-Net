@@ -13,12 +13,12 @@ $appConfig.Load($appConfigFile)
 # iterate over the settings
 foreach($connectionString in $appConfig.configuration.connectionStrings.add)
 {
-	if ($connectionString.key -match "Datavail.Delta.Repository.EfWithMigrations.DeltaDbContext")
+	if ($connectionString.name -match "Datavail.Delta.Repository.EfWithMigrations.DeltaDbContext")
 	{
 		$connectionString.connectionString = $ConfigDbConnectionString
 	}
 
-	if ($connectionString.key -match "QueuesConnectionString")
+	if ($connectionString.name -match "QueuesConnectionString")
 	{
 		$connectionString.connectionString = $QueuesDbConnectionString
 	}    
