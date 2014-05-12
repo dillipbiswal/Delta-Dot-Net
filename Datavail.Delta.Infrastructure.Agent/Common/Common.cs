@@ -70,9 +70,17 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
             var value = string.Empty;
             if (!OsInfo.IsRunningOnUnix())
             {
-                var localSystem = Registry.LocalMachine;
-                var key = localSystem.OpenSubKey("Software\\Datavail\\Delta");
-                value = key.GetValue("AgentVersion").ToString();
+                try
+                {
+                    var localSystem = Registry.LocalMachine;
+                    var key = localSystem.OpenSubKey("Software\\Datavail\\Delta");
+                    value = key.GetValue("AgentVersion").ToString();
+                }
+                catch (Exception)
+                {
+                    value = "Unknown";
+                }
+                
             }
             else
             {

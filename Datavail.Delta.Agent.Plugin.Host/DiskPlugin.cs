@@ -138,6 +138,18 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
         private void BuildExecuteOutput()
         {
+            //_logger.LogDebug("DateTime.UtcNow: " + DateTime.UtcNow);
+            //_logger.LogDebug("_metricInstance: " + _metricInstance);
+            //_logger.LogDebug("_label: " + _label);
+            //_logger.LogDebug("Environment.OSVersion.Platform: " + Environment.OSVersion.Platform);
+            //_logger.LogDebug("Environment.OSVersion.Version: " + Environment.OSVersion.Version);
+            //_logger.LogDebug("Environment.OSVersion.ServicePack: " + Environment.OSVersion.ServicePack);
+            //_logger.LogDebug("_totalBytes: " + _totalBytes);
+            //_logger.LogDebug("_totalBytesFriendly: " + _totalBytesFriendly);
+            //_logger.LogDebug("_availableBytes: " + _availableBytes);
+            //_logger.LogDebug("_availableBytesFriendly: " + _availableBytesFriendly);
+            //_logger.LogDebug("_percentageFree: " + _percentageFree);
+
             var xml = new XElement("DiskPluginOutput",
                 new XAttribute("timestamp", DateTime.UtcNow),
                 new XAttribute("metricInstanceId", _metricInstance),

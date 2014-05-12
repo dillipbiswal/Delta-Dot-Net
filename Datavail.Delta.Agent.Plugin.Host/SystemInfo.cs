@@ -1,4 +1,9 @@
-﻿using Datavail.Delta.Infrastructure.Agent.Common;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Management;
+using System.Text.RegularExpressions;
+using Datavail.Delta.Infrastructure.Agent.Common;
 using System;
 using System.IO;
 using System.Linq;
@@ -30,57 +35,132 @@ namespace Datavail.Delta.Agent.Plugin.Host
         #region Disk
         public void GetDiskFreeSpace(string path, out long totalBytes, out long totalFreeBytes)
         {
-            var drive = DriveInfo.GetDrives().Where(e => e.Name == path).FirstOrDefault();
-            totalBytes = drive.TotalSize;
-            totalFreeBytes = drive.TotalFreeSpace;
+            const string queryString = "SELECT * FROM Win32_Volume";
+            var query = new SelectQuery(queryString);
+
+            var regex = new Regex(@"{(.*)}", RegexOptions.IgnoreCase);
+
+            var correctedPath = string.Empty;
+            if (regex.IsMatch(path))
+            {
+                correctedPath = regex.Matches(path)[0].ToString().ToLower();
+            }
+
+            using (var searcher = new ManagementObjectSearcher(query))
+            {
+                foreach (var disk in searcher.Get())
+                {
+                    if (disk["DeviceID"].ToString().ToLower().Contains(correctedPath) || String.Equals(disk["Name"].ToString(), path, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        totalBytes = long.Parse(disk["Capacity"].ToString());
+                        totalFreeBytes = long.Parse(disk["FreeSpace"].ToString());
+                        return;
+                    }
+                }
+            }
+
+            totalBytes = -1;
+            totalFreeBytes = -1;
         }
 
         public string[] GetLogicalDrives()
         {
-            return Environment.GetLogicalDrives();
+            var output = new List<String>();
+            const string queryString = "SELECT * FROM Win32_Volume";
+            var query = new SelectQuery(queryString);
+
+            using (var searcher = new ManagementObjectSearcher(query))
+            {
+                foreach (var disk in searcher.Get())
+                {
+                    Console.WriteLine(disk["Name"] + " | " + disk["DeviceId"].ToString());
+                    output.Add(disk["DeviceId"].ToString());
+                }
+            }
+
+            return output.ToArray();
         }
-                    
-        public void GetDriveInfo(string path, out DriveType driveType, out string driveFormat, out long totalSize, out string volumeLabel)
+
+        public void GetDriveInfo(string path, out DriveType driveType, out string driveFormat, out long totalSize,
+            out string volumeLabel)
         {
-            var drive = DriveInfo.GetDrives().Where(e => e.Name == path).FirstOrDefault();
+            const string queryString = "SELECT * FROM Win32_Volume";
+            var query = new SelectQuery(queryString);
 
-            try
-            {
-                driveType = drive.DriveType;
-            }
-            catch (Exception)
-            {
-                driveType = DriveType.Unknown;
-            }
+            var regex = new Regex(@"{(.*)}", RegexOptions.IgnoreCase);
 
-            try
+            var correctedPath = string.Empty;
+            if (regex.IsMatch(path))
             {
-                driveFormat = drive.DriveFormat;
-            }
-            catch (Exception)
-            {
-                driveFormat = "Unknown";
+                correctedPath = regex.Matches(path)[0].ToString().ToLower();
             }
 
-            try
+            using (var searcher = new ManagementObjectSearcher(query))
             {
-                totalSize = drive.TotalSize;
-            }
-            catch (Exception)
-            {
-                totalSize = -1;
+                foreach (var disk in searcher.Get())
+                {
+                    foreach (var property in disk.Properties)
+                    {
+                        Debug.WriteLine(property.Name + ": " + disk.Properties[property.Name].Value);
+                    }
+
+                    if (disk["DeviceID"].ToString().ToLower().Contains(correctedPath) ||
+                        String.Equals(disk["Name"].ToString(), path, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        try
+                        {
+                            driveType = (DriveType)uint.Parse(disk["DriveType"].ToString());
+                        }
+                        catch (Exception)
+                        {
+                            driveType = DriveType.Unknown;
+                        }
+
+                        try
+                        {
+                            driveFormat = disk["FileSystem"].ToString();
+                        }
+                        catch (Exception)
+                        {
+                            driveFormat = "Unknown";
+                        }
+
+                        try
+                        {
+                            totalSize = long.Parse(disk["Capacity"].ToString());
+                        }
+                        catch (Exception)
+                        {
+                            totalSize = -1;
+                        }
+
+                        try
+                        {
+                            if (disk["Label"] != null)
+                            {
+                                volumeLabel = disk["Name"] + " (" + disk["Label"] + ")";
+                            }
+                            else
+                            {
+                                volumeLabel = disk["Name"].ToString();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            volumeLabel = string.Empty;
+                        }
+
+                        return;
+                    }
+                }
             }
 
-            try
-            {
-                volumeLabel = drive.VolumeLabel;
-            }
-            catch (Exception)
-            {
-                volumeLabel = string.Empty;
-            }
-
+            driveType = DriveType.Unknown;
+            driveFormat = "Unknown";
+            totalSize = -1;
+            volumeLabel = "Unknown";
         }
+
         #endregion
 
         #region RAM

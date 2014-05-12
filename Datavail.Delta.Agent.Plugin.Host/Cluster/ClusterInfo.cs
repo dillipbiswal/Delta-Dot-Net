@@ -27,7 +27,7 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
 
                 var searcher = new ManagementObjectSearcher(scope, objectQuery);
 
-                foreach (ManagementObject clusterNode in searcher.Get())
+                foreach (var clusterNode in searcher.Get())
                 {
                     var nodeNameString = clusterNode["GroupComponent"].ToString();
                     var groupNameString = clusterNode["PartComponent"].ToString();
@@ -63,7 +63,8 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
                     scope = new ManagementScope(sServerPath);
                     scope.Connect();
                 }
-                catch (Exception)
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
                 {
                 }
 
@@ -125,7 +126,7 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
 
             foreach (var disk in searcher.Get())
             {
-                path = value + "\\";
+                path = @"\\?\Volume" + disk.Properties["VolumeGuid"].Value.ToString().ToLower() + "\\";
                 fileSystem = disk.Properties["FileSystem"].Value.ToString();
                 label = disk.Properties["VolumeLabel"].Value.ToString();
                 totalBytes = double.Parse(disk.Properties["TotalSize"].Value.ToString()) * 1048576;

@@ -33,17 +33,23 @@ namespace Datavail.Delta.IncidentProcessor
         public override void Run()
         {
             var isCheckInProcessor = false;
+            var runInterval = 5;
+
             bool.TryParse(ConfigurationManager.AppSettings["IsCheckInProcessor"], out isCheckInProcessor);
+            int.TryParse(ConfigurationManager.AppSettings["CheckInRunFrequency"], out runInterval);
 
             while (ServiceStarted && isCheckInProcessor)
             {
                 try
                 {
-                    _nextRunTime = DateTime.UtcNow.AddMinutes(3);
+                    _nextRunTime = DateTime.UtcNow.AddMinutes(runInterval);
 
                     //using (var childContainer = _kernel.CreateChildContainer())
                     {
                         //SetupPerLoopChildContainer(childContainer);
+                        var dbContext = new DeltaDbContext();
+                        _repository = new GenericRepository(dbContext, _logger);
+
                         var checkInGuid = Guid.Parse("5AC60801-A66A-4967-8BDD-4BC1CFFCC652");
                         var metricInstances = _repository.GetQuery<MetricInstance>().Where(mi => mi.Status == Status.Active && mi.Metric.Id == checkInGuid);
 

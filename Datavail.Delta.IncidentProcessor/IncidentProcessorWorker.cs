@@ -1,12 +1,16 @@
-﻿using AutoMapper;
+﻿using System.Configuration;
+using AutoMapper;
+using Datavail.Delta.Application;
 using Datavail.Delta.Application.IncidentProcessor;
 using Datavail.Delta.Application.Interface;
+using Datavail.Delta.Application.ServiceDesk.ConnectWise;
 using Datavail.Delta.Domain;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
 using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
+using Datavail.Delta.Repository.Interface;
 using Ninject;
 using Ninject.Activation.Blocks;
 using Ninject.Extensions.ChildKernel;
@@ -30,10 +34,11 @@ namespace Datavail.Delta.IncidentProcessor
         private readonly IQueue<OpenIncidentMessage> _openIncidentQueue;
         private readonly IQueue<DataCollectionMessageWithError> _errorQueue;
         private readonly IDeltaLogger _logger;
-        private IRepository _repository;
+        private IServerRepository _repository;
         private List<Type> _ruleClasses;
         private IServerService _serverService;
         private DataCollectionMessage _message;
+
 
 
         public IncidentProcessorWorker(IKernel kernel, IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
@@ -69,10 +74,15 @@ namespace Datavail.Delta.IncidentProcessor
 
                             var xml = XDocument.Parse(_message.Data);
 
-                            var childKernel = new ChildKernel(_kernel);
-                            SetupPerMessageChildContainer(childKernel);
+                            var context = new DeltaDbContext();
+                            _repository = new ServerRepository(context, _logger);
+                            _serverService = new ServerService(_logger, _repository);
+                            var incidentRepository = new IncidentRepository(context, _logger);
 
-                            using (var block = new ActivationBlock(childKernel))
+                            var connectwise = new ServiceDesk(_logger);
+                            _incidentService = new IncidentService(connectwise, incidentRepository);
+
+                            //using (var block = new ActivationBlock(childKernel))
                             {
                                 //Instantiate each rule class with the message data
                                 var param = new object[] { _incidentService, xml, _serverService };
@@ -122,7 +132,7 @@ namespace Datavail.Delta.IncidentProcessor
                                 }
                             }
 
-                            childKernel.Dispose();
+                            //childKernel.Dispose();
                         }
                         else
                         {
@@ -173,15 +183,6 @@ namespace Datavail.Delta.IncidentProcessor
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
             }
-        }
-
-        private void SetupPerMessageChildContainer(IKernel childKernel)
-        {
-            childKernel.Bind<DbContext>().To<DeltaDbContext>().InSingletonScope();
-
-            _repository = childKernel.Get<IRepository>();
-            _serverService = childKernel.Get<IServerService>();
-            _incidentService = childKernel.Get<IIncidentService>();
         }
 
         private bool IsInMaintenanceMode(IIncidentProcessorRule rule)

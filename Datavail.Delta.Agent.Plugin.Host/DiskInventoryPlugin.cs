@@ -58,6 +58,8 @@ namespace Datavail.Delta.Agent.Plugin.Host
                 _label = label;
 
                 BuildExecuteOutput();
+                //TODO: Remove this
+                Console.WriteLine(_output);
                 _dataQueuer.Queue(_output);
             }
             catch (Exception ex)
@@ -94,8 +96,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
                 long totalSize;
 
                 _systemInfo.GetDriveInfo(drive, out driveType, out driveFormat, out totalSize, out driveLabel);
-
-
+                
                 if (driveType == DriveType.Fixed &&
                     xml.Descendants().Where(e => e.Name == "Disk").Attributes("path").Where(v => v.Value == drive).Count
                         () == 0)

@@ -1421,7 +1421,7 @@ namespace Datavail.Delta.Application
                 }
 
                 //DiskInventoryPlugin
-                if (!server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskInventoryPlugin" && x.Status != Status.Deleted))
+                if (!server.IsVirtual && !server.MetricInstances.Any(x => x.Metric.AdapterClass == "DiskInventoryPlugin" && x.Status != Status.Deleted))
                 {
                     var diskInventoryMetric = _repository.Find<Metric>(x => x.AdapterClass == "DiskInventoryPlugin").OrderBy(x => x.AdapterVersion).LastOrDefault();
                     SaveMetricInstance(Guid.Empty, diskInventoryMetric.Id, serverId, GetMetricData(diskInventoryMetric.Id, serverId), Status.Active, MetricInstanceParentType.Server);
@@ -2139,7 +2139,8 @@ namespace Datavail.Delta.Application
             foreach (var job in entities)
             {
                 job.Status = Status.Deleted;
-                _repository.Update(job);
+                _repository.Delete(job);
+                _repository.UnitOfWork.SaveChanges();
 
                 //Delete the associated metric instances
                 //var metricInstanceIds = job.Instance.Server.MetricInstances.Where(x => ((x.Metric.MetricType & MetricType.Instance) == MetricType.Instance &&
@@ -2157,7 +2158,7 @@ namespace Datavail.Delta.Application
                 DeleteMetricInstances(metricInstanceIds);
             }
 
-            _repository.UnitOfWork.SaveChanges();
+            
 
             return DELETE_SUCCESS;
         }
@@ -2224,8 +2225,10 @@ namespace Datavail.Delta.Application
                 var metricData = GetMetricData(metric.Id, serverId);
 
                 var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
-
                 pathData.Value = disk.Path;
+
+                var labelData = metricData.Data.FirstOrDefault(x => x.TagName == "Label");
+                labelData.Value = string.Format("{0} ({1})", disk.Label, disk.Path);
 
                 SaveMetricInstance(Guid.Empty, metric.Id, serverId, metricData, Status.Active, MetricInstanceParentType.Server);
             }
@@ -2234,17 +2237,26 @@ namespace Datavail.Delta.Application
         public void UpdateClusterDiskInventory(Guid serverId, string clusterName, string resourceGroupName, string drivePath, string label, long totalBytes)
         {
             var server = _repository.GetByKey<Server>(serverId);
-            var disk = _repository.GetQuery<ServerDisk>(s => s.Server.Id == server.Id && s.Path == drivePath).FirstOrDefault();
+            var cluster = _repository.GetQuery<Cluster>(c => c.Name == clusterName && c.Customer.Id == server.Customer.Id).FirstOrDefault();
+            var virtualServer = _repository.GetQuery<Server>(s => s.VirtualServerParent.Id == cluster.Id && s.ClusterGroupName == resourceGroupName).FirstOrDefault();
+
+            if (virtualServer == null)
+            {
+                _logger.LogSpecificError(WellKnownErrorMessages.UnhandledException, string.Format("Please define a virtual server for cluster ({0}) with a ClusterGroupName={1}", clusterName, resourceGroupName));
+                return;
+            }
+
+            var disk = _repository.GetQuery<ServerDisk>(s => s.Server.Id == virtualServer.Id && s.Path == drivePath).FirstOrDefault();
 
             if (disk == null)
             {
-                disk = ServerDisk.NewServerDisk(drivePath, server, totalBytes, label);
+                disk = ServerDisk.NewServerDisk(drivePath, virtualServer, totalBytes, label);
 
                 _repository.Add(disk);
                 _repository.UnitOfWork.SaveChanges();
             }
 
-            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == server.Id
+            var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == virtualServer.Id
                                                                          && x.Status != Status.Deleted
                                                                          && x.Metric.AdapterClass == "DiskPlugin"
                                                                          && x.Data.Contains(drivePath)).FirstOrDefault();
@@ -2254,12 +2266,15 @@ namespace Datavail.Delta.Application
             {
                 var metric = _repository.Find<Metric>(x => x.AdapterClass == "DiskPlugin").FirstOrDefault();
 
-                var metricData = GetMetricData(metric.Id, serverId);
-                var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
+                var metricData = GetMetricData(metric.Id, virtualServer.Id);
 
+                var pathData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
                 pathData.Value = disk.Path;
 
-                SaveMetricInstance(Guid.Empty, metric.Id, serverId, metricData, Status.Active, MetricInstanceParentType.Server);
+                var labelData = metricData.Data.FirstOrDefault(x => x.TagName == "Label");
+                labelData.Value = string.Format("{0} ({1})", disk.Label, disk.Path);
+
+                SaveMetricInstance(Guid.Empty, metric.Id, virtualServer.Id, metricData, Status.Active, MetricInstanceParentType.Server);
             }
         }
 
@@ -2323,7 +2338,7 @@ namespace Datavail.Delta.Application
             DeleteJobs(jobsToDelete);
 
             //Mark any recreated (previously deleted) jobs back to Active
-            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id &&  jobNames.Contains(job.Name)).ToList();
+            var previouslyDeleted = _repository.GetQuery<SqlAgentJob>(job => job.Instance.Id == databaseInstance.Id && jobNames.Contains(job.Name)).ToList();
             foreach (var job in previouslyDeleted)
             {
                 if (job.Status == Status.Deleted)
@@ -2354,7 +2369,7 @@ namespace Datavail.Delta.Application
                 }
                 catch (Exception ex)
                 {
-                    _repository.Delete(job);
+                    //_repository.Delete(job);
 
                     //Ignore the UNIQUE violation exception
                     if (!ex.Message.Contains("Violation of UNIQUE KEY constraint") && ex.InnerException != null && !ex.InnerException.Message.Contains("Violation of UNIQUE KEY constraint"))
@@ -2373,9 +2388,17 @@ namespace Datavail.Delta.Application
         public bool VirtualServerActiveNodeFailoverOccurred(Guid physicalServerId, Guid virtualServerId, string activeNodeName, out string previousNodeName)
         {
             var physicalserver = _repository.GetByKey<Server>(physicalServerId);
-            var activeNode = _repository.FindOne(new Specification<Server>(s => s.Status == Status.Active && s.IsVirtual == false && s.Customer.Id == physicalserver.Customer.Id && s.Hostname.ToLower() == activeNodeName.ToLower()));
+            //var activeNode = _repository.FindOne(new Specification<Server>(s => s.Status == Status.Active && s.IsVirtual == false && s.Customer.Id == physicalserver.Customer.Id
+            //    && s.Hostname.ToLower() == activeNodeName.ToLower()));
 
-            Guard.IsNotNull(activeNode, string.Format("Active Node {0} Is Not Under Management", activeNodeName));
+            var activeNode = _repository.GetQuery<Server>(s => s.Status != Status.Deleted && s.IsVirtual == false && s.Customer.Id == physicalserver.Customer.Id && s.Hostname.ToLower() == activeNodeName.ToLower()).FirstOrDefault();
+
+            if (activeNode == null)
+            {
+                _logger.LogSpecificError(WellKnownErrorMessages.UnhandledException, string.Format("The active node {0} is not under management", activeNodeName));
+                previousNodeName = activeNodeName;
+                return false;
+            }
 
             var virtualServer = _repository.GetByKey<Server>(virtualServerId);
 
@@ -2482,6 +2505,14 @@ namespace Datavail.Delta.Application
                         MultipleValues = false,
                         IsRequired = true,
                         ValueOptions = disks.Distinct().ToDictionary(x => x.Path, x => x.Path)
+                    });
+                    metricData.Data.Add(new MetricDataItem
+                    {
+                        DisplayName = "Label",
+                        TagName = "Label",
+                        SelectedValueOption = existingData ? xmlData.Attribute("Label").Value : string.Empty,
+                        MultipleValues = false,
+                        IsRequired = true
                     });
                     break;
                 case "LogWatcherPlugin":
@@ -2823,9 +2854,10 @@ namespace Datavail.Delta.Application
                         break;
                     case "DiskPlugin":
                         var pathMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "Path");
+                        var labelMetricData = metricData.Data.FirstOrDefault(x => x.TagName == "Label");
 
                         pathMetricData.Value = pathMetricData.Value.ToUpper();
-                        label = "Disk Status for '" + pathMetricData.Value + "'";
+                        label = "Disk Status for '" + labelMetricData.Value + "'";
                         xml = new XElement("DiskPlugin");
                         xml.Add(new XAttribute("Path", pathMetricData.Value));
                         break;

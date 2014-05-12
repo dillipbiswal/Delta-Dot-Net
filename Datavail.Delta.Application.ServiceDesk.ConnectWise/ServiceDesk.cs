@@ -1,4 +1,6 @@
-﻿using Datavail.Delta.Application.Interface;
+﻿using System.Configuration;
+using System.Net.Mail;
+using Datavail.Delta.Application.Interface;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Util;
 using System;
@@ -26,11 +28,13 @@ namespace Datavail.Delta.Application.ServiceDesk.ConnectWise
 
             // ReSharper disable PossibleNullReferenceException
             var config = xmlData.Element("ServiceDeskData").Elements("ServiceDesks").Elements("ServiceDesk").FirstOrDefault(e => e.Attribute("Name").Value == "ConnectWise");
+            var serviceNowConfig = xmlData.Element("ServiceDeskData").Elements("ServiceDesks").Elements("ServiceDesk").FirstOrDefault(e => e.Attribute("Name").Value == "ServiceNow");
 
             Guard.IsNotNull(config);
             Guard.IsNotNull(config.Attribute("IncidentCustomer"));
             Guard.IsNotNull(config.Attributes("IntegrationLoginId"));
             Guard.IsNotNull(config.Attributes("IntegrationPassword"));
+
 
             var company = config.Attribute("IncidentCustomer").Value;
             var body = xmlData.Attribute("IncidentBody").Value;
@@ -92,6 +96,19 @@ namespace Datavail.Delta.Application.ServiceDesk.ConnectWise
             var receiveText = Regex.Replace(doc.ToString(), pattern, replacement, RegexOptions.Multiline);
             _logger.LogDebug(string.Format("Received XML back from ConnectWise:\r\n{0}", receiveText));
 
+            var serviceNowFromAddress = serviceNowConfig.Attribute("IncidentFromAddress").Value;
+
+            var host = ConfigurationManager.AppSettings["ServiceNowMailerHost"];
+            var port = 25;
+            var from = serviceNowFromAddress;
+            var to = ConfigurationManager.AppSettings["ServiceNowMailerTo"];
+            Int32.TryParse(ConfigurationManager.AppSettings["ServiceNowMailerPort"], out port);
+
+            var mailer = new SmtpClient(host, port);
+            var message = new MailMessage(from, to, subject, body + "\n\n{Delta Tracking Code:" + Guid.NewGuid() + "}");
+
+            mailer.Send(message);
+
             var firstOrDefault = doc.Descendants("SrServiceRecid").FirstOrDefault();
             if (firstOrDefault != null)
             {
@@ -134,7 +151,7 @@ namespace Datavail.Delta.Application.ServiceDesk.ConnectWise
 
                 var boardName = string.Empty;
                 var board = doc.Descendants("Board").FirstOrDefault();
-                if(board!=null)
+                if (board != null)
                 {
                     boardName = board.Value;
                 }
@@ -142,7 +159,7 @@ namespace Datavail.Delta.Application.ServiceDesk.ConnectWise
                 var firstOrDefault = doc.Descendants("StatusName").FirstOrDefault();
                 if (firstOrDefault != null)
                 {
-                    var status = boardName=="Canceled" ? "Canceled" : firstOrDefault.Value;
+                    var status = boardName == "Canceled" ? "Canceled" : firstOrDefault.Value;
                     return status;
                 }
                 return string.Empty;

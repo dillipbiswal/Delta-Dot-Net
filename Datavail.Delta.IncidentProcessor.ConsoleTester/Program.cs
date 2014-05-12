@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Text;
@@ -30,9 +31,8 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
 
         static void Main(string[] args)
         {
-            BootstrapIoc();
-
             _totalNumberOfThreads = NUMBER_OF_WORKER_THREADS + 3;
+            BootstrapIoc();
 
             _workers = new WorkerBase[_totalNumberOfThreads];
             _workerThreads = new Thread[_totalNumberOfThreads];
@@ -76,11 +76,9 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
             }
         }
 
-        private static void BootstrapIoc()
+        public static void BootstrapIoc()
         {
             _kernel = new StandardKernel();
-            _container = new UnityContainer();
-            _container.RegisterInstance(_container);
 
             //Common
             _kernel.Bind<IDeltaLogger>().To<DeltaIncidentProcessorLogger>().InSingletonScope();
@@ -96,7 +94,19 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
             //Application Facades
             _kernel.Bind<IIncidentService>().To<IncidentService>().InThreadScope();
             _kernel.Bind<IServerService>().To<ServerService>().InThreadScope();
-            _kernel.Bind<IServiceDesk>().To<ServiceDesk>().InThreadScope();
+
+            //ServiceDesks
+            bool serviceDeskConnectwiseEnabled;
+            bool serviceDeskEmailerEnabled;
+
+            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"], out serviceDeskConnectwiseEnabled);
+            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskEmailerEnabled"], out serviceDeskEmailerEnabled);
+
+            if (serviceDeskConnectwiseEnabled)
+                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ConnectWise.ServiceDesk>().InThreadScope();
+
+            if (serviceDeskEmailerEnabled)
+                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.Email.ServiceDesk>().InThreadScope();
 
             //Queues
             _kernel.Bind<IQueue<CheckInMessage>>().To<SqlQueue<CheckInMessage>>().WithConstructorArgument("queueTableName", QueueNames.CheckInQueue);

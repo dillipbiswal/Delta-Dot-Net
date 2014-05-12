@@ -11,7 +11,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
         private int _minutesSinceLastCheckIn;
 
         private const string ServiceDeskMessage = "The Delta monitoring application has detected a Last Check In threshold breach (metricInstanceId: {0}).\n\nLast Checked In {1} Minutes Ago \n\nMetric Threshold: {2}\nFloor Value: {3:N2}\nCeiling Value: {4:N2}\nServer: {5} ({6})\nIp Address: {7}\n";
-        private const string ServiceDeskSummary = "P{0}/{1}/Last Check In threshold breach";
+        private const string ServiceDeskSummary = "{2}/P{0}/{1}/Last Check In threshold breach";
 
         public CheckInRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
             : base( incidentService, dataCollection, serverService)
@@ -35,7 +35,13 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
 
         protected override string FormatSummaryServiceDeskMessage(string metricTypeDescription)
         {
-            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname);
+            var customerName = "None";
+            if (MetricInstance.Server.Customer != null && MetricInstance.Server.Customer.Name != null)
+            {
+                customerName = MetricInstance.Server.Customer.Name;
+            }
+
+            var message = string.Format(ServiceDeskSummary, IncidentPriority, Hostname, customerName);
             return message;
         }
 

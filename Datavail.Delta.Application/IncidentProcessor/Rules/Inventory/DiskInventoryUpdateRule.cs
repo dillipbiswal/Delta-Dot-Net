@@ -37,12 +37,14 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.Inventory
             foreach (var disk in dataCollection.Descendants("Disk"))
             {
                 // ReSharper disable PossibleNullReferenceException
-                Guard.IsNotNull(disk.Attribute("isClusterDisk"), "isClusterDisk");
+                //Guard.IsNotNull(disk.Attribute("isClusterDisk"), "isClusterDisk");
                 Guard.IsNotNull(disk.Attribute("path"), "path");
                 Guard.IsNotNull(disk.Attribute("label"), "label");
                 Guard.IsNotNull(disk.Attribute("totalBytes"), "totalBytes");
 
-                var isClusterDisk = bool.Parse(disk.Attribute("isClusterDisk").Value);
+                var isClusterDisk = false;
+                bool.TryParse(disk.Attribute("isClusterDisk").Value, out isClusterDisk);
+                
                 var drivePath = disk.Attribute("path").Value;
                 var label = disk.Attribute("label").Value;
                 var totalBytes = long.Parse(disk.Attribute("totalBytes").Value);
