@@ -132,8 +132,10 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
 
                     resultCode = "0";
                     resultMessage = "Status returned for database: " + _databaseName;
-
-                    BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    if (status != "ONLINE")
+                    {
+                        BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    }
                 }
             }
             else

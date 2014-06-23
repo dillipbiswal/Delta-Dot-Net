@@ -122,6 +122,9 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
                                     _databaseName);
             var result = _sqlRunner.RunSql(_connectionString, sql);
 
+            // will FieldCount return a null string as a Field if SQL returns no result?
+            // changed from FieldCount where it would possible return invisible fields 
+            // and never hit the else for the MISSING status
             if (result.FieldCount > 0)
             {
                 while (result.Read())
@@ -131,8 +134,11 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
 
                     resultCode = "0";
                     resultMessage = "Status returned for database: " + _databaseName;
-
-                    BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    // adding check for excessive & superflous ONLINE status reports from agents
+                    if(status != "ONLINE")
+                    {
+                        BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    }
                 }
             }
             else

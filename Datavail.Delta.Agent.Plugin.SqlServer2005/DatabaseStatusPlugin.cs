@@ -133,8 +133,11 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
 
                     resultCode = "0";
                     resultMessage = "Status returned for database: " + _databaseName;
-
-                    BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    // adding check for excessive & superflous ONLINE status reports from agents
+                    if (status != "ONLINE")
+                    {
+                        BuildExecuteOutput(databaseId, status, resultCode, resultMessage);
+                    }
                 }
             }
             else
