@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
+using System.IO;
 using Datavail.Delta.Agent.Plugin.Host.Cluster;
 using Datavail.Delta.Agent.SharedCode.Queues;
 using Datavail.Delta.Infrastructure.Agent;
@@ -71,7 +72,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
                 ParseData(data);
 
-                if (!_runningOnCluster || (_runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
+                if (localCheck(_drive) && !_runningOnCluster || (localCheck(_drive) && _runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
                 {
                     GetFreeDiskSpace();
                     BuildExecuteOutput();
@@ -92,7 +93,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
             var xmlData = XElement.Parse(data);
             Guard.ArgumentNotNullOrEmptyString(xmlData.Attribute("Path").Value, "Path", "A valid path must be specified for DiskPlugin");
 
-            _drive = xmlData.Attribute("Path").Value;
+            _drive = xmlData.Attribute("Path").Value.ToString().Trim();
 
             if (xmlData.Attribute("ClusterGroupName") != null)
             {
@@ -101,8 +102,23 @@ namespace Datavail.Delta.Agent.Plugin.Host
             }
         }
 
+        // fix for Bug ID #51
+        private Boolean localCheck(string xmlDrivePath)
+        {
+            DriveInfo info = new DriveInfo(xmlDrivePath);
+            bool ready = false;
+
+            if (info.IsReady)
+            {
+                ready = true;
+            }
+
+            return ready;
+        }
+
         private void GetFreeDiskSpace()
         {
+         
             _systemInfo.GetDiskFreeSpace(_drive, out _totalBytes, out _availableBytes);
 
             _percentageFree = Math.Round((_availableBytes / (double)_totalBytes) * 100, 2);
