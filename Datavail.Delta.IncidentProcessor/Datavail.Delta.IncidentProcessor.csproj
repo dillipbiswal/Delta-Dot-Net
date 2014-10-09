@@ -191,6 +191,10 @@
       <Project>{1e58952b-411a-4727-b7c8-f06e3bd15f13}</Project>
       <Name>Datavail.Delta.Application.ServiceDesk.Email</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Datavail.Delta.Application.ServiceDesk.ServiceNow\Datavail.Delta.Application.ServiceDesk.ServiceNow.csproj">
+      <Project>{8123718c-116c-492a-a397-742f1438b95b}</Project>
+      <Name>Datavail.Delta.Application.ServiceDesk.ServiceNow</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Application\Datavail.Delta.Application.csproj">
       <Project>{F8CC3F03-5E77-4F74-AC9C-7F91599D72C7}</Project>
       <Name>Datavail.Delta.Application</Name>

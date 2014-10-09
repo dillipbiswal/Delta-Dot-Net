@@ -56,15 +56,24 @@ namespace Datavail.Delta.IncidentProcessor
             {
                 //Get a list of all of the rules classes from the Datavail.Delta.Application assembly
                 _ruleClasses = Assembly.GetAssembly(typeof(IncidentProcessorRule)).GetTypes().Where(r => r.GetInterfaces().Contains(typeof(IIncidentProcessorRule)) && r.IsAbstract == false).ToList();
+                var processedCount = 0;
 
                 while (ServiceStarted)
                 {
                     try
                     {
+                        if (DateTime.Now.Second == 0)
+                        {
+                            _logger.LogInformational(WellKnownErrorMessages.InformationalMessage, "Incident Processor processed " + processedCount + " in the last minute");
+                            processedCount = 0;
+                        }
+
                         _message = _incidentQueue.GetMessage();
 
                         if (_message != null)
                         {
+                            processedCount++;
+
                             if (string.IsNullOrEmpty(_message.Data))
                             {
                                 _logger.LogUnhandledException("Message.Data cannot be null", null);

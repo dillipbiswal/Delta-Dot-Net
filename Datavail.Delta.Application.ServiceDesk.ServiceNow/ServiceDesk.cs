@@ -36,17 +36,17 @@ namespace Datavail.Delta.Application.ServiceDesk.ServiceNow
 
             Guard.IsNotNull(config);
             Guard.IsNotNull(config.Attribute("IncidentFromAddress"));
-          
-            var from = config.Attribute("IncidentFromAddress").Value;
-            var tracker = Guid.NewGuid().ToString();
-            var body = xmlData.Attribute("IncidentBody").Value + "\n" + "{Delta Tracking Code:" + tracker + "}";
-            var subject = xmlData.Attribute("IncidentSummary").Value;
-            var priority = xmlData.Attribute("IncidentPriority").Value;
 
+            //var priority = xmlData.Attribute("IncidentPriority").Value;
             var host = ConfigurationManager.AppSettings["ServiceNowMailerHost"];
             var port = 25;
-            Int32.TryParse(ConfigurationManager.AppSettings["MailerPort"], out port);
+            var from = config.Attribute("IncidentFromAddress").Value; ;
             var to = ConfigurationManager.AppSettings["ServiceNowMailerTo"];
+            Int32.TryParse(ConfigurationManager.AppSettings["ServiceNowMailerPort"], out port);
+
+            var subject = xmlData.Attribute("IncidentSummary").Value;
+            var tracker = Guid.NewGuid().ToString();
+            var body = xmlData.Attribute("IncidentBody").Value + "\n\n" + "{Delta Tracking Code:" + tracker + "}";
 
             var mailer = new SmtpClient(host, port);
             var message = new MailMessage(from, to, subject, body);
@@ -90,12 +90,12 @@ namespace Datavail.Delta.Application.ServiceDesk.ServiceNow
 
                 if (!tickets["records"].Any())
                 {
-                    return "Not Found";
+                    return "Closed";
                 }
                 else
                 {
-                    var state = (string) tickets["records"][0]["state"];
-                    return state;
+                    var state = (string)tickets["records"][0]["state"];
+                    return IsClosedStatus(state) ? "Closed" : "Open";
                 }
             }
             catch (Exception ex)

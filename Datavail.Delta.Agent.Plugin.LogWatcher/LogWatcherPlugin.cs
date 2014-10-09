@@ -147,7 +147,7 @@ namespace Datavail.Delta.Agent.Plugin.LogWatcher
                 }
 
                 var fileStream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read,
-                                                FileShare.ReadWrite | FileShare.Delete, 1024, true);
+                                                FileShare.ReadWrite | FileShare.Delete,1024, true);
                 fileStream.Seek(Math.Max(0, fileStream.Length - historyCount), SeekOrigin.Begin);
                 var encoding = GetFileEncoding(_fileToWatch);
                 fileReader = new StreamReader(fileStream, encoding);

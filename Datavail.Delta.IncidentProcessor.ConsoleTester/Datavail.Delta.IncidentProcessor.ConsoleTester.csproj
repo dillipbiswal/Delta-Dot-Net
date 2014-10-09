@@ -92,9 +92,9 @@
       <Project>{1e58952b-411a-4727-b7c8-f06e3bd15f13}</Project>
       <Name>Datavail.Delta.Application.ServiceDesk.Email</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Application.ServiceDesk.Nimsoft\Datavail.Delta.Application.ServiceDesk.Nimsoft.csproj">
-      <Project>{08b92495-142a-4556-babb-bfc1fda47560}</Project>
-      <Name>Datavail.Delta.Application.ServiceDesk.Nimsoft</Name>
+    <ProjectReference Include="..\Datavail.Delta.Application.ServiceDesk.ServiceNow\Datavail.Delta.Application.ServiceDesk.ServiceNow.csproj">
+      <Project>{8123718c-116c-492a-a397-742f1438b95b}</Project>
+      <Name>Datavail.Delta.Application.ServiceDesk.ServiceNow</Name>
     </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Application\Datavail.Delta.Application.csproj">
       <Project>{f8cc3f03-5e77-4f74-ac9c-7f91599d72c7}</Project>
