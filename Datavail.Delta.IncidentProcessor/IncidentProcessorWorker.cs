@@ -38,7 +38,7 @@ namespace Datavail.Delta.IncidentProcessor
         private List<Type> _ruleClasses;
         private IServerService _serverService;
         private DataCollectionMessage _message;
-
+        private static int processedCount = 0;
 
 
         public IncidentProcessorWorker(IKernel kernel, IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
@@ -52,20 +52,29 @@ namespace Datavail.Delta.IncidentProcessor
 
         public override void Run()
         {
+
+
             try
             {
                 //Get a list of all of the rules classes from the Datavail.Delta.Application assembly
                 _ruleClasses = Assembly.GetAssembly(typeof(IncidentProcessorRule)).GetTypes().Where(r => r.GetInterfaces().Contains(typeof(IIncidentProcessorRule)) && r.IsAbstract == false).ToList();
-                var processedCount = 0;
+
+                var lastMinuteProcessed = 0;
+                var theLock = new Object();
 
                 while (ServiceStarted)
                 {
                     try
                     {
-                        if (DateTime.Now.Second == 0)
+                        if (DateTime.Now.Second == 0 && lastMinuteProcessed != DateTime.Now.Minute)
                         {
-                            _logger.LogInformational(WellKnownErrorMessages.InformationalMessage, "Incident Processor processed " + processedCount + " in the last minute");
-                            processedCount = 0;
+                            lock (theLock)
+                            {
+                                _logger.LogInformational(WellKnownErrorMessages.InformationalMessage, "Incident Processor processed " + processedCount + " in the last minute");
+                                Trace.WriteLine("Incident Processor processed " + processedCount + " in the last minute");
+                                processedCount = 0;
+                                lastMinuteProcessed = DateTime.Now.Minute;
+                            }
                         }
 
                         _message = _incidentQueue.GetMessage();

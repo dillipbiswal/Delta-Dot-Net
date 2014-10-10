@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Datavail.Delta.Infrastructure.Queues
 {
@@ -103,21 +104,36 @@ namespace Datavail.Delta.Infrastructure.Queues
                 command.CommandText = commandText;
                 command.CommandType = CommandType.StoredProcedure;
                 connection.Open();
-                
+
                 using (var reader = command.ExecuteReader(CommandBehavior.SingleRow))
                 {
-                    if (reader.Read())
+                    try
                     {
-                        var id = (int)reader["MessageId"];
-                        var count = (int)reader["DequeueCount"];
-                        var data = (byte[])reader["Data"];
+                        if (reader.Read())
+                        {
+                            var id = (int)reader["MessageId"];
+                            var count = (int)reader["DequeueCount"];
+                            var data = (byte[])reader["Data"];
 
-                        var deserializedMessage = new JavaScriptSerializer().Deserialize<TMessage>(Encoding.ASCII.GetString(data));
-                        deserializedMessage.PopReceipt = (ulong)id;
-                        deserializedMessage.DequeueCount = count;
-                        connection.Close();
+                            var deserializedMessage = new JavaScriptSerializer().Deserialize<TMessage>(Encoding.ASCII.GetString(data));
+                            deserializedMessage.PopReceipt = (ulong)id;
+                            deserializedMessage.DequeueCount = count;
+                            connection.Close();
 
-                        return deserializedMessage;
+                            return deserializedMessage;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        if (ex.Message.Contains("deadlocked"))
+                        {
+                            Trace.WriteLine(ex.Message);
+                            return null;
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
                     }
                 }
 
@@ -136,7 +152,7 @@ namespace Datavail.Delta.Infrastructure.Queues
             {
                 command.CommandText = commandText;
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add("@rowsToReturn", SqlDbType.Int).Value = messageCount; 
+                command.Parameters.Add("@rowsToReturn", SqlDbType.Int).Value = messageCount;
                 connection.Open();
 
                 using (var reader = command.ExecuteReader(CommandBehavior.Default))
@@ -150,7 +166,7 @@ namespace Datavail.Delta.Infrastructure.Queues
                         var deserializedMessage = new JavaScriptSerializer().Deserialize<TMessage>(Encoding.ASCII.GetString(data));
                         deserializedMessage.PopReceipt = (ulong)id;
                         deserializedMessage.DequeueCount = count;
-                       
+
                         messages.Add(deserializedMessage);
                     }
 
