@@ -35,7 +35,7 @@ namespace Datavail.Delta.IncidentProcessor
         private void SetupChildKernel(IKernel childKernel)
         {
             childKernel.Bind<DbContext>().To<DeltaDbContext>().InSingletonScope();
-            
+
             _repository = childKernel.Get<IRepository>();
             _serverService = childKernel.Get<IServerService>();
             _incidentService = childKernel.Get<IIncidentService>();
@@ -53,10 +53,10 @@ namespace Datavail.Delta.IncidentProcessor
                     var childKernel = new ChildKernel(_kernel);
                     SetupChildKernel(childKernel);
 
-                    using(var block = new ActivationBlock(childKernel))
+                    using (var block = new ActivationBlock(childKernel))
                     {
                         var repository = childKernel.Get<IIncidentRepository>();
-                        var openTickets = repository.GetQuery<IncidentHistory>(i => i.IncidentNumber != "-1" && i.CloseTimestamp == null).OrderBy(i => i.IncidentNumber).ToList();
+                        var openTickets = repository.GetQuery<IncidentHistory>(i => i.IncidentNumber != "-1" && i.CloseTimestamp == null && i.OpenTimestamp < DateTime.UtcNow.AddMinutes(-5)).OrderBy(i => i.IncidentNumber).ToList();
                         var serviceDesk = childKernel.Get<IServiceDesk>();
 
                         foreach (var incidentHistory in openTickets)

@@ -94,8 +94,10 @@ namespace Datavail.Delta.Application.ServiceDesk.ServiceNow
                 }
                 else
                 {
+                    var test = incidentNumber;
                     var state = (string)tickets["records"][0]["state"];
-                    return IsClosedStatus(state) ? "Closed" : "Open";
+                    var isClosed = IsClosedStatus(state) ? "Closed" : "Open";
+                    return isClosed;
                 }
             }
             catch (Exception ex)
