@@ -56,7 +56,8 @@ namespace Datavail.Delta.IncidentProcessor
                     using (var block = new ActivationBlock(childKernel))
                     {
                         var repository = childKernel.Get<IIncidentRepository>();
-                        var openTickets = repository.GetQuery<IncidentHistory>(i => i.IncidentNumber != "-1" && i.CloseTimestamp == null && i.OpenTimestamp < DateTime.UtcNow.AddMinutes(-5)).OrderBy(i => i.IncidentNumber).ToList();
+                        var delayTime = DateTime.UtcNow.AddMinutes(-5);
+                        var openTickets = repository.GetQuery<IncidentHistory>(i => i.IncidentNumber != "-1" && i.CloseTimestamp == null && i.OpenTimestamp < delayTime).OrderBy(i => i.IncidentNumber).ToList();
                         var serviceDesk = childKernel.Get<IServiceDesk>();
 
                         foreach (var incidentHistory in openTickets)
