@@ -104,35 +104,9 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             //incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod, Ignore]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DatabaseStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}).\n\nInstance Name: {8}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {3}\nMetric Threshold: {4}\nServer: {6}\nIp Address: {7}\n", DatabaseName, DatabaseStatus, MetricInstanceId, DatabaseStatus, _metricThresholdId, _metricThreshold.MatchValue, Hostname, IpAddress, InstanceName);
+        
 
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskSummaryIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DatabaseStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("P{0}/{1}/Database {2} is {3}", (int)Severity, InstanceName, DatabaseName, DatabaseStatus);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentSummary);
-        }
+      
 
         [TestMethod]
         public void ThenServiceDeskPriorityIsCorrect()

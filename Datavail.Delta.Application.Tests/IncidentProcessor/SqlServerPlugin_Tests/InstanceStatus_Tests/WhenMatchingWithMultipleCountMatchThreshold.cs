@@ -125,51 +125,5 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
 
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new SqlAgentStatusRule(incidentService.Object, xml, serverService);
-            
-            var expectedMessage = string.Format("The Delta monitoring application has detected that the SQL Server Agent is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nDatabase Server Instance Name: {0}\nDatabase Server Instance Status: {1}\n\nMetric Threshold: {5}\nMatch Value: {6}\nServer: {7} ({8})\nIp Address: {9}\n", DatabaseServerInstanceName, SqlAgentStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, SqlAgentStatus, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, IpAddress); 
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskSummaryIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new SqlAgentStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("P{0}/{1}/SQL Server Agent is {3}", (int)Severity, Hostname, DatabaseServerInstanceName, SqlAgentStatus);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentSummary);
-        }
-
-        [TestMethod]
-        public void ThenServiceDeskPriorityIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new SqlAgentStatusRule(incidentService.Object, xml, serverService);
-            var expectedPriority = (int)Severity;
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedPriority, rule.IncidentPriority);
-        }
     }
 }

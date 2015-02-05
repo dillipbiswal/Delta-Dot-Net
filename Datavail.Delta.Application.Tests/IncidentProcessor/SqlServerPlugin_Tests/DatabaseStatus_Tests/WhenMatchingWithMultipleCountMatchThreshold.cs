@@ -127,37 +127,6 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             //incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod, Ignore]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DatabaseStatusRule(incidentService.Object, xml, serverService);
-
-            var expectedMessage = string.Format("The Delta monitoring application has detected that the database {0} is {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {10}\nDatabase Name: {0}\nDatabase Status: {1}\n\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {8}\nIp Address: {9}\n", DatabaseName, DatabaseStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, DatabaseStatus, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, IpAddress, InstanceName); 
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskSummaryIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DatabaseStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("P{0}/{1}/Database {2} is {3}", (int)Severity, InstanceName, DatabaseName, DatabaseStatus);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentSummary);
-        }
-
         [TestMethod]
         public void ThenServiceDeskPriorityIsCorrect()
         {

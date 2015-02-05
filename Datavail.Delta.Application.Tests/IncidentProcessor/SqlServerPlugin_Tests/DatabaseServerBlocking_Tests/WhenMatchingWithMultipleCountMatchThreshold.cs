@@ -188,42 +188,6 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
         }
 
         [TestMethod]
-        public void ThenSingleFaultServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetSingleFaultMatchingXml();
-            var rule = new DatabaseServerBlockingRule(incidentService.Object, xml, serverService);
-            //var expectedMessage = string.Format("The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {10}\nJob Name: {0}\nJob Status: {1}\n\nMetric Threshold: {5}\nMatch Value: {6}\nServer: {7} ({8})\nIp Address: {9}\n", JobName, JobStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, JobStatus, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, IpAddress, InstanceName);
-            var expectedMessage =
-                string.Format(
-                    "The Delta monitoring application has detected the following blocking command(s).\r\n(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nBlocking Command: {4}\nBlocking Id: {5} \nRequest Session Command: {6}\nRequest Session Id: {7}\nDatabase: {8}\n\nMatch Value: {9}\nMetric Threshold: {10}\nServer: {11}\nIp Address: {12}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, InstanceName, BlockingCommand, BlockingId, RequestSessionCommand, RequestSessionId, Database, _metricThreshold.MatchValue, _metricThresholdId, Hostname, IpAddress);
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod]
-        public void ThenTwoFaultServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetTwoFaultMatchingXml();
-            var rule = new DatabaseServerBlockingRule(incidentService.Object, xml, serverService);
-            //var expectedMessage = string.Format("The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {10}\nJob Name: {0}\nJob Status: {1}\n\nMetric Threshold: {5}\nMatch Value: {6}\nServer: {7} ({8})\nIp Address: {9}\n", JobName, JobStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, JobStatus, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, IpAddress, InstanceName);
-            var expectedMessage =
-                string.Format(
-                    "The Delta monitoring application has detected the following blocking command(s).\r\n(metricInstanceId: 3572def9-9ee9-4ef8-b907-cb69de6eb13e). This has occurred 2 times in the last 5 minutes.\n\nInstance Name: Test Instance\nBlocking Command: insert this into that\nBlocking Id: 10 \nRequest Session Command: Select * from foo\nRequest Session Id: 1\nDatabase: Test Database\n\nMatch Value: 2\nMetric Threshold: fa4846a3-ed6a-4e16-a556-d33b881f0d11\nServer: testhost\nIp Address: 10.1.1.1\n----------------------------------------------------------------------\r\n\r\n(metricInstanceId: 3572def9-9ee9-4ef8-b907-cb69de6eb13e). This has occurred 2 times in the last 5 minutes.\n\nInstance Name: Test Instance\nBlocking Command: delete this from that\nBlocking Id: 100 \nRequest Session Command: Select item from items\nRequest Session Id: 2\nDatabase: Test Database\n\nMatch Value: 2\nMetric Threshold: fa4846a3-ed6a-4e16-a556-d33b881f0d11\nServer: testhost\nIp Address: 10.1.1.1\n----------------------------------------------------------------------\r\n\r\n");
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             

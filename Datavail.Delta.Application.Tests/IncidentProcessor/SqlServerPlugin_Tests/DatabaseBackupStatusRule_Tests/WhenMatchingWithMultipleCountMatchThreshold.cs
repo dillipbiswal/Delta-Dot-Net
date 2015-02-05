@@ -130,23 +130,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
 
             incidentService.Verify(s => s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
-
-        [TestMethod]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DatabaseBackupStatusRule(incidentService.Object, xml, serverService);             
-            var expectedMessage = string.Format("The Delta monitoring application has detected that database {0} has breached the minutes since last backup threshold (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {12}\nMinutes Since Last Backup: {5}\n\nMetric Threshold: {6}\nFloor Value: {7:N2}\nCeiling Value: {8:N2}\nServer: {9} ({10})\nIp Address: {11}\n", databaseName, Label, MetricInstanceId, MatchCount, TimePeriod, minsSinceLast, _metricThresholdId, Floor, Ceiling, Hostname, ServerId, IpAddress, InstanceName);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
+               
         [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {

@@ -127,23 +127,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.HostPlugin_Te
 
             incidentService.Verify(s => s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
-
-        [TestMethod]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new DiskInfoThresholdRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected a disk {0} threshold breach for {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nTotal Bytes: {5} ({6:N0})\nAvailable Bytes: {7} ({8:N0})\nPercentage Available: {9:0.00}%\n\nMetric Threshold: {10}\nFloor Value: {11:N2}\nCeiling Value: {12:N2}\nServer: {13} ({14})\nIp Address: {15}\n", MatchType, Label, MetricInstanceId, MatchCount, TimePeriod, TotalBytesFriendly, TotalBytes, AvailableBytesFriendly, AvailableBytes, PercentageAvailable, _metricThresholdId.ToString(), Floor, Ceiling, Hostname, ServerId, IpAddress);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
+        
         [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {

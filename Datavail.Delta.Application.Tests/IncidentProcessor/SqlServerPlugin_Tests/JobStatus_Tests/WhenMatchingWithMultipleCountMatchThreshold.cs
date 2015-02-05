@@ -165,51 +165,5 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
 
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new JobStatusRule(incidentService.Object, xml, serverService);
-            //var expectedMessage = string.Format("The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {10}\nJob Name: {0}\nJob Status: {1}\n\nMetric Threshold: {5}\nMatch Value: {6}\nServer: {7} ({8})\nIp Address: {9}\n", JobName, JobStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, JobStatus, _metricThreshold.Id, _metricThreshold.MatchValue, Hostname, IpAddress, InstanceName);
-            var expectedMessage = string.Format("The Delta monitoring application has detected that the job {0} is reporting a status of {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nInstance Name: {5}\n\nStep Details\n\r\nStep Id: 0\nStep Name: Step 0\nRun Date:12/12/2011\nRun Time: 1125\nRun Duration: 49\nRetries Attempted: 45\nMessage: The Job 'Test Job' has Failed\n\n----------------------------------------------------------------------\r\n\r\nStep Id: 1\nStep Name: Step 1\nRun Date:12/12/2011\nRun Time: 1125\nRun Duration: 49\nRetries Attempted: 45\nMessage: Message for Step 1 here....\n\n----------------------------------------------------------------------\r\n\r\n", JobName, JobStatus, MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, InstanceName);
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskSummaryIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new JobStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("P{0}/{1}/Job {4}/{2} is {3}", (int)Severity, Hostname, JobName, JobStatus, InstanceName);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentSummary);
-        }
-
-        [TestMethod]
-        public void ThenServiceDeskPriorityIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new JobStatusRule(incidentService.Object, xml, serverService);
-            var expectedPriority = (int)Severity;
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedPriority, rule.IncidentPriority);
-        }
     }
 }

@@ -139,23 +139,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            incidentService.Setup(s => s.GetCount(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(MatchCount);
-            var serverService = SetupServerService();
-            var xml = GetSingleFaultMatchingXml();
-            var rule = new LongRunningProcessRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following Long Running Process(s).\r\n(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n----------------------------------------------------------------------\r\n\r\n", MetricInstanceId, MatchCount, _metricThreshold.TimePeriod, InstanceName, ProgramName, SqlStatement, Spid, _metricThreshold.MatchValue, _metricThreshold.Id, Hostname, IpAddress);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod]
+               [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             

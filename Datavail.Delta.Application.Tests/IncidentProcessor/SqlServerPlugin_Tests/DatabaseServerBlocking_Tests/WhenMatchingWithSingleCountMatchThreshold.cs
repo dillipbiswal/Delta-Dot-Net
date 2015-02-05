@@ -166,36 +166,6 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
         }
 
         [TestMethod]
-        public void ThenServiceDeskMessageIsCorrectWithSingleFault()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetSingleFaultMatchingXml();
-            var rule = new DatabaseServerBlockingRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following blocking command(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n----------------------------------------------------------------------\r\n\r\n" ,  MetricInstanceId, InstanceName, BlockingCommand, BlockingId, RequestSessionCommand, RequestSessionId, Database, _metricThreshold.MatchValue, _metricThresholdId.ToString(), Hostname, IpAddress);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod]
-        public void ThenServiceDeskMessageIsCorrectWithTwoFaults()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetTwoFaultMatchingXml();
-            var rule = new DatabaseServerBlockingRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the following blocking command(s).\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {2}\nBlocking Id: {3} \nRequest Session Command: {4}\nRequest Session Id: {5}\nDatabase: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n----------------------------------------------------------------------\r\n\r\n(metricInstanceId: {0}).\n\nInstance Name: {1}\nBlocking Command: {11}\nBlocking Id: {12} \nRequest Session Command: {13}\nRequest Session Id: {14}\nDatabase: {6}\n\nMatch Value: {7}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n----------------------------------------------------------------------\r\n\r\n",  MetricInstanceId, InstanceName, BlockingCommand, BlockingId, RequestSessionCommand, RequestSessionId, Database, _metricThreshold.MatchValue, _metricThresholdId.ToString(), Hostname, IpAddress, BlockingCommand2, BlockingId2, RequestSessionCommand2, RequestSessionId2);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {
             

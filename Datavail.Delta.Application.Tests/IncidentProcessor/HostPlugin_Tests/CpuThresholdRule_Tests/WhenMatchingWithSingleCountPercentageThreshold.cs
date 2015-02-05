@@ -96,22 +96,7 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.HostPlugin_Te
 
             //incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
-
-        [TestMethod]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new CpuThresholdRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected a CPU threshold breach (metricInstanceId: {0}).\n\nCPU Utilization Percentage: {1:0.00}%\n\nMetric Threshold: {2}\nFloor Value: {3:N2}\nCeiling Value: {4:N2}\nServer: {5} ({6})\nIp Address: {7}\n", MetricInstanceId, percentageCpuUsed, _metricThresholdId, Floor, Ceiling, Hostname, ServerId, IpAddress);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
+                
         [TestMethod]
         public void ThenServiceDeskSummaryIsCorrect()
         {

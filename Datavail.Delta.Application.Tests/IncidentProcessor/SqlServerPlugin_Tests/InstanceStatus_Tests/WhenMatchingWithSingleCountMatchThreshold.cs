@@ -102,36 +102,6 @@ namespace Datavail.Delta.Application.Tests.IncidentProcessor.Rules.SqlServerPlug
             //incidentService.Verify(s=>s.AddMetricThresholdHistory(It.IsAny<DateTime>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<float>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        [TestMethod, Ignore]
-        public void ThenServiceDeskMessageIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new SqlAgentStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("The Delta monitoring application has detected the SQL Server Agent is {1} (metricInstanceId: {2}).\n\nDatabase Server Instance Name: {0}\nDatabase Server Instance Status: {1}\n\nMetric Threshold: {3}\nMatch Value: {4}\nServer: {5} ({6})\nIp Address: {7}\n", DatabaseServerInstanceName, SqlAgentStatus, MetricInstanceId, SqlAgentStatus, _metricThresholdId, _metricThreshold.MatchValue, Hostname, IpAddress);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentMesage);
-        }
-
-        [TestMethod, Ignore]
-        public void ThenServiceDeskSummaryIsCorrect()
-        {
-            
-            var incidentService = new Mock<IIncidentService>();
-            var serverService = SetupServerService();
-            var xml = GetMatchingXml();
-            var rule = new SqlAgentStatusRule(incidentService.Object, xml, serverService);
-            var expectedMessage = string.Format("P{0}/{1}/SQL Server Agent is {3}", (int)Severity, Hostname, DatabaseServerInstanceName, SqlAgentStatus);
-
-            var match = rule.IsMatch();
-
-            Assert.AreEqual(expectedMessage, rule.IncidentSummary);
-        }
-
         [TestMethod]
         public void ThenServiceDeskPriorityIsCorrect()
         {
