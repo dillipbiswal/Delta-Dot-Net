@@ -103,7 +103,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
                     if (_databaseServerInfo == null)
                         _databaseServerInfo = new SqlServerInfo(_connectionString);
 
-                    const string sql = "SELECT name FROM sysjobs";
+                    const string sql = "SELECT name FROM sysjobs (NOLOCK)";
                     var result = _sqlRunner.RunSql(_connectionString, sql);
 
                     BuildExecuteOutput(result, resultCode, resultMessage);

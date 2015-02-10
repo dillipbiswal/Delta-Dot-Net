@@ -132,7 +132,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("@today DATETIME ");
             sql.Append("declare @sqlagentstatus varchar(1000), @sqlagentuptime varchar(1000) ");
             sql.Append("SET @today = GETDATE() ");
-            sql.Append("SELECT @crdate=crdate FROM sysdatabases WHERE name='tempdb' ");
+            sql.Append("SELECT @crdate=crdate FROM sysdatabases (NOLOCK) WHERE name='tempdb' ");
             sql.Append("SET @min = DATEDIFF (mi,@crdate,@today) ");
             sql.Append("SET @days= @min/1440 ");
             sql.Append("SET @hr = (@min/60) - (@days * 24) ");
@@ -142,7 +142,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("+ ltrim(str(@hr)) +'h ' ");
             sql.Append("+ ltrim(str(@min)) +'m' ");
             sql.Append("IF NOT EXISTS ");
-            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses  ");
+            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses (NOLOCK) ");
             sql.Append("	WHERE program_name = 'SQLAgent - Generic Refresher'  ");
             sql.Append("	OR program_name = 'SQLAgent - Email Logger' ");
             sql.Append("	OR program_name = 'SQLAgent - ALert Engine' ");

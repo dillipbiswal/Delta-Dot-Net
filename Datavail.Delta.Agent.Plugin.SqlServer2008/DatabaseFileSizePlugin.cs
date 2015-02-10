@@ -141,8 +141,8 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("[fl_size] = convert(int,round((aa.size*1.000)/128.000,0)),  ");
             sql.Append("[fl_used]  = convert(int,round(fileproperty(aa.name,'SpaceUsed')/128.000,0)),   ");
             sql.Append("[fl_unused]  = convert(int,round((aa.size-fileproperty(aa.name,'SpaceUsed'))/128.000,0))  ");
-            sql.Append("from dbo.sysfiles aa ");
-            sql.Append("left join dbo.sysfilegroups bb on ( aa.groupid = bb.groupid )) a ");
+            sql.Append("from dbo.sysfiles aa (NOLOCK) ");
+            sql.Append("left join dbo.sysfilegroups bb (NOLOCK) on ( aa.groupid = bb.groupid )) a ");
 
             var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
 

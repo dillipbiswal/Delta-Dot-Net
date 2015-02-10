@@ -128,8 +128,8 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("b.publisher_db as Publisher_DB,  ");
             sql.Append("b.publication as Publication,  ");
             sql.Append("b.publication_type ");
-            sql.Append("from master.dbo.sysservers a ");
-            sql.Append("inner join " + _distributionDatabaseName + ".dbo.MSpublications b ");
+            sql.Append("from master.dbo.sysservers a (NOLOCK) ");
+            sql.Append("inner join " + _distributionDatabaseName + ".dbo.MSpublications b (NOLOCK) ");
             sql.Append("on a.srvid = b.publisher_id ");
 
             var publishers = _sqlRunnerPublishers.RunSql(_connectionString, sql.ToString());

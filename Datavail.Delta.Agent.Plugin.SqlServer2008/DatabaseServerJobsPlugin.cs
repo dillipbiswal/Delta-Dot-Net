@@ -127,17 +127,17 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("h.*,   ");
             sql.Append("case h.run_status when 0 then 'Failed' when 1 then 'Successful' when 2 then 'Retry' when 3 then 'Cancelled' when 4 then 'In Progress' end as JobStatus ");
             sql.Append("FROM   ");
-            sql.Append("sysjobhistory h,   ");
-            sql.Append("sysjobs j   ");
+            sql.Append("sysjobhistory h (NOLOCK),   ");
+            sql.Append("sysjobs j  (NOLOCK) ");
             sql.Append("WHERE j.job_id = h.job_id   ");
             // changes per bug ID(s): 53, 29 & 30
             //sql.Append("AND h.run_date = (select max(hi.run_date) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id)   ");
             //sql.Append("AND h.run_time = (select max(hi.run_time) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id   ");
             //sql.Append("AND run_date = (select max(hi.run_date) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id) )   ");
-            sql.Append("AND h.instance_id > (select isnull(max(sjh.instance_id),0) FROM sysjobhistory sjh ");
+            sql.Append("AND h.instance_id > (select isnull(max(sjh.instance_id),0) FROM sysjobhistory sjh (NOLOCK) ");
             sql.Append("WHERE sjh.job_id = h.job_id ");
             sql.Append("AND sjh.step_id = 0 ");
-            sql.Append("AND sjh.instance_id not in (select max(sjh2.instance_id) FROM sysjobhistory sjh2 ");
+            sql.Append("AND sjh.instance_id not in (select max(sjh2.instance_id) FROM sysjobhistory sjh2 (NOLOCK) ");
             sql.Append("WHERE sjh2.job_id = h.job_id ");
             sql.Append("AND sjh2.step_id = 0)) ");
             // job name replace condition
