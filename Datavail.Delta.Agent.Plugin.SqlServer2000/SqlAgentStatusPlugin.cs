@@ -140,7 +140,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             sql.Append("+ ltrim(str(@hr)) +'h ' ");
             sql.Append("+ ltrim(str(@min)) +'m' ");
             sql.Append("IF NOT EXISTS ");
-            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses  ");
+            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses (nolock) ");
             sql.Append("	WHERE program_name = 'SQLAgent - Generic Refresher'  ");
             sql.Append("	OR program_name = 'SQLAgent - Email Logger' ");
             sql.Append("	OR program_name = 'SQLAgent - ALert Engine' ");

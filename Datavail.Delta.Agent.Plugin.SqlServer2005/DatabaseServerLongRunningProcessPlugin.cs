@@ -132,7 +132,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
 			sql.Append("last_batch [Last Batch],  ");
             sql.Append("st.text [SQL]   ");
             sql.Append("FROM   ");
-            sql.Append("master.dbo.sysprocesses s   ");
+            sql.Append("master.dbo.sysprocesses s (nolock) ");
             sql.Append("cross apply sys.dm_exec_sql_text(sql_handle) st "); 
 			sql.Append("WHERE status in ('running', 'rollback', 'pending', 'runnable', 'suspended')  ");
 			sql.Append("AND spid > 50 AND DATEDIFF(mi, last_batch, getdate()) > " + _threshold );  
