@@ -130,8 +130,8 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("case when g.groupname is null then 'Not Applicable' else g.groupname end as FileGroup, ");
             sql.Append("f.size*8 as 'InitialSize', fileproperty(f.name,'SpaceUsed')*8 as 'SpaceUsed', f.growth as 'Growth', f.status as 'Status', f.maxsize as 'MaxSize',");
             sql.Append("upper(substring(f.filename,1,1)) as Disk, f.filename as FilePath ");
-            sql.Append("FROM dbo.sysfiles f ");
-            sql.Append("LEFT JOIN dbo.sysfilegroups g on (f.groupid=g.groupid)");
+            sql.Append("FROM dbo.sysfiles f  (nolock) ");
+            sql.Append("LEFT JOIN dbo.sysfilegroups g  (nolock) on (f.groupid=g.groupid)");
 
             var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
 

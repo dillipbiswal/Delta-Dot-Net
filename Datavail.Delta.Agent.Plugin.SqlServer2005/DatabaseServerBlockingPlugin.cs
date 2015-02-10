@@ -129,7 +129,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sbSql.Append("CREATE table #CheckBlockerDbcc (EventType varchar(255), Parameters varchar(255), EventInfo varchar(255))   ");
             
             sbSql.Append("IF EXISTS ( ");
-            sbSql.Append("select * from tempdb.dbo.sysobjects o ");
+            sbSql.Append("select * from tempdb.dbo.sysobjects o (nolock) ");
             sbSql.Append("where o.xtype in ('U')  ");
             sbSql.Append("and o.id = object_id(N'tempdb..#BlockingTable') ");
             sbSql.Append(") ");
@@ -167,10 +167,10 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sbSql.Append("				end) - s2.stmt_start) / 2)  ");
             sbSql.Append("		 FROM sys.dm_exec_sql_text(s2.sql_handle)) Blocking_command ");
 
-            sbSql.Append("FROM sys.dm_tran_locks as t1         ");
-            sbSql.Append("INNER JOIN sys.dm_os_waiting_tasks as t2 ON t1.lock_owner_address = t2.resource_address         ");
-            sbSql.Append("INNER JOIN master..sysprocesses s1 ON s1.SPID = t1.request_session_id ");
-            sbSql.Append("INNER JOIN master..sysprocesses s2 ON s2.SPID = t2.blocking_session_id ");
+            sbSql.Append("FROM sys.dm_tran_locks as t1  (nolock)       ");
+            sbSql.Append("INNER JOIN sys.dm_os_waiting_tasks as t2 (nolock) ON t1.lock_owner_address = t2.resource_address         ");
+            sbSql.Append("INNER JOIN master..sysprocesses s1 (nolock) ON s1.SPID = t1.request_session_id ");
+            sbSql.Append("INNER JOIN master..sysprocesses s2 (nolock) ON s2.SPID = t2.blocking_session_id ");
             sbSql.Append("where wait_duration_ms > (@sec * 1000)         ");
             sbSql.Append("and db_name(t1.resource_database_id) not in ('distribution')         ");
             sbSql.Append("and t1.request_session_id > 50         ");

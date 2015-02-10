@@ -119,7 +119,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             var resultMessage = string.Empty;
 
             var sql = new StringBuilder();
-            sql.Append("select * from sys.dm_os_performance_counters ");
+            sql.Append("select * from sys.dm_os_performance_counters (nolock) ");
             sql.Append("where counter_name in ( ");
             sql.Append("'Page lookups/sec', 'Lock Waits/sec', 'Transactions/sec', 'Batch Requests/sec', 'Page Splits/sec', ");
             sql.Append("'Page Life Expectancy', 'SQL Compilations/sec', 'Log Flushes/sec', 'Total Server Memory (KB)', ");
