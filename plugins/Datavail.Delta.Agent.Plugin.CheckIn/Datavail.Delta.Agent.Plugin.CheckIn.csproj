@@ -1,7 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <runoctopack>true</runoctopack>
+    <In>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\Properties\AssemblyInfo.cs'))</In>
+    <Pattern>^\s*\[assembly: AssemblyVersion\(\D*(\d+)\.(\d+)\.(\d+)</Pattern>
+    <AssemblyVersionMajor>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyVersionMajor>
+    <AssemblyVersionMinor>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[2].Value)</AssemblyVersionMinor>
+    <AssemblyVersionBuild>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[3].Value)</AssemblyVersionBuild>
+    <Pattern>^\s*\[assembly: AssemblyDescription\(\s*"([^"]+)"</Pattern>
+    <AssemblyDescription>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyDescription>
+    <Pattern>^\s*\[assembly: AssemblyProduct\(\s*"([^"]+)"</Pattern>
+    <AssemblyProduct>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyProduct>
+    <Pattern>^\s*\[assembly: AssemblyCompany\(\s*"([^"]+)"</Pattern>
+    <AssemblyCompany>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyCompany>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,7 +22,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Datavail.Delta.Agent.Plugin.CheckIn</RootNamespace>
-    <AssemblyName>Datavail.Delta.Agent.Plugin.CheckIn</AssemblyName>
+    <AssemblyName>Datavail.Delta.Agent.Plugin.CheckIn.$(AssemblyVersionMajor).$(AssemblyVersionMinor).$(AssemblyVersionBuild).0</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>%24/Datavail Delta Project/MAIN-4.1/plugins/Datavail.Delta.Agent.Plugin.CheckIn</SccProjectName>
@@ -235,6 +245,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <runoctopack>true</runoctopack>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -242,12 +255,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="AfterBuild">
-    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
-      <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
-    </GetAssemblyIdentity>
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)$(TargetName).%(AssemblyVersion.Version)$(TargetExt)" />
-  </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <Import Project="..\..\packages\OctoPack.3.0.41\tools\OctoPack.targets" Condition="Exists('..\..\packages\OctoPack.3.0.41\tools\OctoPack.targets')" />
   <Target Name="EnsureOctoPackImported" BeforeTargets="BeforeBuild" Condition="'$(OctoPackImported)' == ''">
