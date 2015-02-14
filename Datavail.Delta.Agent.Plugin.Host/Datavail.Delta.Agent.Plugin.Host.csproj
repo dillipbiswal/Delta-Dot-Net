@@ -190,7 +190,7 @@
     <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
       <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
       <Name>Datavail.Delta.Agent.SharedCode</Name>
-      <Private>True</Private>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
       <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
