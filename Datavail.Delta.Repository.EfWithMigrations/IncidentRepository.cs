@@ -23,7 +23,7 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
         public bool HasOpenIncident(Guid metricInstanceId, string additionalData)
         {
-            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData);
+            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData && h.CloseTimestamp == null);
             var hasOpenIncidents = openIncidents.Any();
             return hasOpenIncidents;
         }

@@ -36,14 +36,20 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             var matchFound = false;
             var incidentDetailMesages = new List<string>();
 
-            const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";
+            //const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";
+            const string timeStampRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} [a-zA-Z0-9_-]{3,14} {1,7}";
             var data = string.Empty;
 
-            if (Regex.IsMatch(_matchingLine, timeStampSpidRegEx))
+            /*if (Regex.IsMatch(_matchingLine, timeStampSpidRegEx))
             {
                 data = Regex.Replace(_matchingLine, timeStampSpidRegEx, string.Empty);
-            }
+            }*/
 
+            if (Regex.IsMatch(_matchingLine, timeStampRegEx))
+            {
+                data = Regex.Replace(_matchingLine, timeStampRegEx, string.Empty);
+            }
+            
             AdditionalData = string.Format("<AdditionalData><LastMatchingLine>{0}</LastMatchingLine></AdditionalData>", data);
 
             foreach (var metricThreshold in Thresholds)
