@@ -118,7 +118,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             var resultCode = "-1";
             var resultMessage = string.Empty;
 
-            var sql = String.Format("SELECT name, database_id, state_desc FROM sys.databases WHERE name='{0}'",
+            var sql = String.Format("SELECT name, database_id, state_desc FROM sys.databases (nolock) WHERE name='{0}'",
                                     _databaseName);
             var result = _sqlRunner.RunSql(_connectionString, sql);
 
