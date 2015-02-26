@@ -120,11 +120,11 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var resultMessage = string.Empty;
             var sql = new StringBuilder();
             sql.Append(" SELECT x.database_name, z.physical_device_name, CONVERT(char(20), x.backup_finish_date, 108) FinishTime,  ");
-            sql.Append(" x.backup_finish_date, DATEDIFF(mi, x.backup_finish_date, getdate() ) as MinsSinceLast  from msdb.dbo.backupset x   ");
-            sql.Append("JOIN ( SELECT a.database_name,  max(a.backup_finish_date) backup_finish_date FROM msdb.dbo.backupset a WHERE type = 'D'  ");
+            sql.Append(" x.backup_finish_date, DATEDIFF(mi, x.backup_finish_date, getdate() ) as MinsSinceLast  from msdb.dbo.backupset x (nolock)   ");
+            sql.Append("JOIN ( SELECT a.database_name,  max(a.backup_finish_date) backup_finish_date FROM msdb.dbo.backupset a (nolock)  WHERE type = 'D'  ");
             sql.Append("GROUP BY a.database_name ) y on x.database_name = y.database_name  and x.backup_finish_date = y.backup_finish_date   ");
-            sql.Append("JOIN msdb.dbo.backupmediafamily z ON x.media_set_id = z.media_set_id   ");
-            sql.Append("JOIN master.dbo.sysdatabases d ON d.name = x.database_name and d.name = '" + _databaseName + "'");
+            sql.Append("JOIN msdb.dbo.backupmediafamily z (nolock) ON x.media_set_id = z.media_set_id   ");
+            sql.Append("JOIN master.dbo.sysdatabases d (nolock) ON d.name = x.database_name and d.name = '" + _databaseName + "'");
 
             var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
 
