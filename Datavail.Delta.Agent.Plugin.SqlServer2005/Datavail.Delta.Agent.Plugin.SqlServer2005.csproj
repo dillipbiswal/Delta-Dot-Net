@@ -133,6 +133,10 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Datavail.Delta.Agent.SharedCode.4.1.3061.0">
+      <HintPath>..\packages\Datavail.Delta.Agent.SharedCode.4.1.3061.0\lib\Datavail.Delta.Agent.SharedCode.4.1.3061.0.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
@@ -193,11 +197,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Datavail.Delta.Agent.SharedCode\Datavail.Delta.Agent.SharedCode.csproj">
-      <Project>{8E8C5BDD-BD6E-44BC-94CA-E446A090FC79}</Project>
-      <Name>Datavail.Delta.Agent.SharedCode</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Infrastructure.Agent\Datavail.Delta.Infrastructure.Agent.csproj">
       <Project>{084D55C7-3EA3-4715-B2BC-88B4769B2DE7}</Project>
       <Name>Datavail.Delta.Infrastructure.Agent</Name>

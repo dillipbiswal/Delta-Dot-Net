@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Datavail.Delta.Agent.SharedCode</id>
+    <version>4.1.3061.0</version>
+    <authors>Datavail</authors>
+    <owners>Datavail</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Delta SharedCode</description>
+    <releaseNotes>.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+  </metadata>
+</package>
