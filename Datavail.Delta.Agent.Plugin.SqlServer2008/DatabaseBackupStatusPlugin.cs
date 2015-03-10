@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
@@ -126,22 +127,27 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("JOIN msdb.dbo.backupmediafamily z ON x.media_set_id = z.media_set_id   ");
             sql.Append("JOIN master.dbo.sysdatabases d ON d.name = x.database_name and d.name = '" + _databaseName + "'");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            if (result.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                var physicalDeviceName = result["physical_device_name"].ToString();
-                var backupFinishTimeStamp = DateTime.Parse(result["backup_finish_date"].ToString());
-                var minsSinceLast = result["MinsSinceLast"].ToString();
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                resultCode = "0";
-                resultMessage = "Successfully retrieved backup history for database: " + _databaseName;
-                BuildExecuteOutput(_databaseName, physicalDeviceName, backupFinishTimeStamp.ToString(), minsSinceLast, resultCode, resultMessage);
-            }
-            else
-            {
-                resultMessage = "No backup history found for database: " + _databaseName;
-                BuildExecuteOutput(_databaseName, "N/A", DateTime.MinValue.ToString(), "-1", resultCode, resultMessage);
+                if (result.Read())
+                {
+                    var physicalDeviceName = result["physical_device_name"].ToString();
+                    var backupFinishTimeStamp = DateTime.Parse(result["backup_finish_date"].ToString());
+                    var minsSinceLast = result["MinsSinceLast"].ToString();
+
+                    resultCode = "0";
+                    resultMessage = "Successfully retrieved backup history for database: " + _databaseName;
+                    BuildExecuteOutput(_databaseName, physicalDeviceName, backupFinishTimeStamp.ToString(),
+                        minsSinceLast, resultCode, resultMessage);
+                }
+                else
+                {
+                    resultMessage = "No backup history found for database: " + _databaseName;
+                    BuildExecuteOutput(_databaseName, "N/A", DateTime.MinValue.ToString(), "-1", resultCode,
+                        resultMessage);
+                }
             }
         }
 
