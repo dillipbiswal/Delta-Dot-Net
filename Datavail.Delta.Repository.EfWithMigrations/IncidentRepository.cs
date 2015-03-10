@@ -16,14 +16,14 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
         public bool HasOpenIncident(Guid metricInstanceId)
         {
-            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.CloseTimestamp == null);
+            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.CloseTimestamp.Equals(null));
             var hasOpenIncidents = openIncidents.Any();
             return hasOpenIncidents;
         }
 
         public bool HasOpenIncident(Guid metricInstanceId, string additionalData)
         {
-            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData && h.CloseTimestamp == null);
+            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData && h.CloseTimestamp.Equals(null));
             var hasOpenIncidents = openIncidents.Any();
             return hasOpenIncidents;
         }
