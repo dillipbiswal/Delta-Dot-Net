@@ -3,9 +3,3 @@
 
 The Delta 4 distributed monitoring platform (on .NET mostly in C#)
 =======
-The Delta 4 distributed monitoring platform (on .NET in C#)
-force change to test automated builds
-=======
-The Delta 4 distributed monitoring platform (on .NET in C#)
-force change to test automated builds
-
