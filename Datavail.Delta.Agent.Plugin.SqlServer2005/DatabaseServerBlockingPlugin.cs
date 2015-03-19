@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2005.Cluster;
@@ -195,36 +196,38 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sbSql.Append("deallocate BlockingCr        ");
             sbSql.Append("drop table #CheckBlockerDbcc ");
             sbSql.Append("select * from  #BlockingTable ");
-            
-            var result = _sqlRunner.RunSql(_connectionString, sbSql.ToString());
-            var hasRows = false;
-            var xml = BuildExecuteOutput();
 
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sbSql.ToString());
+                var hasRows = false;
+                var xml = BuildExecuteOutput();
+
+                if (result.FieldCount > 0)
                 {
-                    hasRows = true;
+                    while (result.Read())
+                    {
+                        hasRows = true;
 
-                    var db = result["db"].ToString();
-                    var requestSessionId = result["request_session_id"].ToString();
-                    var requestSessionCommand = result["request_session_command"].ToString();
-                    var waitingDurationSec = result["waiting_duration_sec"].ToString();
-                    var blockingId = result["blocking_id"].ToString();
-                    var blockingCommand = result["blocking_command"].ToString();
+                        var db = result["db"].ToString();
+                        var requestSessionId = result["request_session_id"].ToString();
+                        var requestSessionCommand = result["request_session_command"].ToString();
+                        var waitingDurationSec = result["waiting_duration_sec"].ToString();
+                        var blockingId = result["blocking_id"].ToString();
+                        var blockingCommand = result["blocking_command"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
+                        resultCode = "0";
+                        resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
 
-                    xml.Root.Add(BuildExecuteOutputNode(db, requestSessionId, requestSessionCommand, waitingDurationSec, blockingId, blockingCommand, resultCode, resultMessage));
+                        xml.Root.Add(BuildExecuteOutputNode(db, requestSessionId, requestSessionCommand, waitingDurationSec, blockingId, blockingCommand, resultCode, resultMessage));
+                    }
+                }
+
+                if (hasRows)
+                {
+                    _output = xml.ToString();
                 }
             }
-
-            if (hasRows)
-            {
-                _output = xml.ToString();
-            }
-
         }
 
         private XElement BuildExecuteOutputNode(string db, string requestSessionId, string requestSessionCommand, string waitingDurationSec, 

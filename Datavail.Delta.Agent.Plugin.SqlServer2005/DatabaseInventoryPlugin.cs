@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Data;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2005.Cluster;
@@ -103,14 +104,16 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
                         _databaseServerInfo = new SqlServerInfo(_connectionString);
 
                     const string sql = "SELECT name FROM sysdatabases (nolock) ";
-                    var result = _sqlRunner.RunSql(_connectionString, sql);
+                    using (var conn = new SqlConnection(_connectionString))
+                    {
+                        var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                    BuildExecuteOutput(result, resultCode, resultMessage);
+                        BuildExecuteOutput(result, resultCode, resultMessage);
 
-                    _dataQueuer.Queue(_output);
-                    _logger.LogDebug("Data Queued: " + _output);
+                        _dataQueuer.Queue(_output);
+                        _logger.LogDebug("Data Queued: " + _output);
+                    }
                 }
-
             }
             catch (Exception ex)
             {

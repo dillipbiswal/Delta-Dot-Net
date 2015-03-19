@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
@@ -144,43 +145,45 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("AND j.name = '" + _jobName.Replace("'", "''") + "' ");
             sql.Append("order by  step_id, JobName, LastStatusDate  ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-            var xml = BuildExecuteOutput();
-            var hasRows = false;
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+                var xml = BuildExecuteOutput();
+                var hasRows = false;
+
+                if (result.FieldCount > 0)
                 {
-                    hasRows = true;
+                    while (result.Read())
+                    {
+                        hasRows = true;
 
-                    var jobId = result["job_id"].ToString();
-                    var jobName = result["JobName"].ToString();
-                    var jobStatus = result["JobStatus"].ToString();
-                    var message = result["message"].ToString();
-                    var retriesAttempted = result["retries_attempted"].ToString();
-                    var runDate = result["run_date"].ToString();
-                    var runDuration = result["run_duration"].ToString();
-                    var runTime = result["run_time"].ToString();
-                    var stepId = result["step_id"].ToString();
-                    var stepName = result["step_name"].ToString();
+                        var jobId = result["job_id"].ToString();
+                        var jobName = result["JobName"].ToString();
+                        var jobStatus = result["JobStatus"].ToString();
+                        var message = result["message"].ToString();
+                        var retriesAttempted = result["retries_attempted"].ToString();
+                        var runDate = result["run_date"].ToString();
+                        var runDuration = result["run_duration"].ToString();
+                        var runTime = result["run_time"].ToString();
+                        var stepId = result["step_id"].ToString();
+                        var stepName = result["step_name"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = _jobName + " status successfully returned.";
+                        resultCode = "0";
+                        resultMessage = _jobName + " status successfully returned.";
 
-                    xml.Root.Add(BuildExecuteOutputNode(jobId, jobName, jobStatus, message,
-                        retriesAttempted, runDate, runDuration, runTime, stepId, stepName,
-                        resultCode, resultMessage));
+                        xml.Root.Add(BuildExecuteOutputNode(jobId, jobName, jobStatus, message,
+                            retriesAttempted, runDate, runDuration, runTime, stepId, stepName,
+                            resultCode, resultMessage));
 
+                    }
+                }
+
+                if (hasRows)
+                {
+                    _output = xml.ToString();
                 }
             }
-
-            if (hasRows)
-            {
-                _output = xml.ToString();
-            }
         }
-
 
 
 

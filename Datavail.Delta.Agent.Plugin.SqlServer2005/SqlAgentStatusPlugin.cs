@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
@@ -165,25 +166,28 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("END ");
             sql.Append("select @sqlagentuptime sqlinstanceuptime, @sqlagentstatus sqlagentstatus ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+
+                if (result.FieldCount > 0)
                 {
-                    var sqlInstanceUptime = result["sqlinstanceuptime"].ToString();
-                    var sqlAgentStatus = result["sqlagentstatus"].ToString();
+                    while (result.Read())
+                    {
+                        var sqlInstanceUptime = result["sqlinstanceuptime"].ToString();
+                        var sqlAgentStatus = result["sqlagentstatus"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Instance status and uptime returned.";
+                        resultCode = "0";
+                        resultMessage = "Instance status and uptime returned.";
 
-                    BuildExecuteOutput(sqlInstanceUptime, sqlAgentStatus, resultCode, resultMessage);
+                        BuildExecuteOutput(sqlInstanceUptime, sqlAgentStatus, resultCode, resultMessage);
+                    }
                 }
-            }
-            else
-            {
-                resultMessage = "Instance status not returned.";
-                BuildExecuteOutput("n/a", "n/a", resultCode, resultMessage);
+                else
+                {
+                    resultMessage = "Instance status not returned.";
+                    BuildExecuteOutput("n/a", "n/a", resultCode, resultMessage);
+                }
             }
         }
 
