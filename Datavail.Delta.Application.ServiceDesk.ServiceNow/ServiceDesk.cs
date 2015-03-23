@@ -100,7 +100,7 @@ namespace Datavail.Delta.Application.ServiceDesk.ServiceNow
                     return isClosed;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return string.Empty;
             }

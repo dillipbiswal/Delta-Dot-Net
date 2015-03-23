@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Datavail.Delta.Application;
 using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Application.ServiceDesk.ConnectWise;
+using Datavail.Delta.Application.ServiceDesk.ServiceNow;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
 using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
 using Datavail.Delta.Repository.Interface;
-using Microsoft.Practices.Unity;
 using Ninject;
 
 namespace Datavail.Delta.IncidentProcessor.ConsoleTester
@@ -23,15 +17,14 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
     class Program
     {
         private static IKernel _kernel;
-        private static IUnityContainer _container;
         private static Thread[] _workerThreads;
         private static WorkerBase[] _workers;
-        private const int NUMBER_OF_WORKER_THREADS = 25;
+        private const int NumberOfWorkerThreads = 25;
         private static int _totalNumberOfThreads;
 
         static void Main(string[] args)
         {
-            _totalNumberOfThreads = NUMBER_OF_WORKER_THREADS + 3;
+            _totalNumberOfThreads = NumberOfWorkerThreads + 3;
             BootstrapIoc();
 
             _workers = new WorkerBase[_totalNumberOfThreads];
@@ -55,7 +48,7 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
             var updateTicketClosedst = new ThreadStart(_workers[2].Run);
             _workerThreads[2] = new Thread(updateTicketClosedst) { Name = "UpdateTicketClosedWorker" }; ;
 
-            var firstWorkerThread = _totalNumberOfThreads - NUMBER_OF_WORKER_THREADS;
+            var firstWorkerThread = _totalNumberOfThreads - NumberOfWorkerThreads;
             for (var i = firstWorkerThread; i < _totalNumberOfThreads; i++)
             {
                 // create an object
@@ -96,21 +89,16 @@ namespace Datavail.Delta.IncidentProcessor.ConsoleTester
             _kernel.Bind<IServerService>().To<ServerService>().InThreadScope();
 
             //ServiceDesks
-            bool serviceDeskConnectwiseEnabled;
             bool serviceDeskEmailerEnabled;
             bool serviceDeskServiceNowEnabled;
 
-            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"], out serviceDeskConnectwiseEnabled);
             bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskEmailerEnabled"], out serviceDeskEmailerEnabled);
             bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskServiceNowEnabled"], out serviceDeskServiceNowEnabled);
+        
+            if (serviceDeskServiceNowEnabled)
+                _kernel.Bind<IServiceDesk>().To<ServiceDesk>().InThreadScope();
 
-            if (serviceDeskConnectwiseEnabled)
-                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ConnectWise.ServiceDesk>().InThreadScope();
-                        
-            if (!serviceDeskConnectwiseEnabled && serviceDeskServiceNowEnabled)
-                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ServiceNow.ServiceDesk>().InThreadScope();
-
-            if (!serviceDeskConnectwiseEnabled && !serviceDeskServiceNowEnabled && serviceDeskEmailerEnabled)
+            if (!serviceDeskServiceNowEnabled && serviceDeskEmailerEnabled)
                 _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.Email.ServiceDesk>().InThreadScope();
 
             //Queues

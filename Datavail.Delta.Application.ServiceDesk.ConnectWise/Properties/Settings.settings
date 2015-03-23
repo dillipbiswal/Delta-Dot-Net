@@ -1,9 +1,0 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Datavail.Delta.Application.ServiceDesk.ConnectWise.Properties" GeneratedClassName="Settings">
-  <Profiles />
-  <Settings>
-    <Setting Name="Datavail_Delta_Application_ServiceDesk_ConnectWise_ConnectWiseWs_integration_io" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">https://connecttest.datavail.com/v4_6_release/services/system_io/integration_io.asmx</Value>
-    </Setting>
-  </Settings>
-</SettingsFile>

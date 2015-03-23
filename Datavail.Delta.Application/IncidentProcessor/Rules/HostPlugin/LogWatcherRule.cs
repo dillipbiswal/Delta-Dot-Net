@@ -33,7 +33,6 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             if (DataCollection.Root != null && DataCollection.Root.Name != XmlMatchString)
                 return false;
 
-            var matchFound = false;
             var incidentDetailMesages = new List<string>();
 
             //const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";

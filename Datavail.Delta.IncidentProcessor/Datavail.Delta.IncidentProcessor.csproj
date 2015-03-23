@@ -186,10 +186,6 @@
       <Project>{5D28D78D-F5AA-40FB-A3F4-AA88BA81AECD}</Project>
       <Name>Datavail.Delta.Application.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Datavail.Delta.Application.ServiceDesk.ConnectWise\Datavail.Delta.Application.ServiceDesk.ConnectWise.csproj">
-      <Project>{19F05595-333D-4B47-92E8-71EB5B60B7AE}</Project>
-      <Name>Datavail.Delta.Application.ServiceDesk.ConnectWise</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Datavail.Delta.Application.ServiceDesk.Email\Datavail.Delta.Application.ServiceDesk.Email.csproj">
       <Project>{1e58952b-411a-4727-b7c8-f06e3bd15f13}</Project>
       <Name>Datavail.Delta.Application.ServiceDesk.Email</Name>

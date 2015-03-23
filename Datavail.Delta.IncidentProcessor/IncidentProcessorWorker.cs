@@ -1,22 +1,16 @@
-﻿using System.Configuration;
-using AutoMapper;
+﻿using AutoMapper;
 using Datavail.Delta.Application;
 using Datavail.Delta.Application.IncidentProcessor;
 using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Application.ServiceDesk.ConnectWise;
+using Datavail.Delta.Application.ServiceDesk.ServiceNow;
 using Datavail.Delta.Domain;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Queues;
 using Datavail.Delta.Infrastructure.Queues.Messages;
-using Datavail.Delta.Infrastructure.Repository;
 using Datavail.Delta.Repository.EfWithMigrations;
 using Datavail.Delta.Repository.Interface;
-using Ninject;
-using Ninject.Activation.Blocks;
-using Ninject.Extensions.ChildKernel;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +22,6 @@ namespace Datavail.Delta.IncidentProcessor
 
     public class IncidentProcessorWorker : WorkerBase
     {
-        private readonly IKernel _kernel;
         private IIncidentService _incidentService;
         private readonly IQueue<DataCollectionMessage> _incidentQueue;
         private readonly IQueue<OpenIncidentMessage> _openIncidentQueue;
@@ -38,12 +31,11 @@ namespace Datavail.Delta.IncidentProcessor
         private List<Type> _ruleClasses;
         private IServerService _serverService;
         private DataCollectionMessage _message;
-        private static int processedCount = 0;
+        private static int _processedCount;
 
 
-        public IncidentProcessorWorker(IKernel kernel, IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
+        public IncidentProcessorWorker(IDeltaLogger logger, IQueue<DataCollectionMessage> incidentQueue, IQueue<OpenIncidentMessage> openIncidentQueue, IQueue<DataCollectionMessageWithError> errorQueue)
         {
-            _kernel = kernel;
             _logger = logger;
             _incidentQueue = incidentQueue;
             _openIncidentQueue = openIncidentQueue;
@@ -52,8 +44,6 @@ namespace Datavail.Delta.IncidentProcessor
 
         public override void Run()
         {
-
-
             try
             {
                 //Get a list of all of the rules classes from the Datavail.Delta.Application assembly
@@ -70,9 +60,9 @@ namespace Datavail.Delta.IncidentProcessor
                         {
                             lock (theLock)
                             {
-                                _logger.LogInformational(WellKnownErrorMessages.InformationalMessage, "Incident Processor processed " + processedCount + " in the last minute");
-                                Trace.WriteLine("Incident Processor processed " + processedCount + " in the last minute");
-                                processedCount = 0;
+                                _logger.LogInformational(WellKnownErrorMessages.InformationalMessage, "Incident Processor processed " + _processedCount + " in the last minute");
+                                Trace.WriteLine("Incident Processor processed " + _processedCount + " in the last minute");
+                                _processedCount = 0;
                                 lastMinuteProcessed = DateTime.Now.Minute;
                             }
                         }
@@ -81,7 +71,7 @@ namespace Datavail.Delta.IncidentProcessor
 
                         if (_message != null)
                         {
-                            processedCount++;
+                            _processedCount++;
 
                             if (string.IsNullOrEmpty(_message.Data))
                             {
@@ -97,40 +87,37 @@ namespace Datavail.Delta.IncidentProcessor
                             _serverService = new ServerService(_logger, _repository);
                             var incidentRepository = new IncidentRepository(context, _logger);
 
-                            var connectwise = new ServiceDesk(_logger);
-                            _incidentService = new IncidentService(connectwise, incidentRepository);
+                            var serviceNow = new ServiceDesk(_logger);
+                            _incidentService = new IncidentService(serviceNow, incidentRepository);
 
-                            //using (var block = new ActivationBlock(childKernel))
+                            //Instantiate each rule class with the message data
+                            var param = new object[] { _incidentService, xml, _serverService };
+                            var rules = new List<IIncidentProcessorRule>();
+
+                            foreach (var ruleClass in _ruleClasses)
                             {
-                                //Instantiate each rule class with the message data
-                                var param = new object[] { _incidentService, xml, _serverService };
-                                var rules = new List<IIncidentProcessorRule>();
-
-                                foreach (var ruleClass in _ruleClasses)
+                                try
+                                {
+                                    rules.Add(Activator.CreateInstance(ruleClass, param) as IIncidentProcessorRule);
+                                }
+                                catch (Exception ex)
                                 {
                                     try
                                     {
-                                        rules.Add(Activator.CreateInstance(ruleClass, param) as IIncidentProcessorRule);
+                                        Mapper.CreateMap<DataCollectionMessage, DataCollectionMessageWithError>();
+                                        var errorMessage = Mapper.Map<DataCollectionMessageWithError>(_message);
+                                        errorMessage.ExceptionMessage = ex.Message;
+
+                                        _errorQueue.AddMessage(errorMessage);
                                     }
-                                    catch (Exception ex)
+                                    // ReSharper disable EmptyGeneralCatchClause
+                                    catch (Exception)
                                     {
-                                        try
-                                        {
-                                            Mapper.CreateMap<DataCollectionMessage, DataCollectionMessageWithError>();
-                                            var errorMessage = Mapper.Map<DataCollectionMessageWithError>(_message);
-                                            errorMessage.ExceptionMessage = ex.Message;
-
-                                            _errorQueue.AddMessage(errorMessage);
-                                        }
-                                        // ReSharper disable EmptyGeneralCatchClause
-                                        catch (Exception)
-                                        {
-                                            //Swallow the exception if we can't move to the error queue
-                                        }
-                                        // ReSharper restore EmptyGeneralCatchClause
-
-                                        _logger.LogUnhandledException("Error Creating Rule Class (" + ruleClass.Name + ")", ex);
+                                        //Swallow the exception if we can't move to the error queue
                                     }
+                                    // ReSharper restore EmptyGeneralCatchClause
+
+                                    _logger.LogUnhandledException("Error Creating Rule Class (" + ruleClass.Name + ")", ex);
                                 }
 
                                 foreach (
@@ -149,8 +136,6 @@ namespace Datavail.Delta.IncidentProcessor
                                     _openIncidentQueue.AddMessage(openIncidentMessage);
                                 }
                             }
-
-                            //childKernel.Dispose();
                         }
                         else
                         {
@@ -161,7 +146,6 @@ namespace Datavail.Delta.IncidentProcessor
                     }
                     catch (Exception ex)
                     {
-
                         try
                         {
                             Mapper.CreateMap<DataCollectionMessage, DataCollectionMessageWithError>();
@@ -188,7 +172,7 @@ namespace Datavail.Delta.IncidentProcessor
                                 Trace.WriteLine("--------------------------------------------------------------------------");
                             }
                             // ReSharper disable EmptyGeneralCatchClause
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 //Swallow any exceptions here so thread doesn't blow up
                             }

@@ -9,7 +9,6 @@ namespace Datavail.Delta.Infrastructure.Logging
         QueueEnpointConnectionFailed = 2500,
         QueueEnpointConnectionFailedAfterRetries = 2599,
         EndpointNotReachable = 4000,
-        ConnectWiseWebServiceNotReachable=5000,
         InformationalMessage = 9000,
         UnhandledException = 9999,
     }

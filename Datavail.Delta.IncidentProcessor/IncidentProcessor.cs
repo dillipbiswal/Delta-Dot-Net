@@ -110,21 +110,17 @@ namespace Datavail.Delta.IncidentProcessor
             _kernel.Bind<IServerService>().To<ServerService>().InThreadScope();
 
             //ServiceDesks
-            bool serviceDeskConnectwiseEnabled;
             bool serviceDeskEmailerEnabled;
             bool serviceDeskServiceNowEnabled;
 
-            bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskConnectwiseEnabled"], out serviceDeskConnectwiseEnabled);
             bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskEmailerEnabled"], out serviceDeskEmailerEnabled);
             bool.TryParse(ConfigurationManager.AppSettings["ServiceDeskServiceNowEnabled"], out serviceDeskServiceNowEnabled);
 
-            if (serviceDeskConnectwiseEnabled)
-                _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ConnectWise.ServiceDesk>().InThreadScope();
-
-            if (!serviceDeskConnectwiseEnabled && serviceDeskServiceNowEnabled)
+           
+            if (serviceDeskServiceNowEnabled)
                 _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.ServiceNow.ServiceDesk>().InThreadScope();
 
-            if (!serviceDeskConnectwiseEnabled && !serviceDeskServiceNowEnabled && serviceDeskEmailerEnabled)
+            if (!serviceDeskServiceNowEnabled && serviceDeskEmailerEnabled)
                 _kernel.Bind<IServiceDesk>().To<Application.ServiceDesk.Email.ServiceDesk>().InThreadScope();
 
             //Queues

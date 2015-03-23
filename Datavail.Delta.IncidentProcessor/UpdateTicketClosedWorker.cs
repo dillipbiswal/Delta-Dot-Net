@@ -1,10 +1,8 @@
 ﻿using System.Data.Entity;
 using Datavail.Delta.Application.Interface;
-using Datavail.Delta.Application.ServiceDesk.ConnectWise;
 using Datavail.Delta.Domain;
 using Datavail.Delta.Infrastructure.Logging;
 using Datavail.Delta.Infrastructure.Repository;
-using Datavail.Delta.Infrastructure.Specification;
 using Datavail.Delta.Repository.EfWithMigrations;
 using System;
 using System.Linq;
@@ -19,7 +17,7 @@ namespace Datavail.Delta.IncidentProcessor
 {
     public class UpdateTicketClosedWorker : WorkerBase
     {
-        private IKernel _kernel;
+        private readonly IKernel _kernel;
         private readonly IDeltaLogger _logger;
         private DateTime _nextRunTime;
         private IRepository _repository;
