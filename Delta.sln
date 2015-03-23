@@ -81,8 +81,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application", "Datavail.Delta.Application\Datavail.Delta.Application.csproj", "{F8CC3F03-5E77-4F74-AC9C-7F91599D72C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Application.ServiceDesk.ConnectWise", "Datavail.Delta.Application.ServiceDesk.ConnectWise\Datavail.Delta.Application.ServiceDesk.ConnectWise.csproj", "{19F05595-333D-4B47-92E8-71EB5B60B7AE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.IncidentProcessor", "Datavail.Delta.IncidentProcessor\Datavail.Delta.IncidentProcessor.csproj", "{D604A714-4255-40FA-916B-F448683BE51B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datavail.Delta.Repository.EfWithMigrations", "Datavail.Delta.Repository.EfWithMigrations\Datavail.Delta.Repository.EfWithMigrations.csproj", "{600F9F0C-FC33-4644-A116-82618FC58BBF}"
