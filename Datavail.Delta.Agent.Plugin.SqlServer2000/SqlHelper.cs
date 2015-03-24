@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using Microsoft.SqlServer.Server;
 
 namespace Datavail.Delta.Agent.Plugin.SqlServer2000
 {
@@ -12,8 +7,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
     {
         public static IDataReader GetDataReader(SqlConnection connection, string sql)
         {
-            var command = new SqlCommand(sql, connection);
-            command.CommandType = CommandType.Text;
+            var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text};
 
             connection.Open();
             var result = command.ExecuteReader();
