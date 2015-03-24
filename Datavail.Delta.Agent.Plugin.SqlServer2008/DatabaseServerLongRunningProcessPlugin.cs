@@ -1,4 +1,5 @@
 ﻿using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
+using System.Data.SqlClient;
 using Datavail.Delta.Agent.SharedCode.Queues;
 using Datavail.Delta.Infrastructure.Agent;
 using Datavail.Delta.Infrastructure.Agent.Cluster;
@@ -138,31 +139,35 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("AND spid > 50 AND DATEDIFF(mi, last_batch, getdate()) > " + _threshold);
 
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-            var hasRows = false;
-            var xml = BuildExecuteOutput();
-
-            while (result.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                hasRows = true;
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                var longProcessThreshold = _threshold;
-                var currentRunTime = result["Current Run Time"].ToString();
-                var spid = result["Session ID"].ToString();
-                var programName = result["Program"].ToString();
-                var lastBatch = result["Last Batch"].ToString();
-                var sqlStatements = result["SQL"].ToString();
+                var hasRows = false;
+                var xml = BuildExecuteOutput();
 
-                resultCode = "0";
-                resultMessage = "Successfully retrieved Long running processes with threshold over: " + _threshold;
-                xml.Root.Add(BuildExecuteOutputNode(
-                                longProcessThreshold, currentRunTime, spid, programName, lastBatch, sqlStatements, resultCode, resultMessage));
+                while (result.Read())
+                {
+                    hasRows = true;
 
-            }
+                    var longProcessThreshold = _threshold;
+                    var currentRunTime = result["Current Run Time"].ToString();
+                    var spid = result["Session ID"].ToString();
+                    var programName = result["Program"].ToString();
+                    var lastBatch = result["Last Batch"].ToString();
+                    var sqlStatements = result["SQL"].ToString();
 
-            if (hasRows)
-            {
-                _output = xml.ToString();
+                    resultCode = "0";
+                    resultMessage = "Successfully retrieved Long running processes with threshold over: " + _threshold;
+                    xml.Root.Add(BuildExecuteOutputNode(
+                                    longProcessThreshold, currentRunTime, spid, programName, lastBatch, sqlStatements, resultCode, resultMessage));
+
+                }
+
+                if (hasRows)
+                {
+                    _output = xml.ToString();
+                }
             }
         }
 
