@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
@@ -105,6 +106,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _databaseName = xmlData.Attribute("DatabaseName").Value;
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
@@ -130,60 +132,64 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("case when g.groupname is null then 'Not Applicable' else g.groupname end as FileGroup, ");
             sql.Append("f.size*8 as 'InitialSize', fileproperty(f.name,'SpaceUsed')*8 as 'SpaceUsed', f.growth as 'Growth', f.status as 'Status', f.maxsize as 'MaxSize',");
             sql.Append("upper(substring(f.filename,1,1)) as Disk, f.filename as FilePath ");
-            sql.Append("FROM dbo.sysfiles f ");
-            sql.Append("LEFT JOIN dbo.sysfilegroups g on (f.groupid=g.groupid)");
+            sql.Append("FROM dbo.sysfiles f  (nolock) ");
+            sql.Append("LEFT JOIN dbo.sysfilegroups g  (nolock) on (f.groupid=g.groupid)");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            var gotData = false;
-
-            var fileNames = new List<String>();
-            var fileGroupTypes = new List<String>();
-            var fileGroups = new List<String>();
-            var initialSizes = new List<String>();
-            var spaceUsed = new List<String>();
-            var growth = new List<String>();
-            var statuses = new List<String>();
-            var maxSizes = new List<String>();
-            var disks = new List<String>();
-            var filePaths = new List<String>();
-
-            while (result.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                gotData = true;
-                fileNames.Add(result["FileName"].ToString());
-                fileGroupTypes.Add(result["FileGroupType"].ToString());
-                fileGroups.Add(result["FileGroup"].ToString());
-                initialSizes.Add(result["InitialSize"].ToString());
-                spaceUsed.Add(result["SpaceUsed"].ToString());
-                growth.Add(result["Growth"].ToString());
-                statuses.Add(result["Status"].ToString());
-                maxSizes.Add(result["MaxSize"].ToString());
-                disks.Add(result["Disk"].ToString());
-                filePaths.Add(result["FilePath"].ToString());
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                resultCode = "0";
-                resultMessage = "File size returned for database: " + _databaseName;
-            }
+                var gotData = false;
 
-            if (!gotData)
-            {
-                resultMessage = "File size not found for: " + _databaseName;
-                fileNames.Add("n/a");
-                fileGroupTypes.Add("n/a");
-                fileGroups.Add("n/a");
-                initialSizes.Add("-1");
-                spaceUsed.Add("-1");
-                growth.Add("0");
-                statuses.Add("0");
-                maxSizes.Add("0");
-                disks.Add("n/a");
-                filePaths.Add("n/a");
+                var fileNames = new List<String>();
+                var fileGroupTypes = new List<String>();
+                var fileGroups = new List<String>();
+                var initialSizes = new List<String>();
+                var spaceUsed = new List<String>();
+                var growth = new List<String>();
+                var statuses = new List<String>();
+                var maxSizes = new List<String>();
+                var disks = new List<String>();
+                var filePaths = new List<String>();
+
+                while (result.Read())
+                {
+                    gotData = true;
+                    fileNames.Add(result["FileName"].ToString());
+                    fileGroupTypes.Add(result["FileGroupType"].ToString());
+                    fileGroups.Add(result["FileGroup"].ToString());
+                    initialSizes.Add(result["InitialSize"].ToString());
+                    spaceUsed.Add(result["SpaceUsed"].ToString());
+                    growth.Add(result["Growth"].ToString());
+                    statuses.Add(result["Status"].ToString());
+                    maxSizes.Add(result["MaxSize"].ToString());
+                    disks.Add(result["Disk"].ToString());
+                    filePaths.Add(result["FilePath"].ToString());
+
+                    resultCode = "0";
+                    resultMessage = "File size returned for database: " + _databaseName;
+                }
+
+                if (!gotData)
+                {
+                    resultMessage = "File size not found for: " + _databaseName;
+                    fileNames.Add("n/a");
+                    fileGroupTypes.Add("n/a");
+                    fileGroups.Add("n/a");
+                    initialSizes.Add("-1");
+                    spaceUsed.Add("-1");
+                    growth.Add("0");
+                    statuses.Add("0");
+                    maxSizes.Add("0");
+                    disks.Add("n/a");
+                    filePaths.Add("n/a");
+                }
+
+                BuildExecuteOutput(_databaseName, fileNames, fileGroupTypes, fileGroups, initialSizes, spaceUsed, growth, statuses, maxSizes, disks, filePaths, resultCode, resultMessage);
+                conn.Dispose();
+                conn.Close();
             }
-            
-            BuildExecuteOutput(_databaseName, fileNames, fileGroupTypes, fileGroups, initialSizes, spaceUsed, growth, statuses, maxSizes, disks, filePaths, resultCode, resultMessage);
         }
-
         private void BuildExecuteOutput(string databaseName, List<String> fileNames, List<String> fileGroupTypes, List<String> fileGroups, List<String> initialSizes, List<String> spaceUsed, List<String> growth,
             List<String> statuses, List<String> maxSizes, List<String> disks, List<String> filePaths, string resultCode, string resultMessage)
         {

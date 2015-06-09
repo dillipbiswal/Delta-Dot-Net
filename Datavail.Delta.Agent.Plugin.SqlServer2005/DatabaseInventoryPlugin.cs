@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Data;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2005.Cluster;
@@ -71,6 +72,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
 
             // ReSharper disable PossibleNullReferenceException
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _instanceName = xmlData.Attribute("InstanceName").Value;
             _instanceId = xmlData.Attribute("InstanceId").Value;
             // ReSharper restore PossibleNullReferenceException
@@ -102,15 +104,19 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
                     if (_databaseServerInfo == null)
                         _databaseServerInfo = new SqlServerInfo(_connectionString);
 
-                    const string sql = "SELECT name FROM sysdatabases";
-                    var result = _sqlRunner.RunSql(_connectionString, sql);
+                    const string sql = "SELECT name FROM sysdatabases (nolock) ";
+                    using (var conn = new SqlConnection(_connectionString))
+                    {
+                        var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                    BuildExecuteOutput(result, resultCode, resultMessage);
+                        BuildExecuteOutput(result, resultCode, resultMessage);
 
-                    _dataQueuer.Queue(_output);
-                    _logger.LogDebug("Data Queued: " + _output);
+                        _dataQueuer.Queue(_output);
+                        _logger.LogDebug("Data Queued: " + _output);
+                        conn.Dispose();
+                        conn.Close();
+                    }
                 }
-
             }
             catch (Exception ex)
             {

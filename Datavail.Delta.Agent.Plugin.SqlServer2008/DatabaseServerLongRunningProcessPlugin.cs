@@ -1,4 +1,5 @@
 ﻿using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
+using System.Data.SqlClient;
 using Datavail.Delta.Agent.SharedCode.Queues;
 using Datavail.Delta.Infrastructure.Agent;
 using Datavail.Delta.Infrastructure.Agent.Cluster;
@@ -79,7 +80,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
                         _databaseServerInfo = new SqlServerInfo(_connectionString);
 
                     GetLongRunningProcess();
-                    
+
                     if (_output != null)
                     {
                         _dataQueuer.Queue(_output);
@@ -105,6 +106,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _threshold = xmlData.Attribute("Threshold").Value;
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
@@ -132,37 +134,43 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("last_batch [Last Batch],  ");
             sql.Append("st.text [SQL]   ");
             sql.Append("FROM   ");
-            sql.Append("master.dbo.sysprocesses s   ");
+            sql.Append("master.dbo.sysprocesses s  (nolock) ");
             sql.Append("cross apply sys.dm_exec_sql_text(sql_handle) st ");
             sql.Append("WHERE status in ('running', 'rollback', 'pending', 'runnable', 'suspended')  ");
             sql.Append("AND spid > 50 AND DATEDIFF(mi, last_batch, getdate()) > " + _threshold);
 
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-            var hasRows = false;
-            var xml = BuildExecuteOutput();
-
-            while (result.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                hasRows = true;
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                var longProcessThreshold = _threshold;
-                var currentRunTime = result["Current Run Time"].ToString();
-                var spid = result["Session ID"].ToString();
-                var programName = result["Program"].ToString();
-                var lastBatch = result["Last Batch"].ToString();
-                var sqlStatements = result["SQL"].ToString();
+                var hasRows = false;
+                var xml = BuildExecuteOutput();
 
-                resultCode = "0";
-                resultMessage = "Successfully retrieved Long running processes with threshold over: " + _threshold;
-                xml.Root.Add(BuildExecuteOutputNode(
-                                longProcessThreshold, currentRunTime, spid, programName, lastBatch, sqlStatements, resultCode, resultMessage));
+                while (result.Read())
+                {
+                    hasRows = true;
 
-            }
+                    var longProcessThreshold = _threshold;
+                    var currentRunTime = result["Current Run Time"].ToString();
+                    var spid = result["Session ID"].ToString();
+                    var programName = result["Program"].ToString();
+                    var lastBatch = result["Last Batch"].ToString();
+                    var sqlStatements = result["SQL"].ToString();
 
-            if (hasRows)
-            {
-                _output = xml.ToString();
+                    resultCode = "0";
+                    resultMessage = "Successfully retrieved Long running processes with threshold over: " + _threshold;
+                    xml.Root.Add(BuildExecuteOutputNode(
+                                    longProcessThreshold, currentRunTime, spid, programName, lastBatch, sqlStatements, resultCode, resultMessage));
+
+                }
+
+                if (hasRows)
+                {
+                    _output = xml.ToString();
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 
