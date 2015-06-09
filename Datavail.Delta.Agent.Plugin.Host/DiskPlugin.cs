@@ -72,13 +72,21 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
                 ParseData(data);
 
-                if (localCheck(_drive) && !_runningOnCluster || (localCheck(_drive) && _runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
+                if (!_runningOnCluster || (_runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
                 {
-                    GetFreeDiskSpace();
-                    BuildExecuteOutput();
+                    try
+                    {
 
-                    _dataQueuer.Queue(_output);
-                    _logger.LogDebug("Data Queued: " + _output);
+                        GetFreeDiskSpace();
+                        BuildExecuteOutput();
+                        _dataQueuer.Queue(_output);
+                        _logger.LogDebug("Data Queued: " + _output);
+
+                    }
+                    catch
+                    {
+
+                    }
                 }
             }
             catch (Exception ex)
