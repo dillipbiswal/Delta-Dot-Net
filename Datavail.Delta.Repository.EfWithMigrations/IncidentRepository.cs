@@ -16,16 +16,26 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
         public bool HasOpenIncident(Guid metricInstanceId)
         {
-            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.CloseTimestamp == null);
+            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.CloseTimestamp.Equals(null));
             var hasOpenIncidents = openIncidents.Any();
             return hasOpenIncidents;
         }
 
         public bool HasOpenIncident(Guid metricInstanceId, string additionalData)
         {
-            var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData);
-            var hasOpenIncidents = openIncidents.Any();
-            return hasOpenIncidents;
+            if (additionalData.Contains("LastMatchingLine")) //LastMatchingLine in additional data is only present in Logwatcher.This condition is added to fix bug 54-Logwatcher not Creating Tickets
+            {
+                var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData && h.CloseTimestamp.Equals(null));
+                var hasOpenIncidents = openIncidents.Any();
+                return hasOpenIncidents;
+            }
+            else
+            {
+                var openIncidents = Find<IncidentHistory>(h => h.MetricInstance.Id == metricInstanceId && h.AdditionalData == additionalData);
+                var hasOpenIncidents = openIncidents.Any();
+                return hasOpenIncidents;
+            }            
+
         }
     }
 }

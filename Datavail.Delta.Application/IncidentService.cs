@@ -78,22 +78,45 @@ namespace Datavail.Delta.Application
             if (!string.IsNullOrEmpty(additionalData))
             {
                 //Make sure that there isn't an open ticket for the metric instance or a closed ticket matching the additionalData
-                if (!HasOpenIncident(metricInstance.Id) && !HasOpenIncident(metricInstance.Id, additionalData))
+                if (additionalData.Contains("LastMatchingLine"))
                 {
-                    var incidentHistory = new IncidentHistory { MetricInstance = metricInstance, OpenTimestamp = DateTime.UtcNow, AdditionalData = additionalData };
+                    if ((HasOpenIncident(metricInstance.Id, additionalData)) == false)
+                    {
+                        var incidentHistory = new IncidentHistory { MetricInstance = metricInstance, OpenTimestamp = DateTime.UtcNow, AdditionalData = additionalData };
 
-                    _repository.Add(incidentHistory);
-                    _repository.UnitOfWork.SaveChanges();
+                        _repository.Add(incidentHistory);
+                        _repository.UnitOfWork.SaveChanges();
 
-                    var xml = GetOpenIncidentXml(metricInstance.Server.Customer.ServiceDeskData, summary, body, priority);
-                    var ticket = _serviceDesk.OpenIncident(xml);
-                    incidentHistory.IncidentNumber = ticket;
-                    incidentHistory.IncidentTimestamp = DateTime.UtcNow;
+                        var xml = GetOpenIncidentXml(metricInstance.Server.Customer.ServiceDeskData, summary, body, priority);
+                        var ticket = _serviceDesk.OpenIncident(xml);
+                        incidentHistory.IncidentNumber = ticket;
+                        incidentHistory.IncidentTimestamp = DateTime.UtcNow;
 
-                    _repository.Update(incidentHistory);
-                    _repository.UnitOfWork.SaveChanges();
+                        _repository.Update(incidentHistory);
+                        _repository.UnitOfWork.SaveChanges();
 
-                    return ticket;
+                        return ticket;
+                    }
+                }
+                else
+                {
+                    if (!HasOpenIncident(metricInstance.Id) && !HasOpenIncident(metricInstance.Id, additionalData))
+                    {
+                        var incidentHistory = new IncidentHistory { MetricInstance = metricInstance, OpenTimestamp = DateTime.UtcNow, AdditionalData = additionalData };
+
+                        _repository.Add(incidentHistory);
+                        _repository.UnitOfWork.SaveChanges();
+
+                        var xml = GetOpenIncidentXml(metricInstance.Server.Customer.ServiceDeskData, summary, body, priority);
+                        var ticket = _serviceDesk.OpenIncident(xml);
+                        incidentHistory.IncidentNumber = ticket;
+                        incidentHistory.IncidentTimestamp = DateTime.UtcNow;
+
+                        _repository.Update(incidentHistory);
+                        _repository.UnitOfWork.SaveChanges();
+
+                        return ticket;
+                    }
                 }
             }
             else
