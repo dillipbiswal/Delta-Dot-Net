@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2005.Cluster;
@@ -103,6 +104,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _jobName = xmlData.Attribute("JobName").Value;
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
@@ -127,57 +129,62 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("h.*,   ");
             sql.Append("case h.run_status when 0 then 'Failed' when 1 then 'Successful' when 2 then 'Retry' when 3 then 'Cancelled' when 4 then 'In Progress' end as JobStatus ");
             sql.Append("FROM   ");
-            sql.Append("sysjobhistory h,   ");
-            sql.Append("sysjobs j   ");
+            sql.Append("sysjobhistory h (nolock),   ");
+            sql.Append("sysjobs j  (nolock) ");
             sql.Append("WHERE j.job_id = h.job_id   ");
             // changes per bug ID(s): 53, 29 & 30
             //sql.Append("AND h.run_date = (select max(hi.run_date) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id)   ");
             //sql.Append("AND h.run_time = (select max(hi.run_time) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id   ");
             //sql.Append("AND run_date = (select max(hi.run_date) from sysjobhistory hi where h.job_id = hi.job_id and h.step_id = hi.step_id) )   ");
-            sql.Append("AND h.instance_id > (select isnull(max(sjh.instance_id),0) FROM sysjobhistory sjh ");
+            sql.Append("AND h.instance_id > (select isnull(max(sjh.instance_id),0) FROM sysjobhistory sjh (nolock) ");
             sql.Append("WHERE sjh.job_id = h.job_id ");
             sql.Append("AND sjh.step_id = 0 ");
-            sql.Append("AND sjh.instance_id not in (select max(sjh2.instance_id) FROM sysjobhistory sjh2 ");
+            sql.Append("AND sjh.instance_id not in (select max(sjh2.instance_id) FROM sysjobhistory sjh2 (nolock) ");
             sql.Append("WHERE sjh2.job_id = h.job_id ");
             sql.Append("AND sjh2.step_id = 0)) ");
             // job name replace condition
             sql.Append("AND j.name = '" + _jobName.Replace("'", "''") + "' ");
             sql.Append("order by  step_id, JobName, LastStatusDate  ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-            var xml = BuildExecuteOutput();
-            var hasRows = false;
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+                var xml = BuildExecuteOutput();
+                var hasRows = false;
+
+                if (result.FieldCount > 0)
                 {
-                    hasRows = true;
+                    while (result.Read())
+                    {
+                        hasRows = true;
 
-                    var jobId = result["job_id"].ToString();
-                    var jobName = result["JobName"].ToString();
-                    var jobStatus = result["JobStatus"].ToString();
-                    var message = result["message"].ToString();
-                    var retriesAttempted = result["retries_attempted"].ToString();
-                    var runDate = result["run_date"].ToString();
-                    var runDuration = result["run_duration"].ToString();
-                    var runTime = result["run_time"].ToString();
-                    var stepId = result["step_id"].ToString();
-                    var stepName = result["step_name"].ToString();
+                        var jobId = result["job_id"].ToString();
+                        var jobName = result["JobName"].ToString();
+                        var jobStatus = result["JobStatus"].ToString();
+                        var message = result["message"].ToString();
+                        var retriesAttempted = result["retries_attempted"].ToString();
+                        var runDate = result["run_date"].ToString();
+                        var runDuration = result["run_duration"].ToString();
+                        var runTime = result["run_time"].ToString();
+                        var stepId = result["step_id"].ToString();
+                        var stepName = result["step_name"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = _jobName + " status successfully returned.";
+                        resultCode = "0";
+                        resultMessage = _jobName + " status successfully returned.";
 
-                    xml.Root.Add(BuildExecuteOutputNode(jobId, jobName, jobStatus, message,
-                        retriesAttempted, runDate, runDuration, runTime, stepId, stepName,
-                        resultCode, resultMessage));
+                        xml.Root.Add(BuildExecuteOutputNode(jobId, jobName, jobStatus, message,
+                            retriesAttempted, runDate, runDuration, runTime, stepId, stepName,
+                            resultCode, resultMessage));
 
+                    }
                 }
-            }
 
-            if (hasRows)
-            {
-                _output = xml.ToString();
+                if (hasRows)
+                {
+                    _output = xml.ToString();
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

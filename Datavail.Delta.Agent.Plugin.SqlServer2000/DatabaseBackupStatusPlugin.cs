@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2000.Cluster;
@@ -70,9 +71,9 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
 
                 _metricInstance = metricInstance;
                 _label = label;
-                
+
                 ParseData(data);
-                    
+
                 if (!_runningOnCluster || (_runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
                 {
                     if (_databaseServerInfo == null)
@@ -87,7 +88,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
                     }
                     else
                     {
-                        _logger.LogDebug("No Data Queued: No backup status colleced for database " + _databaseName );
+                        _logger.LogDebug("No Data Queued: No backup status colleced for database " + _databaseName);
                     }
                 }
             }
@@ -104,8 +105,13 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+
+            _connectionString = _connectionString + " Pooling=false;";
+
             _databaseName = xmlData.Attribute("DatabaseName").Value;
             _instanceName = xmlData.Attribute("InstanceName").Value;
+
+            _connectionString = _connectionString.Replace(_databaseName, "Master");
 
             if (xmlData.Attribute("ClusterGroupName") != null)
             {
@@ -120,29 +126,37 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var resultMessage = string.Empty;
             var sql = new StringBuilder();
             sql.Append(" SELECT x.database_name, z.physical_device_name, CONVERT(char(20), x.backup_finish_date, 108) FinishTime,  ");
-            sql.Append(" x.backup_finish_date, DATEDIFF(mi, x.backup_finish_date, getdate() ) as MinsSinceLast  from msdb.dbo.backupset x   ");
-            sql.Append("JOIN ( SELECT a.database_name,  max(a.backup_finish_date) backup_finish_date FROM msdb.dbo.backupset a WHERE type = 'D'  ");
+            sql.Append(" x.backup_finish_date, DATEDIFF(mi, x.backup_finish_date, getdate() ) as MinsSinceLast  from msdb.dbo.backupset x (nolock)   ");
+            sql.Append("JOIN ( SELECT a.database_name,  max(a.backup_finish_date) backup_finish_date FROM msdb.dbo.backupset a (nolock)  WHERE type = 'D'  ");
             sql.Append("GROUP BY a.database_name ) y on x.database_name = y.database_name  and x.backup_finish_date = y.backup_finish_date   ");
-            sql.Append("JOIN msdb.dbo.backupmediafamily z ON x.media_set_id = z.media_set_id   ");
-            sql.Append("JOIN master.dbo.sysdatabases d ON d.name = x.database_name and d.name = '" + _databaseName + "'");
+            sql.Append("JOIN msdb.dbo.backupmediafamily z (nolock) ON x.media_set_id = z.media_set_id   ");
+            sql.Append("JOIN master.dbo.sysdatabases d (nolock) ON d.name = x.database_name and d.name = '" + _databaseName + "'");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
 
-            if (result.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                var physicalDeviceName = result["physical_device_name"].ToString();
-                //var finishTme = result["FinishTime"].ToString();
-                var backupFinishTimeStamp = DateTime.Parse(result["backup_finish_date"].ToString());
-                var minsSinceLast = result["MinsSinceLast"].ToString();
+                //SqlConnection.ClearPool(conn);
 
-                resultCode = "0";
-                resultMessage = "Successfully retrieved backup history for database: " + _databaseName;
-                BuildExecuteOutput(_databaseName, physicalDeviceName, backupFinishTimeStamp.ToString(), minsSinceLast, resultCode, resultMessage);
-            }
-            else
-            {
-                resultMessage = "No backup history found for database: " + _databaseName;
-                BuildExecuteOutput(_databaseName, "N/A", DateTime.MinValue.ToString(), "-1", resultCode, resultMessage);
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+
+                if (result.Read())
+                {
+                    var physicalDeviceName = result["physical_device_name"].ToString();
+                    //var finishTme = result["FinishTime"].ToString();
+                    var backupFinishTimeStamp = DateTime.Parse(result["backup_finish_date"].ToString());
+                    var minsSinceLast = result["MinsSinceLast"].ToString();
+
+                    resultCode = "0";
+                    resultMessage = "Successfully retrieved backup history for database: " + _databaseName;
+                    BuildExecuteOutput(_databaseName, physicalDeviceName, backupFinishTimeStamp.ToString(), minsSinceLast, resultCode, resultMessage);
+                }
+                else
+                {
+                    resultMessage = "No backup history found for database: " + _databaseName;
+                    BuildExecuteOutput(_databaseName, "N/A", DateTime.MinValue.ToString(), "-1", resultCode, resultMessage);
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

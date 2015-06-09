@@ -48,7 +48,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure
             }
             return activeNode;
         }
-        
+
         public IEnumerable<XElement> GetClusterDisks()
         {
             try

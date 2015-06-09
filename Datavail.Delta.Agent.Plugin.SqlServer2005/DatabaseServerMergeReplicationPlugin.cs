@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
@@ -109,6 +110,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _distributionDatabaseName = xmlData.Attribute("DistributionDatabaseName").Value;
 
             if (xmlData.Attribute("ClusterGroupName") != null)
@@ -128,119 +130,128 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("b.publisher_db as Publisher_DB,  ");
             sql.Append("b.publication as Publication,  ");
             sql.Append("b.publication_type ");
-            sql.Append("from master.dbo.sysservers a ");
+            sql.Append("from master.dbo.sysservers a (nolock) ");
             sql.Append("inner join " + _distributionDatabaseName + ".dbo.MSpublications b ");
             sql.Append("on a.srvid = b.publisher_id ");
 
-            var publishers = _sqlRunnerPublishers.RunSql(_connectionString, sql.ToString());
-            var xml = BuildExecuteOutput();
-            var resultCount = 0;
-
-            //Loop over all publishers
-            while (publishers.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                var publisher = publishers["publisher"].ToString();
-                var publisherDd = publishers["publisher_DB"].ToString();
-                var publication = publishers["publication"].ToString();
-                var publicationType = publishers["publication_type"].ToString();
+                var publishers = SqlHelper.GetDataReader(conn, sql.ToString());
+                var xml = BuildExecuteOutput();
+                var resultCount = 0;
 
-                StringBuilder sbSql = new StringBuilder();
-
-                sbSql.Append("use " + _distributionDatabaseName + " ");
-                sbSql.Append("exec sp_MSenum_merge_subscriptions ");
-                sbSql.Append("@publisher = N'" + publisher + "',  ");
-                sbSql.Append("@publisher_db = N'" + publisherDd + "',  ");
-                sbSql.Append("@publication = N'" + publication + "',  ");
-                sbSql.Append("@exclude_anonymous = 0 ");
-
-                var result = _sqlRunner.RunSql(_connectionString, sbSql.ToString());
-                var xelements = new List<XElement>();
-
-                while (result.Read())
+                //Loop over all publishers
+                while (publishers.Read())
                 {
-                    var publication2 = publication;
-                    var subscriber = result["subscriber"].ToString();
-                    var status = result["status"].ToString();
-                    var subscriberDb = result["subscriber_db"].ToString();
-                    var type = result["type"].ToString();
-                    var agentName = result["agent_name"].ToString();
-                    var lastAction = result["last_action"].ToString();
-                    var actionTime = result["action_time"].ToString();
-                    var startTime = result["start_time"].ToString();
-                    var duration = result["duration"].ToString();
-                    var deliveryRate = result["delivery_rate"].ToString();
-                    var downloadInserts = result["download_inserts"].ToString();
-                    var downloadUpdates = result["download_updates"].ToString();
-                    var downloadDeletes = result["download_deletes"].ToString();
-                    var publisherConflicts = result["publisher_conficts"].ToString();
-                    var uploadInserts = result["upload_inserts"].ToString();
-                    var uploadUpdates = result["upload_updates"].ToString();
-                    var uploadDeletes = result["upload_deletes"].ToString();
-                    var subscriberConflicts = result["subscriber_conficts"].ToString();
-                    var errorId = result["error_id"].ToString();
-                    var jobId = result["job_id"].ToString();
-                    var localJob = result["local_job"].ToString();
-                    var profileId = result["profile_id"].ToString();
-                    var agentId = result["agent_id"].ToString();
-                    var lastTimestamp = result["last_timestamp"].ToString();
-                    var offloadEnabled = result["offload_enabled"].ToString();
-                    var offloadServer = result["offload_server"].ToString();
-                    var subscriberType = result["subscriber_type"].ToString();
+                    var publisher = publishers["publisher"].ToString();
+                    var publisherDd = publishers["publisher_DB"].ToString();
+                    var publication = publishers["publication"].ToString();
+                    var publicationType = publishers["publication_type"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Merge Replication data found for metricinstance " + _metricInstance +
-                                    " with distribution database: " + _distributionDatabaseName;
+                    StringBuilder sbSql = new StringBuilder();
 
-                    xml.Root.Add(BuildExecuteOutputNode(subscriber,
-                                                        publication2,
-                                                        status,
-                                                        subscriberDb,
-                                                        type,
-                                                        agentName,
-                                                        lastAction,
-                                                        actionTime,
-                                                        startTime,
-                                                        duration,
-                                                        deliveryRate,
-                                                        downloadInserts,
-                                                        downloadUpdates,
-                                                        downloadDeletes,
-                                                        publisherConflicts,
-                                                        uploadInserts,
-                                                        uploadUpdates,
-                                                        uploadDeletes,
-                                                        subscriberConflicts,
-                                                        errorId,
-                                                        jobId,
-                                                        localJob,
-                                                        profileId,
-                                                        agentId,
-                                                        lastTimestamp,
-                                                        offloadEnabled,
-                                                        offloadServer,
-                                                        subscriberType,
-                                                        resultCode,
-                                                        resultMessage));
+                    sbSql.Append("use " + _distributionDatabaseName + " ");
+                    sbSql.Append("exec sp_MSenum_merge_subscriptions ");
+                    sbSql.Append("@publisher = N'" + publisher + "',  ");
+                    sbSql.Append("@publisher_db = N'" + publisherDd + "',  ");
+                    sbSql.Append("@publication = N'" + publication + "',  ");
+                    sbSql.Append("@exclude_anonymous = 0 ");
 
-                    resultCount++;
+                    using (var conn1 = new SqlConnection(_connectionString))
+                    {
+                        var result = SqlHelper.GetDataReader(conn1, sql.ToString());
+                        var xelements = new List<XElement>();
+
+                        while (result.Read())
+                        {
+                            var publication2 = publication;
+                            var subscriber = result["subscriber"].ToString();
+                            var status = result["status"].ToString();
+                            var subscriberDb = result["subscriber_db"].ToString();
+                            var type = result["type"].ToString();
+                            var agentName = result["agent_name"].ToString();
+                            var lastAction = result["last_action"].ToString();
+                            var actionTime = result["action_time"].ToString();
+                            var startTime = result["start_time"].ToString();
+                            var duration = result["duration"].ToString();
+                            var deliveryRate = result["delivery_rate"].ToString();
+                            var downloadInserts = result["download_inserts"].ToString();
+                            var downloadUpdates = result["download_updates"].ToString();
+                            var downloadDeletes = result["download_deletes"].ToString();
+                            var publisherConflicts = result["publisher_conficts"].ToString();
+                            var uploadInserts = result["upload_inserts"].ToString();
+                            var uploadUpdates = result["upload_updates"].ToString();
+                            var uploadDeletes = result["upload_deletes"].ToString();
+                            var subscriberConflicts = result["subscriber_conficts"].ToString();
+                            var errorId = result["error_id"].ToString();
+                            var jobId = result["job_id"].ToString();
+                            var localJob = result["local_job"].ToString();
+                            var profileId = result["profile_id"].ToString();
+                            var agentId = result["agent_id"].ToString();
+                            var lastTimestamp = result["last_timestamp"].ToString();
+                            var offloadEnabled = result["offload_enabled"].ToString();
+                            var offloadServer = result["offload_server"].ToString();
+                            var subscriberType = result["subscriber_type"].ToString();
+
+                            resultCode = "0";
+                            resultMessage = "Merge Replication data found for metricinstance " + _metricInstance +
+                                            " with distribution database: " + _distributionDatabaseName;
+
+                            xml.Root.Add(BuildExecuteOutputNode(subscriber,
+                                                                publication2,
+                                                                status,
+                                                                subscriberDb,
+                                                                type,
+                                                                agentName,
+                                                                lastAction,
+                                                                actionTime,
+                                                                startTime,
+                                                                duration,
+                                                                deliveryRate,
+                                                                downloadInserts,
+                                                                downloadUpdates,
+                                                                downloadDeletes,
+                                                                publisherConflicts,
+                                                                uploadInserts,
+                                                                uploadUpdates,
+                                                                uploadDeletes,
+                                                                subscriberConflicts,
+                                                                errorId,
+                                                                jobId,
+                                                                localJob,
+                                                                profileId,
+                                                                agentId,
+                                                                lastTimestamp,
+                                                                offloadEnabled,
+                                                                offloadServer,
+                                                                subscriberType,
+                                                                resultCode,
+                                                                resultMessage));
+
+                            resultCount++;
+                        }
+
+
+                        if (resultCount == 0)
+                        {
+                            resultMessage = "Merge Replication data not found for metricinstance " + _metricInstance +
+                                            " with distribution database: " + _distributionDatabaseName;
+                            xml.Root.Add(BuildExecuteOutputNode("n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
+                                "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
+                                "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage));
+                        }
+                        conn1.Dispose();
+                        conn1.Close();
+                    }
+
+                    if (resultCount > 0)
+                    {
+                        _output = xml.ToString();
+                    }
                 }
-
-
-                if (resultCount == 0)
-                {
-                    resultMessage = "Merge Replication data not found for metricinstance " + _metricInstance +
-                                    " with distribution database: " + _distributionDatabaseName;
-                    xml.Root.Add(BuildExecuteOutputNode("n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
-                        "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
-                        "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage));
-                }
+                conn.Dispose();
+                conn.Close();
             }
-
-            if (resultCount > 0)
-            {
-                _output = xml.ToString();
-            }
-
         }
 
         private XElement BuildExecuteOutputNode(string subscriber, string publication, string status, string subscriberDb, string type,

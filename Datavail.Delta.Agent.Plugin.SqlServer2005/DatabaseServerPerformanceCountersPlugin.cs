@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2005.Cluster;
@@ -104,6 +105,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
             if (xmlData.Attribute("ClusterGroupName") != null)
@@ -122,7 +124,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             var resultMessage = string.Empty;
 
             var sql = new StringBuilder();
-            sql.Append("select * from sys.dm_os_performance_counters ");
+            sql.Append("select * from sys.dm_os_performance_counters (nolock) ");
             sql.Append("where counter_name in ( ");
             sql.Append("'Page lookups/sec', 'Lock Waits/sec', 'Transactions/sec', 'Batch Requests/sec', 'Page Splits/sec', ");
             sql.Append("'Page Life Expectancy', 'SQL Compilations/sec', 'Log Flushes/sec', 'Total Server Memory (KB)', ");
@@ -132,78 +134,84 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2005
             sql.Append("and object_name not like ('%:Locks%') ");
             sql.Append("order by counter_name");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                var batchRequestsPerSec = string.Empty;
-                var checkpointPagesPerSec = string.Empty;
-                var lazyWritesPerSec = string.Empty;
-                var logFlushesPerSec = string.Empty;
-                var pageLifeExpectancy = string.Empty;
-                var pageLookupsPerSec = string.Empty;
-                var pageSplitsPerSec = string.Empty;
-                var sqlCompilationsPerSec = string.Empty;
-                var targetServerMemoryKb = string.Empty;
-                var totalServerMemoryKb = string.Empty;
-                var transactionsPerSec = string.Empty;
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
 
-                while (result.Read())
+
+                if (result.FieldCount > 0)
                 {
+                    var batchRequestsPerSec = string.Empty;
+                    var checkpointPagesPerSec = string.Empty;
+                    var lazyWritesPerSec = string.Empty;
+                    var logFlushesPerSec = string.Empty;
+                    var pageLifeExpectancy = string.Empty;
+                    var pageLookupsPerSec = string.Empty;
+                    var pageSplitsPerSec = string.Empty;
+                    var sqlCompilationsPerSec = string.Empty;
+                    var targetServerMemoryKb = string.Empty;
+                    var totalServerMemoryKb = string.Empty;
+                    var transactionsPerSec = string.Empty;
 
-                    var counterName = result["counter_name"].ToString().Trim();
-
-                    switch (counterName)
+                    while (result.Read())
                     {
-                        case "Batch Requests/sec" :
-                            batchRequestsPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Checkpoint pages/sec":
-                            checkpointPagesPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Lazy writes/sec":
-                            lazyWritesPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Log Flushes/sec":
-                            logFlushesPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Page life expectancy":
-                            pageLifeExpectancy = result["cntr_value"].ToString();
-                            break;
-                        case "Page lookups/sec":
-                            pageLookupsPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Page Splits/sec":
-                            pageSplitsPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "SQL Compilations/sec":
-                            sqlCompilationsPerSec = result["cntr_value"].ToString();
-                            break;
-                        case "Target Server Memory (KB)":
-                            targetServerMemoryKb = result["cntr_value"].ToString();
-                            break;
-                        case "Total Server Memory (KB)":
-                            totalServerMemoryKb = result["cntr_value"].ToString();
-                            break;
-                        case "Transactions/sec":
-                            transactionsPerSec = result["cntr_value"].ToString();
-                            break;
+
+                        var counterName = result["counter_name"].ToString().Trim();
+
+                        switch (counterName)
+                        {
+                            case "Batch Requests/sec":
+                                batchRequestsPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Checkpoint pages/sec":
+                                checkpointPagesPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Lazy writes/sec":
+                                lazyWritesPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Log Flushes/sec":
+                                logFlushesPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Page life expectancy":
+                                pageLifeExpectancy = result["cntr_value"].ToString();
+                                break;
+                            case "Page lookups/sec":
+                                pageLookupsPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Page Splits/sec":
+                                pageSplitsPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "SQL Compilations/sec":
+                                sqlCompilationsPerSec = result["cntr_value"].ToString();
+                                break;
+                            case "Target Server Memory (KB)":
+                                targetServerMemoryKb = result["cntr_value"].ToString();
+                                break;
+                            case "Total Server Memory (KB)":
+                                totalServerMemoryKb = result["cntr_value"].ToString();
+                                break;
+                            case "Transactions/sec":
+                                transactionsPerSec = result["cntr_value"].ToString();
+                                break;
+                        }
+
                     }
 
+
+
+                    resultCode = "0";
+                    resultMessage = "Performance metrics returned.";
+                    BuildExecuteOutput(batchRequestsPerSec, checkpointPagesPerSec, lazyWritesPerSec, logFlushesPerSec,
+                        pageLifeExpectancy, pageLookupsPerSec, pageSplitsPerSec, sqlCompilationsPerSec, targetServerMemoryKb,
+                        totalServerMemoryKb, transactionsPerSec, resultCode, resultMessage);
                 }
-
-
-
-                resultCode = "0";
-                resultMessage = "Performance metrics returned.";
-                BuildExecuteOutput(batchRequestsPerSec, checkpointPagesPerSec, lazyWritesPerSec, logFlushesPerSec,
-                    pageLifeExpectancy, pageLookupsPerSec, pageSplitsPerSec, sqlCompilationsPerSec, targetServerMemoryKb,
-                    totalServerMemoryKb, transactionsPerSec, resultCode, resultMessage);
-            }
-            else
-            {
-                resultMessage = "No performance metrics returned.";
-                BuildExecuteOutput("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", resultCode, resultMessage);
+                else
+                {
+                    resultMessage = "No performance metrics returned.";
+                    BuildExecuteOutput("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", resultCode, resultMessage);
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
@@ -108,6 +109,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _instanceName = xmlData.Attribute("InstanceName").Value;
             _distributionDatabaseName = xmlData.Attribute("DistributionDatabaseName").Value;
 
@@ -128,88 +130,98 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sql.Append("b.publisher_db as Publisher_DB,  ");
             sql.Append("b.publication as Publication,  ");
             sql.Append("b.publication_type ");
-            sql.Append("from master.dbo.sysservers a ");
+            sql.Append("from master.dbo.sysservers a (nolock) ");
             sql.Append("inner join " + _distributionDatabaseName + ".dbo.MSpublications b ");
             sql.Append("on a.srvid = b.publisher_id ");
 
-            var publishers = _sqlRunnerPublishers.RunSql(_connectionString, sql.ToString());
-            var xml = BuildExecuteOutput();
-            int resultCount = 0;
-
-            //Loop over all publishers
-            while (publishers.Read())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                var publisher = publishers["publisher"].ToString();
-                var publisherDb = publishers["publisher_DB"].ToString();
-                var publication = publishers["publication"].ToString();
-                var publicationType = publishers["publication_type"].ToString();
+                var publishers = SqlHelper.GetDataReader(conn, sql.ToString());
+                var xml = BuildExecuteOutput();
+                int resultCount = 0;
 
-                StringBuilder sbSql = new StringBuilder();
-
-                sbSql.Append("use " + _distributionDatabaseName + " ");
-                sbSql.Append("exec sp_MSenum_subscriptions ");
-                sbSql.Append("@publisher = N'" + publisher + "',  ");
-                sbSql.Append("@publisher_db = N'" + publisherDb + "',  ");
-                sbSql.Append("@publication = N'" + publication + "',  ");
-                sbSql.Append("@exclude_anonymous = 0 ");
-
-                var result = _sqlRunner.RunSql(_connectionString, sbSql.ToString());
-
-                if (result.FieldCount > 0)
+                //Loop over all publishers
+                while (publishers.Read())
                 {
-                    while (result.Read())
+                    var publisher = publishers["publisher"].ToString();
+                    var publisherDb = publishers["publisher_DB"].ToString();
+                    var publication = publishers["publication"].ToString();
+                    var publicationType = publishers["publication_type"].ToString();
+
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append("use " + _distributionDatabaseName + " ");
+                    sbSql.Append("exec sp_MSenum_subscriptions ");
+                    sbSql.Append("@publisher = N'" + publisher + "',  ");
+                    sbSql.Append("@publisher_db = N'" + publisherDb + "',  ");
+                    sbSql.Append("@publication = N'" + publication + "',  ");
+                    sbSql.Append("@exclude_anonymous = 0 ");
+
+                    using (var conn1 = new SqlConnection(_connectionString))
                     {
-                        var subscriber = result["subscriber"].ToString();
-                        var publication2 = publication;
-                        var status = result["status"].ToString();
-                        var subscriberDb = result["subscriber_db"].ToString();
-                        var type = result["type"].ToString();
-                        var distributionAgent = result["distribution_agent"].ToString();
-                        var lastAction = result["last_action"].ToString();
-                        var startTime = result["start_time"].ToString();
-                        var actionTime = result["action_time"].ToString();
-                        var duration = result["duration"].ToString();
-                        var deliveryLatency = result["delivery_latency"].ToString();
-                        var deliveryTransactions = result["delivered_transactions"].ToString();
-                        var deliveredCommands = result["delivered_commands"].ToString();
-                        var averageCommands = result["average_commands"].ToString();
-                        var errorId = result["error_id"].ToString();
-                        var jobId = (result["job_id"].ToString());
-                        var localJob = result["local_job"].ToString();
-                        var profileId = result["profile_id"].ToString();
-                        var agentId = result["agent_id"].ToString();
-                        var offloadEnabled = result["offload_enabled"].ToString();
-                        var offloadServer = result["offload_server"].ToString();
-                        var subscriberType = result["subscriber_type"].ToString();
+                        var result = SqlHelper.GetDataReader(conn1, sql.ToString());
 
 
-                        resultCode = "0";
-                        resultMessage = "Transactional Replication data found for metricinstance " + _metricInstance +
-                                        " with distribution database: " + _distributionDatabaseName;
+                        if (result.FieldCount > 0)
+                        {
+                            while (result.Read())
+                            {
+                                var subscriber = result["subscriber"].ToString();
+                                var publication2 = publication;
+                                var status = result["status"].ToString();
+                                var subscriberDb = result["subscriber_db"].ToString();
+                                var type = result["type"].ToString();
+                                var distributionAgent = result["distribution_agent"].ToString();
+                                var lastAction = result["last_action"].ToString();
+                                var startTime = result["start_time"].ToString();
+                                var actionTime = result["action_time"].ToString();
+                                var duration = result["duration"].ToString();
+                                var deliveryLatency = result["delivery_latency"].ToString();
+                                var deliveryTransactions = result["delivered_transactions"].ToString();
+                                var deliveredCommands = result["delivered_commands"].ToString();
+                                var averageCommands = result["average_commands"].ToString();
+                                var errorId = result["error_id"].ToString();
+                                var jobId = (result["job_id"].ToString());
+                                var localJob = result["local_job"].ToString();
+                                var profileId = result["profile_id"].ToString();
+                                var agentId = result["agent_id"].ToString();
+                                var offloadEnabled = result["offload_enabled"].ToString();
+                                var offloadServer = result["offload_server"].ToString();
+                                var subscriberType = result["subscriber_type"].ToString();
 
-                        xml.Root.Add(BuildExecuteOutputNode(subscriber, publication2, status, subscriberDb, type, distributionAgent, lastAction, startTime,
-                            actionTime, duration, deliveryLatency, deliveryTransactions, deliveredCommands,
-                            averageCommands, errorId, jobId, localJob, profileId, agentId, offloadEnabled,
-                            offloadServer, subscriberType, resultCode, resultMessage));
 
-                        resultCount++;
+                                resultCode = "0";
+                                resultMessage = "Transactional Replication data found for metricinstance " + _metricInstance +
+                                                " with distribution database: " + _distributionDatabaseName;
+
+                                xml.Root.Add(BuildExecuteOutputNode(subscriber, publication2, status, subscriberDb, type, distributionAgent, lastAction, startTime,
+                                    actionTime, duration, deliveryLatency, deliveryTransactions, deliveredCommands,
+                                    averageCommands, errorId, jobId, localJob, profileId, agentId, offloadEnabled,
+                                    offloadServer, subscriberType, resultCode, resultMessage));
+
+                                resultCount++;
+                            }
+                        }
+
+                        if (resultCount == 0)
+                        {
+                            resultMessage = "Transactional Replication data not found for metricinstance " + _metricInstance +
+                                            " with distribution database: " + _distributionDatabaseName;
+                            xml.Root.Add(BuildExecuteOutputNode("n/a", "n/a", "n/a", "n.a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
+                                "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage));
+                        }
+                        conn1.Dispose();
+                        conn1.Close();
+                    }
+
+                    if (resultCount > 0)
+                    {
+                        _output = xml.ToString();
                     }
                 }
-
-                if (resultCount == 0)
-                {
-                    resultMessage = "Transactional Replication data not found for metricinstance " + _metricInstance +
-                                    " with distribution database: " + _distributionDatabaseName;
-                    xml.Root.Add(BuildExecuteOutputNode("n/a", "n/a", "n/a", "n.a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a",
-                        "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage));
-                }
+                conn.Dispose();
+                conn.Close();
             }
-
-            if (resultCount > 0)
-            {
-                _output = xml.ToString();
-            }
-
         }
 
         private XElement BuildExecuteOutputNode(string subscriber, string publication, string status, string subscriberDb, string type,
