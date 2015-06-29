@@ -30,7 +30,8 @@ namespace Datavail.Delta.IncidentProcessor
 
             try
             {
-                _divertCheckInsToEmail = bool.TryParse(ConfigurationManager.AppSettings["DivertCheckInsToEmail"],
+                bool flag;
+                flag = bool.TryParse(ConfigurationManager.AppSettings["DivertCheckInsToEmail"],
                     out _divertCheckInsToEmail);
 
 
