@@ -1,6 +1,7 @@
 ﻿using System;
 using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.SqlRunner;
+using System.Data.SqlClient;
 
 namespace Datavail.Delta.Infrastructure.Agent.ServerInfo
 {
@@ -43,26 +44,31 @@ namespace Datavail.Delta.Infrastructure.Agent.ServerInfo
             try
             {
                 const string SQL = "SELECT SERVERPROPERTY('productversion') as ProductVersion, SERVERPROPERTY ('productlevel') as ProductLevel, SERVERPROPERTY ('edition') as Edition";
-                var result = _sqlRunner.RunSql(_connectionString, SQL);
-
-                if (result.FieldCount > 0 && result.Read())
+                using (var conn = new SqlConnection(_connectionString))
                 {
-                    Product = "SQL Server";
-                    ProductVersion = result[0].ToString();
-                    ProductLevel = result[1].ToString();
-                    ProductEdition = result[2].ToString();
+                    var result = _sqlRunner.GetDataReader(conn, SQL);
+                    if (result.FieldCount > 0 && result.Read())
+                    {
+                        Product = "SQL Server";
+                        ProductVersion = result[0].ToString();
+                        ProductLevel = result[1].ToString();
+                        ProductEdition = result[2].ToString();
 
-                    _logger.LogDebug("SqlServerInfo returned");
-                }
-                else
-                {
-                    _logger.LogDebug("No SqlServerInfo returned");
+                        _logger.LogDebug("SqlServerInfo returned");
+                    }
+                    else
+                    {
+                        _logger.LogDebug("No SqlServerInfo returned");
+                    }
+                    conn.Dispose();
+                    conn.Close();
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Error retrieving Sql Server info.", ex);
             }
+        
         }
     }
 }

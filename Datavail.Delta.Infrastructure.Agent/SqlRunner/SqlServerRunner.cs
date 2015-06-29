@@ -16,5 +16,16 @@ namespace Datavail.Delta.Infrastructure.Agent.SqlRunner
 
             return result;
         }
+
+
+        public IDataReader GetDataReader(SqlConnection connection, string sql)
+        {
+            var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text };
+
+            connection.Open();
+            var result = command.ExecuteReader();
+
+            return result;
+        }
     }
 }
