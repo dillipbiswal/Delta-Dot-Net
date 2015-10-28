@@ -27,7 +27,7 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
 
                 var searcher = new ManagementObjectSearcher(scope, objectQuery);
 
-                foreach (var clusterNode in searcher.Get())
+                foreach (ManagementObject clusterNode in searcher.Get())
                 {
                     var nodeNameString = clusterNode["GroupComponent"].ToString();
                     var groupNameString = clusterNode["PartComponent"].ToString();
@@ -63,8 +63,7 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
                     scope = new ManagementScope(sServerPath);
                     scope.Connect();
                 }
-                // ReSharper disable once EmptyGeneralCatchClause
-                catch
+                catch (Exception)
                 {
                 }
 
@@ -76,8 +75,11 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
                     foreach (var resToDisk in searcher.Get())
                     {
                         var resourceGroupName = GetResourceGroupNameFromResourceName(scope, resToDisk.Properties["GroupComponent"].Value.ToString());
-                        var diskPartitions = GetDiskPartitionsInfoFromDisk(scope, resToDisk.Properties["PartComponent"].Value.ToString(), resourceGroupName);
-                        elements.AddRange(diskPartitions);
+                        if (IsActiveClusterNodeForGroup(resourceGroupName))
+                        {
+                            var diskPartitions = GetDiskPartitionsInfoFromDisk(scope, resToDisk.Properties["PartComponent"].Value.ToString(), resourceGroupName);
+                            elements.AddRange(diskPartitions);
+                        }
                     }
                 }
                 return elements;
@@ -104,16 +106,19 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
                 double totalSize;
 
                 GetDiskInfo(scope, inputPath, out path, out fileSystem, out label, out totalSize);
-                var node = new XElement("Disk",
-                                        new XAttribute("clusterName", GetClusterName()),
-                                        new XAttribute("resourceGroupName", resourceGroupName),
-                                        new XAttribute("driveFormat", fileSystem),
-                                        new XAttribute("isClusterDisk", "true"),
-                                        new XAttribute("label", label),
-                                        new XAttribute("path", path),
-                                        new XAttribute("totalBytes", totalSize));
+                if (path != "")
+                {
+                    var node = new XElement("Disk",
+                                            new XAttribute("clusterName", GetClusterName()),
+                                            new XAttribute("resourceGroupName", resourceGroupName),
+                                            new XAttribute("driveFormat", fileSystem),
+                                            new XAttribute("isClusterDisk", "true"),
+                                            new XAttribute("label", label),
+                                            new XAttribute("path", path),
+                                            new XAttribute("totalBytes", totalSize));
 
-                elements.Add(node);
+                    elements.Add(node);
+                }
             }
 
             return elements;
@@ -126,11 +131,33 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
 
             foreach (var disk in searcher.Get())
             {
-                path = @"\\?\Volume" + disk.Properties["VolumeGuid"].Value.ToString().ToLower() + "\\";
+                path = value + "\\";
+                //Added Code to replace volume label with name for mount drives
+                if (value.Length > 10)
+                {
+                    var DSerialNo = disk.Properties["SerialNumber"].Value.ToString();
+
+                    const string queryString = "SELECT * FROM Win32_Volume";
+                    var query = new SelectQuery(queryString);
+
+                    using (var ms = new ManagementObjectSearcher(query))
+                    {
+                        foreach (ManagementObject mo in ms.Get())
+                        {
+                            var SerialNo = mo["SerialNumber"].ToString();
+
+                            if (SerialNo == DSerialNo)
+                            {
+                                path = mo["Name"].ToString();
+                                break;
+                            }
+                        }
+                    }
+                }
+                //code end
                 fileSystem = disk.Properties["FileSystem"].Value.ToString();
                 label = disk.Properties["VolumeLabel"].Value.ToString();
                 totalBytes = double.Parse(disk.Properties["TotalSize"].Value.ToString()) * 1048576;
-
                 return;
             }
 

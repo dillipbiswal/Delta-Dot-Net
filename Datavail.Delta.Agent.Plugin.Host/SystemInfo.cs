@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Management;
-using System.Text.RegularExpressions;
-using Datavail.Delta.Infrastructure.Agent.Common;
-using System;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Datavail.Delta.Infrastructure.Agent.Common;
+using Datavail.Delta.Infrastructure.Agent;
+using System.Management;
 
 namespace Datavail.Delta.Agent.Plugin.Host
 {
@@ -35,132 +33,76 @@ namespace Datavail.Delta.Agent.Plugin.Host
         #region Disk
         public void GetDiskFreeSpace(string path, out long totalBytes, out long totalFreeBytes)
         {
+            long totBytes = 0;
+            long totFreeBytes = 0;
+
             const string queryString = "SELECT * FROM Win32_Volume";
             var query = new SelectQuery(queryString);
-
-            var regex = new Regex(@"{(.*)}", RegexOptions.IgnoreCase);
-
-            var correctedPath = string.Empty;
-            if (regex.IsMatch(path))
-            {
-                correctedPath = regex.Matches(path)[0].ToString().ToLower();
-            }
-
+            string temppath = path.Replace("\\\\", "\\");
             using (var searcher = new ManagementObjectSearcher(query))
             {
                 foreach (var disk in searcher.Get())
                 {
-                    if (disk["DeviceID"].ToString().ToLower().Contains(correctedPath) || String.Equals(disk["Name"].ToString(), path, StringComparison.CurrentCultureIgnoreCase))
+                    if (disk["Name"].ToString().ToUpper() == temppath.ToUpper())
                     {
-                        totalBytes = long.Parse(disk["Capacity"].ToString());
-                        totalFreeBytes = long.Parse(disk["FreeSpace"].ToString());
-                        return;
+                        totBytes = long.Parse(disk.Properties["Capacity"].Value.ToString());
+                        totFreeBytes = long.Parse(disk.Properties["FreeSpace"].Value.ToString());
+                        break;
                     }
                 }
             }
+            totalBytes = totBytes;
+            totalFreeBytes = totFreeBytes;
 
-            totalBytes = -1;
-            totalFreeBytes = -1;
         }
 
         public string[] GetLogicalDrives()
         {
-            var output = new List<String>();
-            const string queryString = "SELECT * FROM Win32_Volume";
-            var query = new SelectQuery(queryString);
+            return Environment.GetLogicalDrives();
 
-            using (var searcher = new ManagementObjectSearcher(query))
-            {
-                foreach (var disk in searcher.Get())
-                {
-                    Console.WriteLine(disk["Name"] + " | " + disk["DeviceId"].ToString());
-                    output.Add(disk["DeviceId"].ToString());
-                }
-            }
-
-            return output.ToArray();
         }
 
-        public void GetDriveInfo(string path, out DriveType driveType, out string driveFormat, out long totalSize,
-            out string volumeLabel)
+        public void GetDriveInfo(string path, out DriveType driveType, out string driveFormat, out long totalSize, out string volumeLabel)
         {
-            const string queryString = "SELECT * FROM Win32_Volume";
-            var query = new SelectQuery(queryString);
+            var drive = DriveInfo.GetDrives().Where(e => e.Name == path).FirstOrDefault();
 
-            var regex = new Regex(@"{(.*)}", RegexOptions.IgnoreCase);
-
-            var correctedPath = string.Empty;
-            if (regex.IsMatch(path))
+            try
             {
-                correctedPath = regex.Matches(path)[0].ToString().ToLower();
+                driveType = drive.DriveType;
+            }
+            catch (Exception)
+            {
+                driveType = DriveType.Unknown;
             }
 
-            using (var searcher = new ManagementObjectSearcher(query))
+            try
             {
-                foreach (var disk in searcher.Get())
-                {
-                    foreach (var property in disk.Properties)
-                    {
-                        Debug.WriteLine(property.Name + ": " + disk.Properties[property.Name].Value);
-                    }
-
-                    if (disk["DeviceID"].ToString().ToLower().Contains(correctedPath) ||
-                        String.Equals(disk["Name"].ToString(), path, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        try
-                        {
-                            driveType = (DriveType)uint.Parse(disk["DriveType"].ToString());
-                        }
-                        catch (Exception)
-                        {
-                            driveType = DriveType.Unknown;
-                        }
-
-                        try
-                        {
-                            driveFormat = disk["FileSystem"].ToString();
-                        }
-                        catch (Exception)
-                        {
-                            driveFormat = "Unknown";
-                        }
-
-                        try
-                        {
-                            totalSize = long.Parse(disk["Capacity"].ToString());
-                        }
-                        catch (Exception)
-                        {
-                            totalSize = -1;
-                        }
-
-                        try
-                        {
-                            if (disk["Label"] != null)
-                            {
-                                volumeLabel = disk["Name"] + " (" + disk["Label"] + ")";
-                            }
-                            else
-                            {
-                                volumeLabel = disk["Name"].ToString();
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            volumeLabel = string.Empty;
-                        }
-
-                        return;
-                    }
-                }
+                driveFormat = drive.DriveFormat;
+            }
+            catch (Exception)
+            {
+                driveFormat = "Unknown";
             }
 
-            driveType = DriveType.Unknown;
-            driveFormat = "Unknown";
-            totalSize = -1;
-            volumeLabel = "Unknown";
+            try
+            {
+                totalSize = drive.TotalSize;
+            }
+            catch (Exception)
+            {
+                totalSize = -1;
+            }
+
+            try
+            {
+                volumeLabel = drive.VolumeLabel;
+            }
+            catch (Exception)
+            {
+                volumeLabel = string.Empty;
+            }
+
         }
-
         #endregion
 
         #region RAM
@@ -173,16 +115,16 @@ namespace Datavail.Delta.Agent.Plugin.Host
             if (OsInfo.IsRunningOnUnix())
             {
                 var proc = new System.Diagnostics.Process
-                               {
-                                   EnableRaisingEvents = false,
-                                   StartInfo =
-                                       {
-                                           FileName = "/bin/cat",
-                                           Arguments = "/proc/meminfo",
-                                           UseShellExecute = false,
-                                           RedirectStandardOutput = true
-                                       }
-                               };
+                {
+                    EnableRaisingEvents = false,
+                    StartInfo =
+                    {
+                        FileName = "/bin/cat",
+                        Arguments = "/proc/meminfo",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true
+                    }
+                };
                 proc.Start();
                 var output = proc.StandardOutput.ReadToEnd();
                 proc.WaitForExit();
@@ -260,11 +202,11 @@ namespace Datavail.Delta.Agent.Plugin.Host
             else
             {
                 var cpuCounter = new System.Diagnostics.PerformanceCounter
-                                     {
-                                         CategoryName = "Processor",
-                                         CounterName = "% Processor Time",
-                                         InstanceName = "_Total"
-                                     };
+                {
+                    CategoryName = "Processor",
+                    CounterName = "% Processor Time",
+                    InstanceName = "_Total"
+                };
 
                 //Need to give the Perf counter a chance to start and collect data
                 cpuCounter.NextValue();

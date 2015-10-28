@@ -2158,7 +2158,7 @@ namespace Datavail.Delta.Application
                 DeleteMetricInstances(metricInstanceIds);
             }
 
-            
+
 
             return DELETE_SUCCESS;
         }
@@ -2214,7 +2214,7 @@ namespace Datavail.Delta.Application
             var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == serverId
                                                                          && x.Status != Status.Deleted
                                                                          && x.Metric.AdapterClass == "DiskPlugin"
-                                                                         && x.Data.Contains(drivePath)).FirstOrDefault();
+                                                                         && x.Data.Contains("Path=\"" + drivePath + "\"")).FirstOrDefault();
 
             //Create the disk metric if it doesn't exist
             if (diskStatusMetric == null)
@@ -2259,7 +2259,8 @@ namespace Datavail.Delta.Application
             var diskStatusMetric = _repository.Find<MetricInstance>(x => x.Server.Id == virtualServer.Id
                                                                          && x.Status != Status.Deleted
                                                                          && x.Metric.AdapterClass == "DiskPlugin"
-                                                                         && x.Data.Contains(drivePath)).FirstOrDefault();
+                                                                         && x.Data.Contains("Path=\"" + drivePath + "\"")).FirstOrDefault();
+
 
             //Create the disk metric if it doesn't exist
             if (diskStatusMetric == null)

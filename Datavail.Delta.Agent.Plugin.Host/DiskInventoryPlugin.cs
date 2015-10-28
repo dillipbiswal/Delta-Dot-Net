@@ -9,6 +9,7 @@ using Datavail.Delta.Infrastructure.Agent.Cluster;
 using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.Queues;
+using System.Management;
 
 namespace Datavail.Delta.Agent.Plugin.Host
 {
@@ -58,8 +59,6 @@ namespace Datavail.Delta.Agent.Plugin.Host
                 _label = label;
 
                 BuildExecuteOutput();
-                //TODO: Remove this
-                Console.WriteLine(_output);
                 _dataQueuer.Queue(_output);
             }
             catch (Exception ex)
@@ -70,7 +69,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
         private void BuildExecuteOutput()
         {
-            var drives = _systemInfo.GetLogicalDrives();
+            //var drives = _systemInfo.GetLogicalDrives();
 
             var xml = new XElement("DiskInventoryPluginOutput",
                                    new XAttribute("timestamp", DateTime.UtcNow),
@@ -88,29 +87,90 @@ namespace Datavail.Delta.Agent.Plugin.Host
                 xml.Add(clusterDisk);
             }
 
-            foreach (var drive in drives)
+            const string queryString = "SELECT * FROM Win32_Volume";
+            var query = new SelectQuery(queryString);
+            using (var searcher = new ManagementObjectSearcher(query))
             {
-                DriveType driveType;
-                string driveFormat;
-                string driveLabel;
-                long totalSize;
-
-                _systemInfo.GetDriveInfo(drive, out driveType, out driveFormat, out totalSize, out driveLabel);
-                
-                if (driveType == DriveType.Fixed &&
-                    xml.Descendants().Where(e => e.Name == "Disk").Attributes("path").Where(v => v.Value == drive).Count
-                        () == 0)
+                foreach (var disk in searcher.Get())
                 {
-                    var node = new XElement("Disk",
-                                            new XAttribute("driveFormat", driveFormat),
-                                            new XAttribute("isClusterDisk", "false"),
-                                            new XAttribute("label", driveLabel),
-                                            new XAttribute("path", drive),
-                                            new XAttribute("totalBytes", totalSize));
+                    string driveFormat;
+                    string driveLabel;
+                    long totalSize;
+                    //_systemInfo.GetDriveInfo(disk["Name"].ToString(), out driveType, out driveFormat, out totalSize, out driveLabel);
 
-                    xml.Add(node);
+
+                    if (disk["DriveType"].ToString() == "3" && (!disk["Name"].ToString().ToLower().Contains("volume")) &&
+                        xml.Descendants().Where(e => e.Name == "Disk").Attributes("path").Where(v => v.Value == disk["Name"].ToString()).Count
+                            () == 0)
+                    {
+                        try
+                        {
+                            driveFormat = disk["FileSystem"].ToString();
+                        }
+                        catch (Exception)
+                        {
+                            driveFormat = "Unknown";
+                        }
+                        try
+                        {
+                            if (disk["Label"] == null)
+                            {
+                                driveLabel = "";
+                            }
+                            else
+                            {
+                                driveLabel = disk["Label"].ToString();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            driveLabel = "";
+                        }
+                        try
+                        {
+                            totalSize = long.Parse(disk.Properties["Capacity"].Value.ToString());
+                        }
+                        catch (Exception)
+                        {
+                            totalSize = -1;
+                        }
+                        var node = new XElement("Disk",
+                                                new XAttribute("driveFormat", driveFormat),
+                                                new XAttribute("isClusterDisk", "false"),
+                                                new XAttribute("label", driveLabel),
+                                                new XAttribute("path", disk["Name"].ToString()),
+                                                new XAttribute("totalBytes", totalSize));
+
+                        xml.Add(node);
+                    }
+
                 }
             }
+
+            //foreach (var drive in drives)
+            //{
+            //    DriveType driveType;
+            //    string driveFormat;
+            //    string driveLabel;
+            //    long totalSize;
+
+            //    _systemInfo.GetDriveInfo(drive, out driveType, out driveFormat, out totalSize, out driveLabel);
+
+
+            //    if (driveType == DriveType.Fixed &&
+            //        xml.Descendants().Where(e => e.Name == "Disk").Attributes("path").Where(v => v.Value == drive).Count
+            //            () == 0)
+            //    {
+            //        var node = new XElement("Disk",
+            //                                new XAttribute("driveFormat", driveFormat),
+            //                                new XAttribute("isClusterDisk", "false"),
+            //                                new XAttribute("label", driveLabel),
+            //                                new XAttribute("path", drive),
+            //                                new XAttribute("totalBytes", totalSize));
+
+            //        xml.Add(node);
+            //    }
+            //}
 
             _output = xml.ToString();
         }

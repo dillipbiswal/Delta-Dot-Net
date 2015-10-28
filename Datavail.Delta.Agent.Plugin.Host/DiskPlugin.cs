@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Xml.Linq;
-using System.IO;
 using Datavail.Delta.Agent.Plugin.Host.Cluster;
 using Datavail.Delta.Agent.SharedCode.Queues;
 using Datavail.Delta.Infrastructure.Agent;
@@ -79,13 +78,13 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
                         GetFreeDiskSpace();
                         BuildExecuteOutput();
+
                         _dataQueuer.Queue(_output);
                         _logger.LogDebug("Data Queued: " + _output);
-
                     }
-                    catch
+                    catch (Exception ex1)
                     {
-
+                        //                        _logger.LogUnhandledException(string.Format("Unhandled Exception while running DiskPlugin::Execute({0},{1},{2})", metricInstance, label, data), ex1);
                     }
                 }
             }
@@ -101,7 +100,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
             var xmlData = XElement.Parse(data);
             Guard.ArgumentNotNullOrEmptyString(xmlData.Attribute("Path").Value, "Path", "A valid path must be specified for DiskPlugin");
 
-            _drive = xmlData.Attribute("Path").Value.ToString().Trim();
+            _drive = xmlData.Attribute("Path").Value;
 
             if (xmlData.Attribute("ClusterGroupName") != null)
             {
@@ -110,23 +109,8 @@ namespace Datavail.Delta.Agent.Plugin.Host
             }
         }
 
-        // fix for Bug ID #51
-        private Boolean localCheck(string xmlDrivePath)
-        {
-            DriveInfo info = new DriveInfo(xmlDrivePath);
-            bool ready = false;
-
-            if (info.IsReady)
-            {
-                ready = true;
-            }
-
-            return ready;
-        }
-
         private void GetFreeDiskSpace()
         {
-         
             _systemInfo.GetDiskFreeSpace(_drive, out _totalBytes, out _availableBytes);
 
             _percentageFree = Math.Round((_availableBytes / (double)_totalBytes) * 100, 2);
@@ -162,18 +146,6 @@ namespace Datavail.Delta.Agent.Plugin.Host
 
         private void BuildExecuteOutput()
         {
-            //_logger.LogDebug("DateTime.UtcNow: " + DateTime.UtcNow);
-            //_logger.LogDebug("_metricInstance: " + _metricInstance);
-            //_logger.LogDebug("_label: " + _label);
-            //_logger.LogDebug("Environment.OSVersion.Platform: " + Environment.OSVersion.Platform);
-            //_logger.LogDebug("Environment.OSVersion.Version: " + Environment.OSVersion.Version);
-            //_logger.LogDebug("Environment.OSVersion.ServicePack: " + Environment.OSVersion.ServicePack);
-            //_logger.LogDebug("_totalBytes: " + _totalBytes);
-            //_logger.LogDebug("_totalBytesFriendly: " + _totalBytesFriendly);
-            //_logger.LogDebug("_availableBytes: " + _availableBytes);
-            //_logger.LogDebug("_availableBytesFriendly: " + _availableBytesFriendly);
-            //_logger.LogDebug("_percentageFree: " + _percentageFree);
-
             var xml = new XElement("DiskPluginOutput",
                 new XAttribute("timestamp", DateTime.UtcNow),
                 new XAttribute("metricInstanceId", _metricInstance),
