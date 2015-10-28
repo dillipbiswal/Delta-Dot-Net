@@ -26,18 +26,25 @@ namespace Datavail.Delta.Agent
         {
             //Debugger.Launch();
 
-            var key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Datavail\\Delta", RegistryKeyPermissionCheck.ReadWriteSubTree);
-            if (key != null)
+            try
             {
-                Guid idGuid;
-                var id = Guid.TryParse(key.GetValue("ServerId").ToString(), out idGuid);
-
-                if (idGuid == Guid.Empty)
+                var key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Datavail\\Delta", RegistryKeyPermissionCheck.ReadWriteSubTree);
+                if (key != null)
                 {
-                    idGuid = Guid.NewGuid();
-                    key.SetValue("ServerId", idGuid);
+                    Guid idGuid;
+                    var id = Guid.TryParse(key.GetValue("ServerId").ToString(), out idGuid);
+
+                    if (idGuid == Guid.Empty)
+                    {
+                        idGuid = Guid.NewGuid();
+                        key.SetValue("ServerId", idGuid);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+            }
+           
 
             _queueRunnerThread = new Thread(StartQueueRunner);
             _queueRunnerThread.Start();

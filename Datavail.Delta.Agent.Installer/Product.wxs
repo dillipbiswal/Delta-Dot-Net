@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <!-- Product name as you want it to appear in Add/Remove Programs-->
+  <?if $(var.Platform) = x64 ?>
+  <?define ProductName = "Datavail Delta Agent (64 bit)" ?>
+  <?define Win64 = "yes" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?else ?>
+  <?define ProductName = "Datavail Delta Agent" ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?endif ?>
+
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="!(bind.FileVersion.Datavail.Delta.Agent.exe)" Manufacturer="Datavail Corporation" UpgradeCode="B08A5B53-9B03-4205-835F-ED5B05236715">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated" Description="$(var.ProductName)" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowDowngrades="no" AllowSameVersionUpgrades="yes" Schedule="afterInstallInitialize"/>
+
+    <UIRef Id="WixUI_DeltaAgent" />
+
+    <PropertyRef Id="NETFRAMEWORK40FULL"/>
+
+    <Property Id="TENANTID" Value="1A19A18A-846C-49DA-93C1-8948AFDC0151">
+      <RegistrySearch Id="TenantId" Root="HKLM" Key="Software\Datavail\Delta" Name="TenantId" Type="raw" Win64="$(var.Win64)"/>
+    </Property>
+
+    <Property Id="CUSTOMER">
+      <RegistrySearch Id="CustomerId" Root="HKLM" Key="Software\Datavail\Delta" Name="CustomerId" Type="raw" Win64="$(var.Win64)"/>
+    </Property>
+
+    <Property Id="SERVERID">
+      <RegistrySearch Id="ServerId" Root="HKLM" Key="Software\Datavail\Delta" Name="ServerId" Type="raw" Win64="$(var.Win64)" />
+    </Property>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <Condition Message="This application requires .NET Framework 4.0 (Full). Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR NETFRAMEWORK40FULL]]>
+    </Condition>
+
+    <Media Id="1" Cabinet="Datavail.Delta.IncidentProcessor.cab" EmbedCab="yes"  />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <Directory Id="DatavailFolder" Name="Datavail">
+          <Directory Id="INSTALLFOLDER" Name="Delta Agent">
+            <Directory Id="PLUGINSDIR" Name="plugins">
+              <Component Id="plugins" Guid="{D2E022E1-FA94-4B0D-A4E3-1F1A1AF3F968}">
+                <File Id="Datavail.Delta.Agent.Plugin.CheckIn.4.0.0000.0.dll" Name="Datavail.Delta.Agent.Plugin.CheckIn.4.0.0000.0.dll" Source="..\Plugins\Datavail.Delta.Agent.Plugin.CheckIn\bin\$(var.Configuration)\Datavail.Delta.Agent.Plugin.CheckIn.4.0.0000.0.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+                <CreateFolder>
+                  <Permission User="CREATOR OWNER" GenericAll="yes" />
+                  <Permission User="SYSTEM" GenericAll="yes" />
+                  <Permission User="NETWORK SERVICE" GenericAll="yes" />
+                  <Permission User="Administrators" GenericAll="yes" />
+                  <Permission User="Everyone" GenericExecute="yes" GenericRead="yes" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+            <Directory Id="TEMPDIR" Name="temp">
+              <Component Id="temp" Guid="{2DB72EC3-F2E1-4642-8E1F-B703FB661813}">
+                <CreateFolder>
+                  <Permission User="CREATOR OWNER" GenericAll="yes" />
+                  <Permission User="SYSTEM" GenericAll="yes" />
+                  <Permission User="NETWORK SERVICE" GenericAll="yes" />
+                  <Permission User="Administrators" GenericAll="yes" />
+                  <Permission User="Everyone" GenericExecute="yes" GenericRead="yes" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+            <Directory Id="CACHEDIR" Name="cache">
+              <Component Id="cache" Guid="{7D47EB04-018F-4FD9-9332-E4E0985CC24F}">
+                <CreateFolder>
+                  <Permission User="CREATOR OWNER" GenericAll="yes" />
+                  <Permission User="SYSTEM" GenericAll="yes" />
+                  <Permission User="NETWORK SERVICE" GenericAll="yes" />
+                  <Permission User="Administrators" GenericAll="yes" />
+                  <Permission User="Everyone" GenericExecute="yes" GenericRead="yes" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+            <Component Id="Datavail.Delta.Agent" Guid="{3D6B7843-2C3B-4D22-8504-1B8F8CCDE088}" Win64="$(var.Win64)">
+              <File Id="Datavail.Delta.Agent.exe" Name="Datavail.Delta.Agent.exe" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Datavail.Delta.Agent.exe" Vital="yes" KeyPath="yes" DiskId="1"/>
+              <File Id="Datavail.Delta.Agent.exe.config" Name="Datavail.Delta.Agent.exe.config" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Datavail.Delta.Agent.exe.config" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="DeltaAgent.xml" Name="DeltaAgent.xml" Source="..\Datavail.Delta.Agent\DeltaAgent.xml" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="Datavail.Delta.Agent.SharedCode.dll" Name="Datavail.Delta.Agent.SharedCode.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Datavail.Delta.Agent.SharedCode.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="Datavail.Delta.Infrastructure.Agent.dll" Name="Datavail.Delta.Infrastructure.Agent.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Datavail.Delta.Infrastructure.Agent.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="FluentScheduler.dll" Name="FluentScheduler.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\FluentScheduler.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="log4net.dll" Name="log4net.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\log4net.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="log4net.xml" Name="log4net.xml" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\log4net.xml" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Newtonsoft.Json.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="Newtonsoft.Json.xml" Name="Newtonsoft.Json.xml" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\Newtonsoft.Json.xml" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="RestSharp.dll" Name="RestSharp.dll" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\RestSharp.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="RestSharp.xml" Name="RestSharp.xml" Source="..\Datavail.Delta.Agent\bin\$(var.Configuration)\RestSharp.xml" Vital="yes" KeyPath="no" DiskId="1"/>
+              
+              <File Id="grep.exe" Name="grep.exe" Source="..\Datavail.Delta.Agent\utils\grep.exe" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msys1.0.dll" Name="msys-1.0.dll" Source="..\Datavail.Delta.Agent\utils\msys-1.0.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msyscrypto0.9.8.dll" Name="msys-crypto-0.9.8.dll" Source="..\Datavail.Delta.Agent\utils\msys-crypto-0.9.8.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysminires.dll" Name="msys-minires.dll" Source="..\Datavail.Delta.Agent\utils\msys-minires.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysperl58.dll" Name="msys-perl5_8.dll" Source="..\Datavail.Delta.Agent\utils\msys-perl5_8.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysregex1.dll" Name="msys-regex-1.dll" Source="..\Datavail.Delta.Agent\utils\msys-regex-1.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysssl0.9.8.dll" Name="msys-ssl-0.9.8.dll" Source="..\Datavail.Delta.Agent\utils\msys-ssl-0.9.8.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysz.dll" Name="msys-z.dll" Source="..\Datavail.Delta.Agent\utils\msys-z.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="msysltdl3.dll" Name="msysltdl-3.dll" Source="..\Datavail.Delta.Agent\utils\msysltdl-3.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+              <File Id="tail.exe" Name="tail.exe" Source="..\Datavail.Delta.Agent\utils\tail.exe" Vital="yes" KeyPath="no" DiskId="1"/>
+
+              <ServiceInstall
+                Id="ServiceInstallerDeltaAgent"
+                Type="ownProcess"
+                Vital="yes"
+                Name="DeltaAgent"
+                DisplayName="Datavail Delta Agent"
+                Description="The Delta Application Agent Service"
+                Start="auto"
+                Account="LocalSystem"
+                ErrorControl="ignore"
+                Interactive="no">
+              </ServiceInstall>
+              <ServiceControl Id="StartServiceDeltaAgent" Start="install" Stop="both" Name="DeltaAgent" Wait="no" />
+              <ServiceControl Id="StopServiceDeltaAgent" Name="DeltaAgent" Stop="both" Wait="yes" Remove="uninstall" />
+            </Component>
+            <Component Id="Datavail.Delta.Agent.Updater" Guid="{4E052EF0-1100-4ECE-90CE-C4F76A79B5B6}" Win64="$(var.Win64)">
+              <File Id="Datavail.Delta.Agent.Updater.exe" Name="Datavail.Delta.Agent.Updater.exe" Source="..\Datavail.Delta.Agent.Updater\bin\$(var.Configuration)\Datavail.Delta.Agent.Updater.exe" Vital="yes" KeyPath="yes" DiskId="1"/>
+              <File Id="Datavail.Delta.Agent.Updater.exe.config" Name="Datavail.Delta.Agent.Updater.exe.config" Source="..\Datavail.Delta.Agent.Updater\bin\$(var.Configuration)\Datavail.Delta.Agent.Updater.exe.config" Vital="yes" KeyPath="no" DiskId="1"/>
+              <ServiceInstall
+                Id="ServiceInstallerDeltaAgentUpdater"
+                Type="ownProcess"
+                Vital="yes"
+                Name="DeltaAgentUpdater"
+                DisplayName="Datavail Delta Agent Updater"
+                Description="The Delta Application Agent Updater Service"
+                Start="auto"
+                Account="LocalSystem"
+                ErrorControl="ignore"
+                Interactive="no">
+              </ServiceInstall>
+              <ServiceControl Id="StartServiceDeltaAgentUpdater" Start="install" Stop="both" Name="DeltaAgentUpdater" Wait="no" />
+              <ServiceControl Id="StopServiceDeltaAgentUpdater" Name="DeltaAgentUpdater" Stop="both" Wait="yes" Remove="uninstall" />
+            </Component>
+            <Component Id="RegistryEntries" Guid="308FCCFD-55C8-4713-98ED-1B5F01FB06A2">
+              <RegistryKey Root="HKLM" Key="Software\Datavail\Delta" >
+                <RegistryValue Type="string" Name="AgentVersion" Value="!(bind.FileVersion.Datavail.Delta.Agent.exe)" KeyPath="yes"/>
+                <RegistryValue Type="integer" Name="BackoffTimer" Value="0" />
+                <RegistryValue Type="integer" Name="UpdaterRunInterval" Value="60" />
+                <RegistryValue Type="string" Value="Default Value"/>
+              </RegistryKey>
+            </Component>
+            <Component Id="TenantIdRegistryEntry" Guid="E7DBADE5-CE0E-441D-8B9F-2D478FDA583A" Permanent="yes">
+              <Condition><![CDATA[TENANTID<>""]]></Condition>
+              <RegistryKey Root="HKLM" Key="Software\Datavail\Delta" >
+                <RegistryValue Type="string" Name="TenantId" Value="[TENANTID]" />
+              </RegistryKey>
+            </Component>
+            <Component Id="CustomerIdRegistryEntry" Guid="{97AF4823-FAA6-4962-A1CC-17FF733BF131}" Permanent="yes">
+              <Condition><![CDATA[CUSTOMERID<>""]]></Condition>
+              <RegistryKey Root="HKLM" Key="Software\Datavail\Delta" >
+                <RegistryValue Type="string" Name="CustomerId" Value="[CUSTOMERID]" />
+              </RegistryKey>
+            </Component>
+            <Component Id="ServerIdRegistryEntry" Guid="DF742AAE-1CCA-4057-BD6C-69450F8E384E" Permanent="yes">
+              <Condition><![CDATA[SERVERID<>""]]></Condition>
+              <RegistryKey Root="HKLM" Key="Software\Datavail\Delta" >
+                <RegistryValue Type="string" Name="ServerId" Value="[SERVERID]" />
+              </RegistryKey>
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="DeltaAgent" Level="1">
+      <ComponentRef Id="Datavail.Delta.Agent" />
+      <ComponentRef Id="Datavail.Delta.Agent.Updater" />
+      <ComponentRef Id="RegistryEntries" />
+      <ComponentRef Id="TenantIdRegistryEntry"/>
+      <ComponentRef Id="CustomerIdRegistryEntry"/>
+      <ComponentRef Id="ServerIdRegistryEntry"/>
+      <ComponentRef Id="plugins"/>
+      <ComponentRef Id="temp"/>
+      <ComponentRef Id="cache"/>
+    </Feature>
+  </Product>
+</Wix>
