@@ -14,6 +14,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
         string GetCachePath();
         string GetPluginPath();
         string GetConfigPath();
+        string GetOnDemandConfigPath();
         string GetTempPath();
 
         int GetBackoffTimer();

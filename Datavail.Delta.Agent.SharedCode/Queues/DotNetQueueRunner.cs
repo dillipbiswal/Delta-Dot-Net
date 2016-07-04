@@ -1,4 +1,5 @@
-﻿using Datavail.Delta.Infrastructure.Agent.Common;
+﻿using Datavail.Delta.Agent.Scheduler;
+using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
 using Datavail.Delta.Infrastructure.Agent.Queues;
 using RestSharp;
@@ -9,7 +10,9 @@ using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Xml;
 using System.Xml.Serialization;
+using System.Xml.XPath;
 
 namespace Datavail.Delta.Agent.SharedCode.Queues
 {
@@ -18,6 +21,7 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
         private readonly ICommon _common;
         private readonly IDeltaLogger _logger;
         private readonly BlockingCollection<QueueMessage> _queue;
+        private readonly IConfigLoader _loader;
 
         private WaitHandle _waitHandle;
         private readonly string _path;
@@ -30,12 +34,14 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
                 _logger = new DeltaLogger();
                 _queue = DotNetDataQueuerFactory.Current;
                 _path = Path.Combine(_common.GetCachePath(), "QueueData.xml");
+                _loader = new ConfigFileLoader();
             }
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception in QueueRunner()", ex);
             }
         }
+
 
         public DotNetQueueRunner(ICommon common, IDeltaLogger deltaLogger)
         {
@@ -48,6 +54,96 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
             {
                 _logger.LogUnhandledException("Unhandled Exception in QueueRunner(ICommon common, IDeltaLogger deltaLogger)", ex);
             }
+        }
+
+
+        public string GetPluginUriAddress(string infopluginname)
+        {
+
+            if (!File.Exists(_common.GetConfigPath()))
+                return "";
+
+            var config = _loader.LoadConfig(_common.GetConfigPath());
+
+            var doc = new XmlDocument();
+            doc.LoadXml(config);
+
+            var nav = doc.CreateNavigator();
+            var expr = nav.Compile("//APIURI");
+            string strURIAddress = "";
+            try
+            {
+                foreach (XPathNavigator node in nav.Select(expr))
+                {
+                    try
+                    {
+
+                        string pluginname = (node.GetAttribute("PlugInName", ""));
+                        string uriAddress = (node.GetAttribute("URIAddress", ""));
+
+                        if (infopluginname.ToLower().Contains(pluginname.ToLower()))
+                        {
+                            strURIAddress = uriAddress;
+                            break;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+
+            }
+            catch
+            { }
+
+            return strURIAddress;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+
+        public bool IsAgentErrorEnabled()
+        {
+            bool strAgentErrorStatus = false;
+
+            if (!File.Exists(_common.GetConfigPath()))
+                strAgentErrorStatus = false;
+
+            var config = _loader.LoadConfig(_common.GetConfigPath());
+
+            var doc = new XmlDocument();
+            doc.LoadXml(config);
+
+            var nav = doc.CreateNavigator();
+            var expr = nav.Compile("//AgentError");
+
+            try
+            {
+                foreach (XPathNavigator node in nav.Select(expr))
+                {
+                    try
+                    {
+                        string agenterrorstatus = (node.GetAttribute("AgentErrorStatus", ""));
+                        if (agenterrorstatus == "Enabled")
+                        {
+                            strAgentErrorStatus = true;
+                            break;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+
+            }
+            catch
+            { }
+
+            return strAgentErrorStatus;
         }
 
         public void Execute(WaitHandle waitHandle)
@@ -71,7 +167,7 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
                         var deserializer = new XmlSerializer(typeof(List<QueueMessage>));
                         using (var tr = new StreamReader(_path))
                         {
-                            var tempQueue = (List<QueueMessage>) deserializer.Deserialize(tr);
+                            var tempQueue = (List<QueueMessage>)deserializer.Deserialize(tr);
                             tr.Close();
 
                             foreach (var queueMessage in tempQueue)
@@ -80,9 +176,9 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        _logger.LogUnhandledException("Unhandled Exception", ex); //Added for debug
 
                     }
                     finally
@@ -93,7 +189,7 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
                 }
 
                 var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
-                
+
                 while (true)
                 {
                     try
@@ -109,35 +205,116 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
 
                             try
                             {
-                                _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+
 
                                 var request = new RestRequest("Server/PostData/{id}", Method.POST) { RequestFormat = DataFormat.Json };
-                                
+
+                                var Inventoryrequest = new RestRequest("Server/PostInventoryData/{id}", Method.POST) { RequestFormat = DataFormat.Json };
+
                                 //Add ServerId to the URL
                                 request.AddUrlSegment("id", serverId.ToString());
+
+                                Inventoryrequest.AddUrlSegment("id", serverId.ToString());
 
                                 //Create JSON body
                                 request.AddBody(new { Data = msg.Data, Hostname = hostname, IpAddress = ipaddress, Timestamp = msg.Timestamp, TenantId = tenantId.ToString() });
 
+                                Inventoryrequest.AddBody(new { Data = msg.Data, Hostname = hostname, IpAddress = ipaddress, Timestamp = msg.Timestamp, TenantId = tenantId.ToString() });
                                 //request.AddParameter("Data", msg.Data);
                                 //request.AddParameter("Hostname", hostname);
                                 //request.AddParameter("IpAddress", ipaddress);
                                 //request.AddParameter("Timestamp", msg.Timestamp);
                                 //request.AddParameter("TenantId", tenantId.ToString());
 
-                                response = client.Execute(request);
+                                //response = client.Execute(request);
 
-                                if (response.StatusCode == HttpStatusCode.OK)
+                                string pluginuriaddress = GetPluginUriAddress(msg.Data);
+
+                                bool responceStatus = true;
+
+                                //if ((msg.Data).ToString().ToLower().Contains("agenterroroutput") && Convert.ToBoolean(ConfigurationManager.AppSettings["AgentErrorFlag"]))
+                                if ((msg.Data).ToString().ToLower().Contains("agenterroroutput"))
                                 {
-                                    _common.SetBackoffTimer(0);
-                                    _logger.LogDebug("Posted sucessfully");
+                                    if (IsAgentErrorEnabled())
+                                    {
+                                        var ErrorAPIclient = new RestClient(ConfigurationManager.AppSettings["DeltaErrApiUrl"]);
+                                        response = ErrorAPIclient.Execute(request);
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            _common.SetBackoffTimer(0);
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                        }
+                                        else
+                                        {
+                                            responceStatus = false;
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                            var errorMessage = string.Format("Error while posting data. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                                            _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+
+                                            DoBackOff();
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        responceStatus = false;
+                                    }
                                 }
                                 else
                                 {
-                                    var errorMessage = string.Format("Error while posting data. {0}: {1}", response.StatusCode, response.ErrorMessage);
-                                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+                                    if (pluginuriaddress == "")
+                                    {
+                                        response = client.Execute(request);
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            _common.SetBackoffTimer(0);
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                        }
+                                        else
+                                        {
+                                            responceStatus = false;
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                            var errorMessage = string.Format("Error while posting data. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                                            _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
 
-                                    DoBackOff();
+                                            DoBackOff();
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var APIclient = new RestClient(pluginuriaddress);
+                                        response = APIclient.Execute(Inventoryrequest);
+                                        if (response.StatusCode == HttpStatusCode.OK)
+                                        {
+                                            _common.SetBackoffTimer(0);
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                        }
+                                        else
+                                        {
+                                            responceStatus = false;
+                                            _logger.LogInformational(WellKnownAgentMesage.InformationalMessage, "Posting " + msg.Data);
+                                            var errorMessage = string.Format("Error while posting data. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                                            _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+
+                                            DoBackOff();
+
+                                        }
+
+                                    }
+                                }
+
+                                if (responceStatus)
+                                {
+                                    if (response.StatusCode == HttpStatusCode.OK)
+                                    {
+                                        _common.SetBackoffTimer(0);
+                                        _logger.LogDebug("Posted sucessfully");
+                                    }
+
+                                }
+                                else
+                                {
                                 }
                             }
                             catch (ThreadAbortException)
@@ -228,6 +405,41 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
             {
                 _logger.LogUnhandledException("Could not serialize queue", ex);
             }
+        }
+
+        public void PostAgentStartStop(string msg)
+        {
+            try
+            {
+                var tenantId = _common.GetTenantId();
+                string serverId = _common.GetServerId().ToString();
+                var hostname = _common.GetHostname();
+                var ipaddress = _common.GetIpAddress();
+
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
+
+                var request = new RestRequest("Server/PostAgentStartStopStatus/{id}/{msg}", Method.POST) { RequestFormat = DataFormat.Json };
+                request.AddUrlSegment("id", serverId);
+                request.AddUrlSegment("msg", msg);
+                response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    _common.SetBackoffTimer(0);
+                    _logger.LogDebug("Agent Start and Stop status posted sucessfully");
+                }
+                else
+                {
+                    var errorMessage = string.Format("Error while posting Agent Start and Stop status. {0}: {1}", response.StatusCode, response.ErrorMessage);
+                    _logger.LogSpecificError(WellKnownAgentMesage.UnhandledException, errorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Unhandled Exception in QueueRunner.Execute()", ex);
+            }
+
         }
     }
 }

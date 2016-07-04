@@ -2,6 +2,7 @@
 using Datavail.Delta.Infrastructure.Agent;
 using Datavail.Delta.Infrastructure.Agent.Common;
 using Datavail.Delta.Infrastructure.Agent.Logging;
+using Datavail.Delta.Infrastructure.Agent.Queues;
 
 
 namespace Datavail.Delta.Agent.Plugin.CheckIn
@@ -11,6 +12,9 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
         private readonly ICommon _common;
         private readonly ICheckInService _checkInService;
         private readonly IDeltaLogger _logger;
+        private readonly IDataQueuer _dataQueuer;
+
+        private string _output;
 
         public CheckInPlugin()
         {
@@ -38,12 +42,19 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
                 var agentVersion = _common.GetAgentVersion();
                 var hostname = _common.GetHostname();
                 var ipaddress = _common.GetIpAddress();
-                
-                _checkInService.CheckIn(tenant, server, hostname, ipaddress, agentVersion,customer);
+
+                _checkInService.CheckIn(tenant, server, hostname, ipaddress, agentVersion, customer);
             }
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception in Check-In Plugin", ex); ;
+                try
+                {
+                    _output = _logger.BuildErrorOutput("CheckInPlugin", "Execute", metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
     }

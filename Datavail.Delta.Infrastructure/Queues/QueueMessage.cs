@@ -7,7 +7,7 @@ namespace Datavail.Delta.Infrastructure.Queues
     {
         [NonSerialized]
         protected object OriginalMessage;
-        
+
         public string Id { get; set; }
         public ulong PopReceipt { get; set; }
         public int DequeueCount { get; set; }

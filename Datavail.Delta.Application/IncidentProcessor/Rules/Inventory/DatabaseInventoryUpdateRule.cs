@@ -11,9 +11,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.Inventory
         private readonly List<string> _databaseNames;
         private Guid _instanceId;
 
-        public DatabaseInventoryUpdateRule( IIncidentService incidentService, XDocument dataCollection,
+        public DatabaseInventoryUpdateRule(IIncidentService incidentService, XDocument dataCollection,
                                       IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             _databaseNames = new List<string>();
             RuleName = "Database Inventory Update";

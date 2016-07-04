@@ -10,6 +10,6 @@ namespace Datavail.Delta.Infrastructure.Agent.Cluster
 
         IEnumerable<XElement> GetClusterDisks();
         bool IsActiveClusterNodeForGroup(string clusterGroupName);
-        
+
     }
 }

@@ -12,9 +12,9 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.Inventory
         private readonly List<string> _jobNames;
         private Guid _instanceId;
 
-        public SqlAgentJobInventoryUpdateRule( IIncidentService incidentService, XDocument dataCollection,
+        public SqlAgentJobInventoryUpdateRule(IIncidentService incidentService, XDocument dataCollection,
                                       IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             _jobNames = new List<string>();
             RuleName = "SqlAgentJob Inventory Update";

@@ -22,6 +22,11 @@ namespace Datavail.Delta.IncidentProcessor
         private readonly string _checkInSendTo;
         private readonly string _checkInMailerHost;
 
+        private readonly bool _divertAgentErrorToEmail;
+        private readonly string _agentErrorMailerFrom;
+        private readonly string _agentErrorSendTo;
+        private readonly string _agentErrorMailerHost;
+
         public OpenIncidentWorker(IKernel kernel, IDeltaLogger logger, IQueue<OpenIncidentMessage> openIncidentQueue)
         {
             _kernel = kernel;
@@ -30,9 +35,9 @@ namespace Datavail.Delta.IncidentProcessor
 
             try
             {
-                _divertCheckInsToEmail = bool.TryParse(ConfigurationManager.AppSettings["DivertCheckInsToEmail"],
+                bool flag;
+                flag = bool.TryParse(ConfigurationManager.AppSettings["DivertCheckInsToEmail"],
                     out _divertCheckInsToEmail);
-
 
                 if (_divertCheckInsToEmail)
                 {
@@ -40,6 +45,18 @@ namespace Datavail.Delta.IncidentProcessor
                     _checkInSendTo = ConfigurationManager.AppSettings["CheckInSendTo"];
                     _checkInMailerHost = ConfigurationManager.AppSettings["MailerHost"];
                 }
+
+                bool flagAgenterror;
+                flagAgenterror = bool.TryParse(ConfigurationManager.AppSettings["DivertAgentErrorToEmail"],
+                    out _divertAgentErrorToEmail);
+
+                if (_divertAgentErrorToEmail)
+                {
+                    _agentErrorMailerFrom = ConfigurationManager.AppSettings["AgentErrorMailerFrom"];
+                    _agentErrorSendTo = ConfigurationManager.AppSettings["AgentErrorSendTo"];
+                    _agentErrorMailerHost = ConfigurationManager.AppSettings["AgentErrorMailerHost"];
+                }
+
             }
             catch (Exception ex)
             {
@@ -66,6 +83,14 @@ namespace Datavail.Delta.IncidentProcessor
 
                                 mailer.Send(message);
                             }
+                            else if (_divertAgentErrorToEmail && _message.Body.Contains("has detected an Agent Error"))
+                            {
+                                _logger.LogDebug(string.Format("Sending Agent Error Alert via e-mail\n\nFrom: {0}\nTo: {1}\nSubject: {2}\nBody: {3}", _agentErrorMailerFrom, _agentErrorSendTo, _message.Summary, _message.Body));
+                                var mailer = new SmtpClient(_agentErrorMailerHost, 25);
+                                var message = new MailMessage(_agentErrorMailerFrom, _agentErrorSendTo, _message.Summary, _message.Body);
+
+                                mailer.Send(message);
+                            }
                             else
                             {
                                 var incidentService = _kernel.Get<IIncidentService>();
@@ -75,7 +100,7 @@ namespace Datavail.Delta.IncidentProcessor
                         }
                         else
                         {
-                            Thread.Sleep(TimeSpan.FromSeconds(10));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                         }
                     }
                 }

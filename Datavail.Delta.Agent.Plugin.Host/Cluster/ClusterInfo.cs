@@ -74,7 +74,15 @@ namespace Datavail.Delta.Agent.Plugin.Host.Cluster
 
                     foreach (var resToDisk in searcher.Get())
                     {
-                        var resourceGroupName = GetResourceGroupNameFromResourceName(scope, resToDisk.Properties["GroupComponent"].Value.ToString());
+                        var resourceGroupName = "";
+                        try
+                        {
+                            resourceGroupName = GetResourceGroupNameFromResourceName(scope, resToDisk.Properties["GroupComponent"].Value.ToString());
+                        }
+                        catch
+                        {
+
+                        }
                         if (IsActiveClusterNodeForGroup(resourceGroupName))
                         {
                             var diskPartitions = GetDiskPartitionsInfoFromDisk(scope, resToDisk.Properties["PartComponent"].Value.ToString(), resourceGroupName);

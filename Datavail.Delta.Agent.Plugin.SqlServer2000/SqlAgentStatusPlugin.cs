@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
@@ -33,7 +34,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
         private string _instanceName;
         private bool _runningOnCluster = false;
         private IEnumerable<XElement> _programNames;
-        
+
         public SqlAgentStatusPlugin()
         {
             _clusterInfo = new ClusterInfo();
@@ -95,6 +96,16 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("SqlServer2000.SqlAgentStatusPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+            }
+            finally
+            {
+                _output = null;
             }
 
         }
@@ -105,6 +116,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _programNames = xmlData.Elements("ProgramNames").Elements("ProgramName");
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
@@ -140,7 +152,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             sql.Append("+ ltrim(str(@hr)) +'h ' ");
             sql.Append("+ ltrim(str(@min)) +'m' ");
             sql.Append("IF NOT EXISTS ");
-            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses  ");
+            sql.Append("(SELECT 1 FROM master.dbo.sysprocesses (nolock) ");
             sql.Append("	WHERE program_name = 'SQLAgent - Generic Refresher'  ");
             sql.Append("	OR program_name = 'SQLAgent - Email Logger' ");
             sql.Append("	OR program_name = 'SQLAgent - ALert Engine' ");
@@ -163,25 +175,31 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             sql.Append("END ");
             sql.Append("select @sqlagentuptime sqlinstanceuptime, @sqlagentstatus sqlagentstatus ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+
+
+                if (result.FieldCount > 0)
                 {
-                    var sqlInstanceUptime = result["sqlinstanceuptime"].ToString();
-                    var sqlAgentStatus = result["sqlagentstatus"].ToString();
+                    while (result.Read())
+                    {
+                        var sqlInstanceUptime = result["sqlinstanceuptime"].ToString();
+                        var sqlAgentStatus = result["sqlagentstatus"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Instance status and uptime returned.";
+                        resultCode = "0";
+                        resultMessage = "Instance status and uptime returned.";
 
-                    BuildExecuteOutput(sqlInstanceUptime, sqlAgentStatus, resultCode, resultMessage);
+                        BuildExecuteOutput(sqlInstanceUptime, sqlAgentStatus, resultCode, resultMessage);
+                    }
                 }
-            }
-            else
-            {
-                resultMessage = "Instance status not returned.";
-                BuildExecuteOutput("n/a", "n/a", resultCode, resultMessage);
+                else
+                {
+                    resultMessage = "Instance status not returned.";
+                    BuildExecuteOutput("n/a", "n/a", resultCode, resultMessage);
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

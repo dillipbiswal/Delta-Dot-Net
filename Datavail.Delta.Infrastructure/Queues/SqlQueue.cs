@@ -176,6 +176,24 @@ namespace Datavail.Delta.Infrastructure.Queues
             }
         }
 
+        public void AddData(string tablename, Guid id, string msg)
+        {
+            string add_data_sql;
+            add_data_sql = "insert into " + tablename + " (InsertTimeStamp,serverID,msg) values(getdate(), '" + id.ToString() + "','" + msg + "')";
+            var commandText = string.Format(add_data_sql, tablename);
+
+            using (var connection = new SqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = commandText;
+
+                connection.Open();
+                //command.Parameters.Add("@binaryValue", SqlDbType.VarBinary).Value = Encoding.ASCII.GetBytes(serializedMessage);
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
         public void Dispose()
         {
 

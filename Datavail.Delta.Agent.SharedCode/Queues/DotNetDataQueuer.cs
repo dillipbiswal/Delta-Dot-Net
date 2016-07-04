@@ -17,7 +17,7 @@ namespace Datavail.Delta.Agent.SharedCode.Queues
         {
             try
             {
-                var msg = new QueueMessage() {Data = data, Timestamp = DateTime.UtcNow};
+                var msg = new QueueMessage() { Data = data, Timestamp = DateTime.UtcNow };
                 DotNetDataQueuerFactory.Current.Add(msg);
             }
             catch (Exception ex)

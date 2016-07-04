@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2000.Cluster;
 using Datavail.Delta.Agent.SharedCode;
@@ -92,6 +93,16 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("SqlServer2000.DatabaseServerBlockingPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+            }
+            finally
+            {
+                _output = null;
             }
 
         }
@@ -102,6 +113,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
             if (xmlData.Attribute("ClusterGroupName") != null)
@@ -117,28 +129,33 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var resultMessage = string.Empty;
 
             var sql = "exec SP_Who2";
-            var result = _sqlRunner.RunSql(_connectionString, sql);
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+
+                if (result.FieldCount > 0)
                 {
-                    var blockedTime = result["Blocked Time"].ToString();
-                    var blockingSpid = result["Blocking SPID"].ToString();
-                    var blockingSql = result["Blocking SQL"].ToString();
-                    var blockedSpid = result["Blocked SPID"].ToString();
-                    var blockedSql = result["Blocked SQL"].ToString();
+                    while (result.Read())
+                    {
+                        var blockedTime = result["Blocked Time"].ToString();
+                        var blockingSpid = result["Blocking SPID"].ToString();
+                        var blockingSql = result["Blocking SQL"].ToString();
+                        var blockedSpid = result["Blocked SPID"].ToString();
+                        var blockedSql = result["Blocked SQL"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
+                        resultCode = "0";
+                        resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
 
-                    BuildExecuteOutput(blockedTime, blockingSpid, blockingSql, blockedSpid, blockedSql, resultCode, resultMessage);
+                        BuildExecuteOutput(blockedTime, blockingSpid, blockingSql, blockedSpid, blockedSql, resultCode, resultMessage);
+                    }
                 }
-            }
-            else
-            {
-                resultMessage = "No blocking information found for: " + _metricInstance;
-                BuildExecuteOutput("n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage);
+                else
+                {
+                    resultMessage = "No blocking information found for: " + _metricInstance;
+                    BuildExecuteOutput("n/a", "n/a", "n/a", "n/a", "n/a", resultCode, resultMessage);
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

@@ -8,6 +8,7 @@ namespace Datavail.Delta.Infrastructure.Queues
     public interface IQueue<TMessage> : IDisposable where TMessage : QueueMessage
     {
         void AddMessage(TMessage message);
+        void AddData(string tablename, Guid id, string msg);
         void Clear();
         void Delete();
         void DeleteMessage(TMessage message);

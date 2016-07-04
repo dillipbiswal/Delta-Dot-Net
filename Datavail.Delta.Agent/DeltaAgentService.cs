@@ -25,7 +25,6 @@ namespace Datavail.Delta.Agent
         protected override void OnStart(string[] args)
         {
             //Debugger.Launch();
-
             try
             {
                 var key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Datavail\\Delta", RegistryKeyPermissionCheck.ReadWriteSubTree);
@@ -44,21 +43,35 @@ namespace Datavail.Delta.Agent
             catch (Exception ex)
             {
             }
-           
-
             _queueRunnerThread = new Thread(StartQueueRunner);
             _queueRunnerThread.Start();
-            
+
             _schedulerThread = new Thread(StartScheduler);
             _schedulerThread.Start();
 
             Logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Started");
+            var queueRunner = new DotNetQueueRunner();
+
+
+
+            if (queueRunner.IsAgentErrorEnabled())
+            {
+                Logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Error Reporting has been enabled.");
+            }
+            else
+            {
+                Logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Error Reporting has been disabled.");
+            }
+            queueRunner.PostAgentStartStop("Agent Started");
         }
 
         protected override void OnStop()
         {
             try
             {
+                var queueRunner = new DotNetQueueRunner();
+                queueRunner.PostAgentStartStop("Agent Stopped");
+
                 SchedulerWaitHandle.Set();
                 QueueRunnerWaitHandle.Set();
 
@@ -102,6 +115,14 @@ namespace Datavail.Delta.Agent
             {
                 Logger.LogDebug("StartQueueRunner() Called");
                 var queueRunner = new DotNetQueueRunner();
+                if (queueRunner.IsAgentErrorEnabled())
+                {
+                    Logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Error Reporting has been enabled.");
+                }
+                else
+                {
+                    Logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Error Reporting has been disabled.");
+                }
                 queueRunner.Execute(QueueRunnerWaitHandle);
             }
             catch (ThreadAbortException)

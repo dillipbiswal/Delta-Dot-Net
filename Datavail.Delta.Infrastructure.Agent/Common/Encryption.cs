@@ -91,7 +91,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
 
 
         #region Helper Methods
-        
+
         public byte[] StrToByteArray(string str)
         {
             if (str.Length == 0)
@@ -132,6 +132,6 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
             }
             return tempStr;
         }
-#endregion
+        #endregion
     }
 }

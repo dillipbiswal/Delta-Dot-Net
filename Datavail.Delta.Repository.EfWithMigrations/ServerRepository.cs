@@ -11,13 +11,13 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 {
     public class ServerRepository : GenericRepository, IServerRepository
     {
-       /// <summary>
+        /// <summary>
         /// Initializes a new instance of the <see cref="ServerRepository"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="logger"></param>
         public ServerRepository(DbContext context, IDeltaLogger logger)
-            : base(context,logger)
+            : base(context, logger)
         {
         }
 

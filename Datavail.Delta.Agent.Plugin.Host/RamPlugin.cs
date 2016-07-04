@@ -59,7 +59,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
         public void Execute(Guid metricInstance, string label, string data)
         {
             _logger.LogDebug(String.Format("RamPlugIn.Execute called. MetricInstanceId: {0} Label: {1} Data: {2}", metricInstance, label, data));
-            
+
             try
             {
                 _metricInstance = metricInstance;
@@ -73,6 +73,13 @@ namespace Datavail.Delta.Agent.Plugin.Host
             catch (Exception ex)
             {
                 _logger.LogUnhandledException(string.Format("Unhandled Exception while running RamPlugin::Execute({0},{1},{2})", metricInstance, label, data), ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("RamPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
 

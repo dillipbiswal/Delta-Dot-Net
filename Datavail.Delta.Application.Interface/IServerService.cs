@@ -10,6 +10,8 @@ namespace Datavail.Delta.Application.Interface
     {
         void CheckIn(Guid tenantId, Guid serverId, string hostname, string ipAddress, string agentVersion, Guid? customerId);
         string GetConfig(Guid serverId);
+        string GetOnDemandConfig(Guid serverId);
+        bool SaveDemandConfig(Guid serverId);
         string GetServerInfo(Guid serverId);
         string GetServerInfoFromMetricInstanceId(Guid metricInstanceId);
         MetricInstance GetMetricInstance(Guid metricInstanceId);
@@ -21,6 +23,8 @@ namespace Datavail.Delta.Application.Interface
         IEnumerable<Role> GetRoles();
         IEnumerable<object> GetCustomerNames(string searchTerm);
         IEnumerable<object> GetServerNames(Guid customerId, string searchTerm);
+        IEnumerable<object> GetApiUris(string searchTerm);
+        bool GetStatusOnDemandConfigBuilder(string searchTerm);
         IEnumerable<Server> GetServerListForTenant(Guid tenantId);
         IEnumerable<Server> GetServerListForCustomer(Guid customerId);
         IEnumerable<Server> GetActiveServersForTenant(Guid tenantId);
@@ -51,10 +55,14 @@ namespace Datavail.Delta.Application.Interface
         bool SaveDatabaseInstance(ref DatabaseInstance databaseInstance, Guid serverId);
         bool SaveDatabase(ref Database database, Guid instanceId);
         bool SaveMetricInstance(Guid metricInstanceId, Guid metricId, Guid metricParentId, MetricData data, Status status, MetricInstanceParentType parentType);
+        bool SaveOnDemandMetricInstance(Guid metricInstanceId, Guid metricId, Guid metricParentId, Status status, MetricInstanceParentType parentType);
         bool SaveMetricConfiguration(ref MetricConfiguration metricConfiguration);
         bool SaveMetricThreshold(ref MetricThreshold metricThreshold, Guid metricConfigurationId);
         bool SaveMaintenanceWindow(ref MaintenanceWindow maintenanceWindow, Guid maintenanceWindowParentId, MaintenanceWindowParentType parentType);
         bool SaveSchedule(ref Schedule schedule, Guid metricConfigurationId);
+        bool SaveApiUri(ref ApiUri apiuri);
+        bool SaveOnDemandConfigBuilder(DateTime begindate, DateTime enddate, string user, string statusflag);
+        bool HasApiUriCustomerId(Guid apiuricustomerserverid);
         bool ActivateServers(List<Guid> serverIds, Guid customerId);
         bool SetActiveServers(List<Guid> serverIds, Guid customerId);
         bool SetClusterNodes(List<Guid> serverIds, Guid clusterId);
@@ -68,6 +76,7 @@ namespace Datavail.Delta.Application.Interface
         bool ValidateMetricThreshold(MetricThreshold metricThreshold, out List<string> errors);
         bool ValidateMaintenanceWindow(MaintenanceWindow maintenanceWindow, out List<string> errors);
         bool ValidateMetricConfiguration(MetricConfiguration metricConfiguration, out List<string> errors);
+        bool ValidateApiUri(ApiUri apiuri, out List<string> errors);
         bool ValidateSchedule(Schedule schedule, out List<string> errors);
         bool DeleteServerGroups(List<Guid> serverGroupIds);
         bool DeleteCustomers(List<Guid> customerIds);
@@ -82,6 +91,7 @@ namespace Datavail.Delta.Application.Interface
         bool DeleteMetricConfigurations(List<Guid> metricConfigurationIds);
         bool DeleteJobs(List<Guid> jobIds);
         bool DeleteSchedules(List<Guid> scheduleIds);
+        bool DeleteApiUris(List<Guid> Id);
         bool RemoveServersFromServerGroup(List<Guid> serverIds, Guid serverGroupId);
         bool RemoveNodesFromCluster(List<Guid> nodeIds, Guid clusterId);
         bool RemoveServersFromCustomer(List<Guid> serverIds, Guid customerId);
@@ -90,16 +100,21 @@ namespace Datavail.Delta.Application.Interface
         bool AddDefaultDatabaseInstanceMetrics(Guid databaseInstanceId);
         bool AddDefaultDatabaseMetrics(Guid databaseId);
         bool ServerExists(Guid serverId);
-        
+
 
         void UpdateServerDiskInventory(Guid serverId, string drivePath, string label, long totalBytes);
         void UpdateClusterDiskInventory(Guid serverId, string clusterName, string resourceGroupName, string drivePath, string label, long totalBytes);
         void UpdateInstanceDatabaseInventory(Guid instanceId, ICollection<String> databaseNames);
         void UpdateInstanceSqlAgentJobInventory(Guid instanceId, ICollection<String> jobNames);
+        void UpdateServerWebSiteInventory(Guid serverId, string siteName);
+        void UpdateServerAppPoolInventory(Guid serverId, string appPoolName);
 
         bool VirtualServerActiveNodeFailoverOccurred(Guid physicalServerId, Guid virtualServerId, string activeNodeName, out string previousNodeName);
 
         void UpdateCustomer(Guid serverId, Guid customerId);
         void UpdateStatus(Guid serverId, Status status);
+        bool UpdateApiUri(Guid apiuriID, string uriaddress);
+
+
     }
 }

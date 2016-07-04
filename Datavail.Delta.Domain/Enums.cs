@@ -3,11 +3,17 @@ namespace Datavail.Delta.Domain
 {
     public enum Status
     {
-        Active=1,
+        Active = 1,
         Deleted = 9,
-        Inactive=0,
-        InMaintenance=2,
-        Unknown=-1
+        Inactive = 0,
+        InMaintenance = 2,
+        Unknown = -1
+    }
+
+    public enum AgentError
+    {
+        Enabled = 1,
+        Disabled = 0
     }
 
     //public class Status
@@ -37,7 +43,7 @@ namespace Datavail.Delta.Domain
     //    }
     //}
 
-   
+
     public enum Severity
     {
         Critical = 1,
@@ -320,5 +326,15 @@ namespace Datavail.Delta.Domain
         Instance = 1,
         Database = 2,
         VirtualServer = 3
+    }
+
+    public enum ApiUriWindowParentType
+    {
+        Tenant = 0,
+        Customer = 1,
+        ServerGroup = 2,
+        Server = 3,
+        MetricInstance = 4,
+        Metric = 5
     }
 }

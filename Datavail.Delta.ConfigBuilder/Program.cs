@@ -120,19 +120,19 @@ namespace Datavail.Delta.ConfigBuilder
         {
             _configFilePath = Directory.GetCurrentDirectory() + "\\config";
             CreateFolder(_configFilePath);
-            
+
             var logger = new DeltaLogger();
             var context = new DeltaDbContext();
 
             var i = 0;
-            var serverList = context.Servers.Where(s => s.Status != Status.Deleted && s.IsVirtual == false).ToList();
+            var serverList = context.Servers.Where(s => s.Status != Status.Deleted && s.IsVirtual == false && (s.ConfigStatus == "N" || s.ConfigStatus == null)).ToList();
 
             //For testing -- just a single server
-            //var serverId = Guid.Parse("413db431-106c-40de-ae4f-bf6599a4a47c");
+            //var serverId = Guid.Parse("74A95CDB-804D-4D5E-9819-309AE70FA993");
             //var serverList = context.Servers.Where(s => s.Id == serverId).ToList();
 
             var configArray = new ConfigGenerator[serverList.Count];
-            
+
             var config = new ManualResetEvent(false);
             foreach (var server in serverList)
             {

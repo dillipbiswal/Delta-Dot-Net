@@ -22,13 +22,14 @@ namespace Datavail.Delta.IncidentProcessor
         private static IKernel _kernel;
         Thread[] _workerThreads;
         WorkerBase[] _workers;
-        private readonly int _numberOfWorkerThreads = 5;
+        private readonly int _numberOfWorkerThreads = 25;
         private readonly int _totalNumberOfThreads;
 
         public IncidentProcessor()
         {
             Int32.TryParse(ConfigurationManager.AppSettings["NumberOfWorkerThreads"], out _numberOfWorkerThreads);
-            _totalNumberOfThreads = _numberOfWorkerThreads + 3;
+            _totalNumberOfThreads = _numberOfWorkerThreads + 4;
+            //_totalNumberOfThreads = _numberOfWorkerThreads + 5;// For Dev Uncomment
 
             BootstrapIoc();
             InitializeComponent();
@@ -57,6 +58,17 @@ namespace Datavail.Delta.IncidentProcessor
             var updateTicketClosedst = new ThreadStart(_workers[2].Run);
             _workerThreads[2] = new Thread(updateTicketClosedst) { Name = "UpdateTicketClosedWorker" }; ;
 
+
+            _workers[3] = _kernel.Get<AgentErrorWorker>();
+            _workers[3].ServiceStarted = true;
+            var AgentErrorProcessorWorkerst = new ThreadStart(_workers[3].Run);
+            _workerThreads[3] = new Thread(AgentErrorProcessorWorkerst) { Name = "AgentErrorWorker" }; ;
+            //Start For Inventory on Dev
+            //_workers[4] = _kernel.Get<InventoryProcessorWorker>();
+            //_workers[4].ServiceStarted = true;
+            //var inventoryProcessorWorkerst = new ThreadStart(_workers[4].Run);
+            //_workerThreads[4] = new Thread(inventoryProcessorWorkerst) { Name = "InventoryProcessorWorker" }; ;
+            //End For Inventory on Dev
             var firstWorkerThread = _totalNumberOfThreads - _numberOfWorkerThreads;
             for (var i = firstWorkerThread; i < _totalNumberOfThreads; i++)
             {
@@ -69,6 +81,7 @@ namespace Datavail.Delta.IncidentProcessor
                 // create a thread and attach to the object
                 var st = new ThreadStart(_workers[i].Run);
                 _workerThreads[i] = new Thread(st) { Name = "IncidentProcessor " + i };
+
             }
 
             // start the threads
@@ -134,6 +147,8 @@ namespace Datavail.Delta.IncidentProcessor
             _kernel.Bind<IQueue<DataCollectionMessageWithError>>().To<SqlQueue<DataCollectionMessageWithError>>().WithConstructorArgument("queueTableName", QueueNames.ErrorQueue);
             _kernel.Bind<IQueue<DataCollectionTestMessage>>().To<SqlQueue<DataCollectionTestMessage>>().WithConstructorArgument("queueTableName", QueueNames.TestQueue);
             _kernel.Bind<IQueue<OpenIncidentMessage>>().To<SqlQueue<OpenIncidentMessage>>().WithConstructorArgument("queueTableName", QueueNames.OpenIncidentQueue);
+            _kernel.Bind<IQueue<DataCollectionInventoryMessage>>().To<SqlQueue<DataCollectionInventoryMessage>>().WithConstructorArgument("queueTableName", QueueNames.InventoryQueue);
+            _kernel.Bind<IQueue<DataCollectionAgentErrorMessage>>().To<SqlQueue<DataCollectionAgentErrorMessage>>().WithConstructorArgument("queueTableName", QueueNames.AgentErrorQueue);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using log4net;
 using log4net.Config;
+using System.Xml.Linq;
 
 namespace Datavail.Delta.Infrastructure.Agent.Logging
 {
@@ -35,6 +36,23 @@ namespace Datavail.Delta.Infrastructure.Agent.Logging
         {
             if (_log.IsDebugEnabled)
                 _log.Debug(message);
+        }
+
+        public string BuildErrorOutput(string objectName, string methodName, Guid _metricInstance, string ex)
+        {
+            var xml = new XElement("AgentErrorOutput",
+                                   new XAttribute("timestamp", DateTime.UtcNow),
+                                   new XAttribute("metricInstanceId", _metricInstance),
+                                   new XAttribute("resultMessage", string.Empty),
+                                   new XAttribute("product", Environment.OSVersion.Platform),
+                                   new XAttribute("productVersion", Environment.OSVersion.Version),
+                                   new XAttribute("productLevel", Environment.OSVersion.ServicePack),
+                                   new XAttribute("productEdition", string.Empty),
+                                   new XAttribute("ObjectName", objectName.ToString()),
+                                   new XAttribute("MethodName", methodName.ToString()),
+                                   new XAttribute("ErrorMessage", ex.ToString()));
+
+            return xml.ToString();
         }
     }
 }

@@ -8,5 +8,7 @@
         public static string IncidentProcessorQueue { get { return "IncidentProcessor"; } }
         public static string OpenIncidentQueue { get { return "OpenIncident"; } }
         public static string TestQueue { get { return "Test"; } }
+        public static string InventoryQueue { get { return "Inventory"; } }
+        public static string AgentErrorQueue { get { return "AgentError"; } }
     }
 }

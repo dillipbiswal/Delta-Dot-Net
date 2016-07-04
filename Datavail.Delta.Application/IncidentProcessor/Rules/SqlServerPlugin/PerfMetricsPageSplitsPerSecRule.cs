@@ -15,8 +15,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private const string ServiceDeskMessageAverage = "The Delta monitoring application has detected a performance metrics threshold breach for  {0} (metricInstanceId: {2}). The average has been {3:0.00} over the last {4} samples.\n\nInstance Name: {12}\nPage Splits per Second: {5} \n\nMetric Threshold: {6}\nFloor Value: {7}\nCeiling Value: {8}\nServer: {9} ({10})\nIp Address: {11}\n";
         private const string ServiceDeskSummary = "P{0}/{1}/Performance Metrics ({2}) threshold breach";
 
-        public PerfMetricsPageSplitsPerSecRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+        public PerfMetricsPageSplitsPerSecRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Performance Metric (Page Splits Per Second)";
             XmlMatchString = "DatabaseServerPerformanceCountersPluginOutput";
@@ -56,7 +56,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             var message = string.Format(ServiceDeskMessageAverage, MatchTypeValue, Label, MetricInstanceId, average, metricThreshold.TimePeriod, _pageSplitsPerSec, metricThreshold.Id, metricThreshold.FloorValue, metricThreshold.CeilingValue, Hostname, ServerId, IpAddress, _instanceName);
             return message;
         }
-        
+
         protected override void ParseDataCollection(XDocument dataCollection)
         {
             var XPageSplitsPerSec = dataCollection.Root.Attribute("pageSplitsPerSec");

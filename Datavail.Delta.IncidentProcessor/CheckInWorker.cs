@@ -70,14 +70,14 @@ namespace Datavail.Delta.IncidentProcessor
                                                    new XAttribute("minutesSinceLastCheckin", lastCheckInMinutes));
 
                             var msg = new DataCollectionMessage
-                                {
-                                    Data = xml.ToString(),
-                                    Hostname = metricInstance.Server.Hostname,
-                                    IpAddress = metricInstance.Server.IpAddress,
-                                    ServerId = metricInstance.Server.Id,
-                                    TenantId = metricInstance.Server.Tenant.Id,
-                                    Timestamp = DateTime.UtcNow
-                                };
+                            {
+                                Data = xml.ToString(),
+                                Hostname = metricInstance.Server.Hostname,
+                                IpAddress = metricInstance.Server.IpAddress,
+                                ServerId = metricInstance.Server.Id,
+                                TenantId = metricInstance.Server.Tenant.Id,
+                                Timestamp = DateTime.UtcNow
+                            };
                             _incidentQueue.AddMessage(msg);
                         }
 

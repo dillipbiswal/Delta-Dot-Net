@@ -26,7 +26,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
             {
                 key.SetValue("ServerId", Guid.NewGuid(), RegistryValueKind.String);
             }
-            
+
             var value = Guid.Parse(key.GetValue("ServerId").ToString());
             return value;
         }
@@ -80,7 +80,7 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
                 {
                     value = "Unknown";
                 }
-                
+
             }
             else
             {
@@ -136,6 +136,19 @@ namespace Datavail.Delta.Infrastructure.Agent.Common
             }
 
             return Path.Combine(new[] { path, "DeltaAgent.xml" });
+        }
+
+
+        public string GetOnDemandConfigPath()
+        {
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            if (path != null)
+            {
+                path = path.Replace("file:\\", "");
+                path = path.Replace("file:", "");
+            }
+
+            return Path.Combine(new[] { path, "DeltaOnDemandMetric.xml" });
         }
 
         public string GetTempPath()

@@ -5,6 +5,7 @@ using System;
 using System.Configuration;
 using System.Net;
 using System.Threading;
+using Datavail.Delta.Infrastructure.Agent.Queues;
 
 namespace Datavail.Delta.Agent.Plugin.CheckIn
 {
@@ -12,6 +13,8 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
     {
         private readonly IDeltaLogger _logger;
         private int _backoffTimer;
+        private string _output;
+        private readonly IDataQueuer _dataQueuer;
 
         public CheckInService(IDeltaLogger logger)
         {
@@ -26,19 +29,36 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
         {
             try
             {
+                //var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
+                //var request = new RestRequest("Server/CheckIn/{id}", Method.POST);
+
+                ////Add ServerId to the URL
+                //request.AddUrlSegment("id", serverId.ToString());
+
+                ////Create JSON body
+                //request.AddParameter("Hostname", hostname);
+                //request.AddParameter("IpAddress", ipAddress);
+                //request.AddParameter("Timestamp", DateTime.UtcNow);
+                //request.AddParameter("TenantId", tenantId.ToString());
+                //request.AddParameter("AgentVersion", agentVersion);
+                //request.AddParameter("CustomerId", customerId.ToString());
+
+                //var response = client.Execute(request);
+
                 var client = new RestClient(ConfigurationManager.AppSettings["DeltaApiUrl"]);
-                var request = new RestRequest("Server/CheckIn/{id}", Method.POST);
+                var request = new RestRequest("Server/CheckIn/{id}", Method.POST) { RequestFormat = DataFormat.Json };
 
                 //Add ServerId to the URL
                 request.AddUrlSegment("id", serverId.ToString());
+                request.AddBody(new { Hostname = hostname, IpAddress = ipAddress, Timestamp = DateTime.UtcNow, TenantId = tenantId.ToString(), AgentVersion = agentVersion, CustomerId = customerId.ToString() });
 
                 //Create JSON body
-                request.AddParameter("Hostname", hostname);
-                request.AddParameter("IpAddress", ipAddress);
-                request.AddParameter("Timestamp", DateTime.UtcNow);
-                request.AddParameter("TenantId", tenantId.ToString());
-                request.AddParameter("AgentVersion", agentVersion);
-                request.AddParameter("CustomerId", customerId.ToString());
+                //request.AddParameter("Hostname", hostname);
+                //request.AddParameter("IpAddress", ipAddress);
+                //request.AddParameter("Timestamp", DateTime.UtcNow);
+                //request.AddParameter("TenantId", tenantId.ToString());
+                //request.AddParameter("AgentVersion", agentVersion);
+                //request.AddParameter("CustomerId", customerId.ToString());
 
                 var response = client.Execute(request);
 
@@ -58,6 +78,13 @@ namespace Datavail.Delta.Agent.Plugin.CheckIn
             {
                 _logger.LogUnhandledException("Unhandled Exception in check-in", ex);
                 DoBackOff();
+                try
+                {
+                    _output = _logger.BuildErrorOutput("CheckInService", "CheckIn", serverId, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
 

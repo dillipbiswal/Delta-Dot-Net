@@ -17,7 +17,7 @@ namespace Datavail.Delta.Repository.EfWithMigrations
     /// <summary>
     /// Generic repository
     /// </summary>
-    
+
     public class GenericRepository : IRepository
     {
         protected DbContext Context;

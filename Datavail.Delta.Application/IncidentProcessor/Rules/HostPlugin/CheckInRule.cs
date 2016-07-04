@@ -14,7 +14,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
         private const string ServiceDeskSummary = "{2}/P{0}/{1}/Last Check In threshold breach";
 
         public CheckInRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Last Check In Threshold Breach";
             XmlMatchString = "CheckInPluginOutput";
@@ -51,7 +51,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             return message;
         }
 
-        
+
         protected override void ParseDataCollection(XDocument dataCollection)
         {
             var xMinutesSinceLastCheckIn = dataCollection.Root.Attribute("minutesSinceLastCheckin");

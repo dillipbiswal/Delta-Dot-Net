@@ -17,5 +17,6 @@ namespace Datavail.Delta.Infrastructure.Agent.Logging
         void LogSpecificError(WellKnownAgentMesage mesageId, string message);
         void LogInformational(WellKnownAgentMesage messageId, string message);
         void LogDebug(string message);
+        string BuildErrorOutput(string objectName, string methodName, Guid _metricInstance, string ex);
     }
 }

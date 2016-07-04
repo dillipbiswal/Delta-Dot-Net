@@ -31,11 +31,11 @@ namespace Datavail.Delta.Infrastructure.Agent.Schedules
         {
             try
             {
-                TaskManager.Initialize(new ScheduleRegistry(_configLoader, _common));
+                JobManager.Initialize(new ScheduleRegistry(_configLoader, _common));
 
                 //Block the thread until the WaitHandle is set. Once set, stop the TaskManager so we can exit gracefully.
                 waitHandle.WaitOne();
-                TaskManager.Stop();
+                JobManager.Stop();
             }
             catch (ThreadAbortException)
             {

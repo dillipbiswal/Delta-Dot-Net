@@ -57,7 +57,7 @@ namespace Datavail.Delta.Agent
         {
             var controller = new ServiceController("DeltaAgent");
             controller.Stop();
-            
+
             DeletePlugins();
             base.Uninstall(savedState);
         }
@@ -111,7 +111,7 @@ namespace Datavail.Delta.Agent
             foreach (var file in Directory.GetFiles(pluginsPath))
             {
                 File.Delete(file);
-            }           
+            }
         }
 
         private void deltaAgentInstaller_AfterInstall(object sender, InstallEventArgs e)

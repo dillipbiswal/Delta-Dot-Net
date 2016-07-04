@@ -27,12 +27,12 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
         private const string SERVICE_DESK_MESSAGE_COUNT = "(metricInstanceId: {0}). This has occurred {1} times in the last {2} minutes.\n\nInstance Name: {3}\nProgram Name: {4}\nSQL Statement: {5}\nSPID: {6}\n\nMatch Value: {7}\n\nAgent Timestamp (UTC): {11}\nMetric Threshold: {8}\nServer: {9}\nIp Address: {10}\n";
         private const string SERVICE_DESK_SUMMARY = "P{0}/{1}/Long Running Process(s) detected.";
 
-        public LongRunningProcessRule( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+        public LongRunningProcessRule(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Long Running Process Match";
             XmlMatchString = "DatabaseServerLongRunningProcessPluginOutput";
-   
+
             SetupMatchParams();
         }
 
@@ -83,7 +83,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             }
                             if (isSingleMatchType)
                             {
-                                IncidentPriority =(int) metricThreshold.Severity;
+                                IncidentPriority = (int)metricThreshold.Severity;
                                 IncidentMesage = SERVICE_DESK_MESSAGE_HEADER + Environment.NewLine;
                                 IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                                 incidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
@@ -122,7 +122,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
                             IncidentSummary = FormatSummaryServiceDeskMessage(metricTypeDescription);
                             //IncidentMesage = FormatAverageServiceDeskMessage(average, metricTypeDescription, metricThreshold);
                             incidentMesages.Add(FormatStandardServiceDeskMessage(metricTypeDescription, metricThreshold));
-                            
+
                             matchFound = true;
                         }
                     }
@@ -163,7 +163,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
             if (matchFound)
             {
-                
+
                 foreach (var message in incidentMesages)
                 {
                     IncidentMesage += message;
@@ -186,19 +186,19 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
 
         protected override string FormatStandardServiceDeskMessage(string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(SERVICE_DESK_MESSAGE,  MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
+            var message = string.Format(SERVICE_DESK_MESSAGE, MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
+            var message = string.Format(SERVICE_DESK_MATCH_MESSAGE, MetricInstanceId, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatCountServiceDeskMessage(int count, string metricTypeDescription, MetricThreshold metricThreshold)
         {
-            var message = string.Format(SERVICE_DESK_MESSAGE_COUNT, MetricInstanceId, count, metricThreshold.TimePeriod, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
+            var message = string.Format(SERVICE_DESK_MESSAGE_COUNT, MetricInstanceId, count, metricThreshold.TimePeriod, _instanceName, _programName, _sqlStatements, _spid, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
@@ -207,7 +207,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.SqlServerPlugin
             var message = string.Format(SERVICE_DESK_SUMMARY, IncidentPriority, Hostname);
             return message;
         }
-        
+
         protected override void ParseDataCollection(XDocument dataResultCollection)
         {
 

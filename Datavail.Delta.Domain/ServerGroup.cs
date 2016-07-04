@@ -42,6 +42,7 @@ namespace Datavail.Delta.Domain
         public virtual int Priority { get; set; }
         public virtual IList<Server> Servers { get; set; }
         public virtual Status Status { get; set; }
+        public virtual AgentError AgentError { get; set; }
         #endregion
 
         #region ctor
@@ -61,7 +62,8 @@ namespace Datavail.Delta.Domain
         }
 #pragma warning restore 612,618
 
-        private void Initialize(){
+        private void Initialize()
+        {
             Servers = new List<Server>();
             MetricConfigurations = new List<MetricConfiguration>();
             MaintenanceWindows = new List<MaintenanceWindow>();

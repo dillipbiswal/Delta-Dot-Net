@@ -25,14 +25,14 @@ namespace Datavail.Delta.Domain
 #pragma warning disable 612,618
         public static ServerDisk NewServerDisk(string path, Server server, long totalBytes, string label = null)
         {
-            var entity = new ServerDisk { Path = path, Server = server, TotalBytes = totalBytes};
+            var entity = new ServerDisk { Path = path, Server = server, TotalBytes = totalBytes };
             if (label != null) entity.Label = label;
             return entity;
         }
 
         public static ServerDisk NewServerDisk(string path, Cluster cluster, long totalBytes, string label = null)
         {
-            var entity = new ServerDisk { Path = path, Cluster = cluster, TotalBytes = totalBytes};
+            var entity = new ServerDisk { Path = path, Cluster = cluster, TotalBytes = totalBytes };
             if (label != null) entity.Label = label;
             return entity;
         }

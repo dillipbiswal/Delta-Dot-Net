@@ -20,11 +20,14 @@ namespace Datavail.Delta.Repository.EfWithMigrations
         public IDbSet<Schedule> Schedules { get; set; }
         public IDbSet<Server> Servers { get; set; }
         public IDbSet<ServerDisk> ServerDisks { get; set; }
+        public IDbSet<WebSiteData> WebSiteDatas { get; set; }
         public IDbSet<ServerGroup> ServerGroups { get; set; }
         public IDbSet<SqlAgentJob> SqlAgentJobs { get; set; }
         public IDbSet<Tenant> Tenants { get; set; }
         public IDbSet<User> Users { get; set; }
-
+        public IDbSet<ApiUri> ApiUris { get; set; }
+        public IDbSet<OnDemandMetricInstance> OnDemandMetricInstances { get; set; }
+        public IDbSet<OnDemandConfigBuilder> OnDemandConfigBuilders { get; set; }
         public DeltaDbContext()
         {
         }
@@ -35,10 +38,12 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
             //Clusters
             modelBuilder.Entity<Cluster>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<Cluster>().Property(p => p.AgentError).HasColumnName("AgentError_Id");
             modelBuilder.Entity<Cluster>().HasRequired(p => p.Customer).WithMany(p => p.Clusters);
 
             //Customers
             modelBuilder.Entity<Customer>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<Customer>().Property(p => p.AgentError).HasColumnName("AgentError_Id");
             modelBuilder.Entity<Customer>().HasRequired(p => p.Tenant).WithMany(p => p.Customers).WillCascadeOnDelete();
 
             //Databases
@@ -59,6 +64,7 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
             //MetricInstance
             modelBuilder.Entity<MetricInstance>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<OnDemandMetricInstance>().Property(p => p.Status).HasColumnName("Status_Id");
 
             modelBuilder.Entity<MetricThreshold>().Property(p => p.Severity).HasColumnName("Severity_Value");
             modelBuilder.Entity<MetricThreshold>().Property(p => p.ThresholdComparisonFunction).HasColumnName("ThresholdComparisonFunction_Value");
@@ -74,12 +80,14 @@ namespace Datavail.Delta.Repository.EfWithMigrations
 
             //Server
             modelBuilder.Entity<Server>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<Server>().Property(p => p.AgentError).HasColumnName("AgentError_Id");
             modelBuilder.Entity<Server>().HasRequired(p => p.Tenant).WithMany(p => p.Servers).WillCascadeOnDelete(true);
             modelBuilder.Entity<Server>().HasOptional(p => p.Cluster).WithMany(p => p.Nodes);
             modelBuilder.Entity<Server>().HasOptional(p => p.VirtualServerParent).WithMany(p => p.VirtualServers);
 
             //Server Group
             modelBuilder.Entity<ServerGroup>().Property(p => p.Status).HasColumnName("Status_Id");
+            modelBuilder.Entity<ServerGroup>().Property(p => p.AgentError).HasColumnName("AgentError_Id");
 
             //Sql Agent Jobs
             modelBuilder.Entity<SqlAgentJob>().Property(p => p.Status).HasColumnName("Status_Id");

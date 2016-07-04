@@ -120,14 +120,14 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
             if (OsInfo.IsRunningOnUnix())
             {
                 var proc = new System.Diagnostics.Process
-                               {
-                                   EnableRaisingEvents = false,
-                                   StartInfo =
-                                       {
-                                           FileName = ConfigurationManager.AppSettings["initScript"],
-                                           Arguments = "stop"
-                                       }
-                               };
+                {
+                    EnableRaisingEvents = false,
+                    StartInfo =
+                    {
+                        FileName = ConfigurationManager.AppSettings["initScript"],
+                        Arguments = "stop"
+                    }
+                };
                 proc.Start();
                 proc.WaitForExit();
 
@@ -154,14 +154,14 @@ namespace Datavail.Delta.Infrastructure.Agent.Updater
                 Thread.Sleep(TimeSpan.FromSeconds(5));
 
                 var proc = new System.Diagnostics.Process
-                               {
-                                   EnableRaisingEvents = false,
-                                   StartInfo =
-                                       {
-                                           FileName = ConfigurationManager.AppSettings["initScript"],
-                                           Arguments = "start"
-                                       }
-                               };
+                {
+                    EnableRaisingEvents = false,
+                    StartInfo =
+                    {
+                        FileName = ConfigurationManager.AppSettings["initScript"],
+                        Arguments = "start"
+                    }
+                };
                 proc.Start();
                 proc.WaitForExit();
 

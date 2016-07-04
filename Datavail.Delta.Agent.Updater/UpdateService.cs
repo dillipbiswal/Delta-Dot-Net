@@ -32,17 +32,17 @@ namespace Datavail.Delta.Agent.Updater
         protected override void OnStop()
         {
             _stopCalled = true;
-            
+
             _workerThread.Join(TimeSpan.FromSeconds(30));
             _workerThread.Abort();
-            
+
             _logger.LogInformational(WellKnownAgentMesage.AgentStarted, "Agent Updater Stopped");
         }
 
         protected void DoWork()
         {
             //Give the agent time to do its initial work on startup after install
-            Thread.Sleep(TimeSpan.FromSeconds(90)); 
+            Thread.Sleep(TimeSpan.FromSeconds(90));
 
             while (!_stopCalled)
             {
@@ -50,6 +50,9 @@ namespace Datavail.Delta.Agent.Updater
                 {
                     var updater = new Infrastructure.Agent.Updater.UpdateRunner();
                     updater.Execute();
+
+                    var ondemandupdater = new Infrastructure.Agent.OnDemandUpdater.OnDemandUpdateRunner();
+                    ondemandupdater.Execute();
                 }
                 catch (Exception ex)
                 {

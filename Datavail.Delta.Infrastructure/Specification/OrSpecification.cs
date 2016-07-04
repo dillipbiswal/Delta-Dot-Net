@@ -8,7 +8,7 @@ namespace Datavail.Delta.Infrastructure.Specification
         public OrSpecification(Specification<TEntity> leftSide, Specification<TEntity> rightSide)
             : base(leftSide, rightSide)
         {
-        }        
+        }
 
         public override TEntity SatisfyingEntityFrom(IQueryable<TEntity> query)
         {

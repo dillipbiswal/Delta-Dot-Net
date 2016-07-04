@@ -6,7 +6,7 @@ using Datavail.Delta.Infrastructure.Specification;
 
 namespace Datavail.Delta.Infrastructure.Repository
 {
-    public enum SortOrder{ Ascending, Descending }
+    public enum SortOrder { Ascending, Descending }
 
     public interface IRepository
     {
@@ -148,7 +148,7 @@ namespace Datavail.Delta.Infrastructure.Repository
         /// <returns></returns>
         TEntity FindOne<TEntity>(Expression<Func<TEntity, bool>> criteria) where TEntity : class;
 
-        
+
         /// <summary>
         /// Gets all.
         /// </summary>

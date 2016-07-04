@@ -38,23 +38,23 @@ namespace Datavail.Delta.Domain
                     ParentMetricInstance = value as MetricInstance;
                 }
 
-                if(ParentMetricInstance == null)
+                if (ParentMetricInstance == null)
                 {
                     ParentServer = value as Server;
                 }
 
-                if(ParentServer == null)
+                if (ParentServer == null)
                 {
                     ParentServerGroup = value as ServerGroup;
                 }
 
-                if(ParentServerGroup == null)
+                if (ParentServerGroup == null)
                 {
                     ParentTenant = value as Tenant;
                 }
             }
         }
-        
+
         public virtual Customer ParentCustomer { get; set; }
         public virtual Metric ParentMetric { get; set; }
         public virtual MetricInstance ParentMetricInstance { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2000.Cluster;
@@ -73,7 +74,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
                 _label = label;
 
                 ParseData(data);
-                    
+
                 if (!_runningOnCluster || (_runningOnCluster && _clusterInfo.IsActiveClusterNodeForGroup(_clusterGroupName)))
                 {
                     if (_databaseServerInfo == null)
@@ -95,7 +96,19 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("SqlServer2000.DatabaseFileSizePlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
+            finally
+            {
+                _output = null;
+            }
+
         }
 
         private void ParseData(string data)
@@ -104,6 +117,8 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
+
             _databaseName = xmlData.Attribute("DatabaseName").Value;
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
@@ -140,47 +155,52 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2000
             sql.Append("[fl_size] = convert(int,round((aa.size*1.000)/128.000,0)),  ");
             sql.Append("[fl_used]  = convert(int,round(fileproperty(aa.name,'SpaceUsed')/128.000,0)),   ");
             sql.Append("[fl_unused]  = convert(int,round((aa.size-fileproperty(aa.name,'SpaceUsed'))/128.000,0))  ");
-            sql.Append("from dbo.sysfiles aa ");
-            sql.Append("left join dbo.sysfilegroups bb on ( aa.groupid = bb.groupid )) a ");
+            sql.Append("from dbo.sysfiles aa (nolock) ");
+            sql.Append("left join dbo.sysfilegroups bb (nolock) on ( aa.groupid = bb.groupid )) a ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sql.ToString());
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sql.ToString());
+
+                if (result.FieldCount > 0)
                 {
-                    var databaseName = result["DATABASE_NAME"].ToString();
-                    var fileGroupType = result["FILEGROUP_TYPE"].ToString();
-                    var fileGroupId = result["FILEGROUP_ID"].ToString();
-                    var fileGroup = result["FILEGROUP"].ToString();
-                    var fileId = result["FILEID"].ToString();
-                    var fileName = result["FILENAME"].ToString();
-                    var disk = result["DISK"].ToString();
-                    var filePath = result["FILEPATH"].ToString();
-                    var maxFileSize = result["MAX_FILE_SIZE"].ToString();
-                    var fileSize = result["FILE_SIZE"].ToString();
-                    var fileSizeUsed = result["FILE_SIZE_USED"].ToString();
-                    var fileSizeUnused = result["FILE_SIZE_UNUSED"].ToString();
-                    var dataSize = result["DATA_SIZE"].ToString();
-                    var dataSizeUsed = result["DATA_SIZE_USED"].ToString();
-                    var dataSizeUnused = result["DATA_SIZE_UNUSED"].ToString();
-                    var logSize = result["LOG_SIZE"].ToString();
-                    var logSizeUsed = result["LOG_SIZE_USED"].ToString();
-                    var logSizeUnused = result["LOG_SIZE_UNUSED"].ToString();
+                    while (result.Read())
+                    {
+                        var databaseName = result["DATABASE_NAME"].ToString();
+                        var fileGroupType = result["FILEGROUP_TYPE"].ToString();
+                        var fileGroupId = result["FILEGROUP_ID"].ToString();
+                        var fileGroup = result["FILEGROUP"].ToString();
+                        var fileId = result["FILEID"].ToString();
+                        var fileName = result["FILENAME"].ToString();
+                        var disk = result["DISK"].ToString();
+                        var filePath = result["FILEPATH"].ToString();
+                        var maxFileSize = result["MAX_FILE_SIZE"].ToString();
+                        var fileSize = result["FILE_SIZE"].ToString();
+                        var fileSizeUsed = result["FILE_SIZE_USED"].ToString();
+                        var fileSizeUnused = result["FILE_SIZE_UNUSED"].ToString();
+                        var dataSize = result["DATA_SIZE"].ToString();
+                        var dataSizeUsed = result["DATA_SIZE_USED"].ToString();
+                        var dataSizeUnused = result["DATA_SIZE_UNUSED"].ToString();
+                        var logSize = result["LOG_SIZE"].ToString();
+                        var logSizeUsed = result["LOG_SIZE_USED"].ToString();
+                        var logSizeUnused = result["LOG_SIZE_UNUSED"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "File size returned for database: " + _databaseName;
+                        resultCode = "0";
+                        resultMessage = "File size returned for database: " + _databaseName;
 
-                    BuildExecuteOutput(databaseName, fileGroupType, fileGroupId, fileGroup, fileId, fileName, disk, filePath,
-                        maxFileSize, fileSize, fileSizeUsed, fileSizeUnused, dataSize, dataSizeUsed, dataSizeUnused,
-                        logSize, logSizeUsed, logSizeUnused, resultCode, resultMessage);
+                        BuildExecuteOutput(databaseName, fileGroupType, fileGroupId, fileGroup, fileId, fileName, disk, filePath,
+                            maxFileSize, fileSize, fileSizeUsed, fileSizeUnused, dataSize, dataSizeUsed, dataSizeUnused,
+                            logSize, logSizeUsed, logSizeUnused, resultCode, resultMessage);
+                    }
                 }
-            }
-            else
-            {
-                resultMessage = "File size not found for: " + _databaseName;
+                else
+                {
+                    resultMessage = "File size not found for: " + _databaseName;
 
-                BuildExecuteOutput("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", resultCode, resultMessage);
+                    BuildExecuteOutput("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", resultCode, resultMessage);
+                }
+                conn.Dispose();
+                conn.Close();
             }
         }
 

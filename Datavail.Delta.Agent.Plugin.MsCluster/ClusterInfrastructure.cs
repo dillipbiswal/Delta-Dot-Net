@@ -11,7 +11,7 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
             var scope = new ManagementScope(sServerPath);
 
             scope.Connect();
-            
+
             if (scope.IsConnected)
             {
                 var objectQuery = new ObjectQuery("select groupcomponent, partcomponent from mscluster_nodetoactivegroup");

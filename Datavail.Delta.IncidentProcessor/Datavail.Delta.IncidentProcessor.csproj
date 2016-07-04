@@ -128,8 +128,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="FluentScheduler, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FluentScheduler.1.0.7\lib\FluentScheduler.dll</HintPath>
+    <Reference Include="FluentScheduler, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b76503528a14ebd1, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentScheduler.4.1.1\lib\net40\FluentScheduler.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ninject">
       <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
@@ -155,7 +156,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AgentErrorWorker.cs" />
     <Compile Include="CheckInWorker.cs" />
+    <Compile Include="InventoryProcessorWorker.cs" />
     <Compile Include="UpdateTicketClosedWorker.cs" />
     <Compile Include="DeltaIncidentProcessorLogger.cs" />
     <Compile Include="OpenIncidentWorker.cs" />

@@ -2,7 +2,7 @@
 
 namespace Datavail.Delta.Domain.Specifications
 {
-    public class ServersByStatusSpecification : Specification<Server> 
+    public class ServersByStatusSpecification : Specification<Server>
     {
         public ServersByStatusSpecification(Status statusToMatch)
             : base(p => p.Status == statusToMatch)

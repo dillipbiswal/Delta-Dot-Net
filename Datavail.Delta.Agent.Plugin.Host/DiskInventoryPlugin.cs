@@ -63,7 +63,15 @@ namespace Datavail.Delta.Agent.Plugin.Host
             }
             catch (Exception ex)
             {
+
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("DiskInventoryPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
 

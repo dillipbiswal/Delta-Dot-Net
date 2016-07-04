@@ -78,7 +78,7 @@ namespace Datavail.Delta.Application
             if (!string.IsNullOrEmpty(additionalData))
             {
                 //Make sure that there isn't an open ticket for the metric instance or a closed ticket matching the additionalData
-                if (additionalData.Contains("LastMatchingLine"))
+                if (additionalData.Contains("LastMatchingLine") || additionalData.Contains("ErrorMessage"))
                 {
                     if ((HasOpenIncident(metricInstance.Id, additionalData)) == false)
                     {

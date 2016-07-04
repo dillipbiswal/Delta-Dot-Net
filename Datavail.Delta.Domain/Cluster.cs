@@ -14,6 +14,7 @@ namespace Datavail.Delta.Domain
         public virtual ICollection<Server> Nodes { get; set; }
         public virtual ICollection<Server> VirtualServers { get; set; }
         public virtual Status Status { get; set; }
+        public virtual AgentError AgentError { get; set; }
         #endregion
 
         #region ctor

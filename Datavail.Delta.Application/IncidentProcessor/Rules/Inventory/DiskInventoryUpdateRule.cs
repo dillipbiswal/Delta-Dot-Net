@@ -44,7 +44,7 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.Inventory
 
                 var isClusterDisk = false;
                 bool.TryParse(disk.Attribute("isClusterDisk").Value, out isClusterDisk);
-                
+
                 var drivePath = disk.Attribute("path").Value;
                 var label = disk.Attribute("label").Value;
                 var totalBytes = long.Parse(disk.Attribute("totalBytes").Value);

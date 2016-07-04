@@ -96,7 +96,9 @@
     <Compile Include="Misc\MetricDataItem.cs" />
     <Compile Include="Queues\IQueue.cs" />
     <Compile Include="Queues\Messages\CheckInMessage.cs" />
+    <Compile Include="Queues\Messages\DataCollectionAgentErrorMessage.cs" />
     <Compile Include="Queues\Messages\DataCollectionArchiveMessage.cs" />
+    <Compile Include="Queues\Messages\DataCollectionInventoryMessage.cs" />
     <Compile Include="Queues\Messages\DataCollectionMessage.cs" />
     <Compile Include="Queues\Messages\DataCollectionMessageWithError.cs" />
     <Compile Include="Queues\Messages\DataCollectionTestMessage.cs" />

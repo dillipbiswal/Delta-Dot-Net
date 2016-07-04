@@ -23,7 +23,7 @@ namespace Datavail.Delta.Domain
 #pragma warning disable 612,618
         public static Role NewRole(string name)
         {
-            var entity = new Role() { Name = name};
+            var entity = new Role() { Name = name };
             return entity;
         }
 #pragma warning restore 612,618

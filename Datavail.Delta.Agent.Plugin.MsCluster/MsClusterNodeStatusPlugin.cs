@@ -75,6 +75,13 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("MsClusterNodeStatusPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
 
         }
@@ -99,10 +106,10 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
 
             var arguments = "NODE";
             var startInfo = new ProcessStartInfo(clusterExe, arguments)
-                                {
-                                    UseShellExecute = false,
-                                    RedirectStandardOutput = true
-                                };
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
 
             using (var process = Process.Start(startInfo))
             {

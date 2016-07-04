@@ -8,8 +8,8 @@ namespace Datavail.Delta.Domain
         #endregion
 
         #region Properties
-        
-        
+
+
         public virtual IList<MetricConfiguration> MetricConfigurations { get; set; }
         public virtual IList<MaintenanceWindow> MaintenanceWindows { get; set; }
         public virtual IList<Cluster> Clusters { get; set; }
@@ -18,6 +18,7 @@ namespace Datavail.Delta.Domain
         public virtual IList<Server> Servers { get; set; }
         public string ServiceDeskData { get; set; }
         public virtual Status Status { get; set; }
+        public virtual AgentError AgentError { get; set; }
         public virtual Tenant Tenant { get; set; }
         #endregion
 

@@ -91,6 +91,13 @@ namespace Datavail.Delta.Agent.Plugin.Host
             catch (Exception ex)
             {
                 _logger.LogUnhandledException(string.Format("Unhandled Exception while running DiskPlugin::Execute({0},{1},{2})", metricInstance, label, data), ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("DiskPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
 
         }

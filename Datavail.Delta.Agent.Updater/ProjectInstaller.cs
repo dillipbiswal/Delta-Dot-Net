@@ -25,7 +25,7 @@ namespace Datavail.Delta.Agent.Updater
         {
             var controller = new ServiceController("DeltaAgentUpdater");
             controller.Stop();
-            
+
             base.Uninstall(savedState);
         }
 

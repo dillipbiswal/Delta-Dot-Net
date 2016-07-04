@@ -70,17 +70,22 @@
   <ItemGroup>
     <Compile Include="DataCollectionService.cs" />
     <Compile Include="IncidentProcessor\IncidentProcessorRule.cs" />
+    <Compile Include="IncidentProcessor\Rules\HostPlugin\AgentErrorRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\CheckInRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\LogWatcherRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\ServiceStatusRule.cs" />
+    <Compile Include="IncidentProcessor\Rules\Inventory\AppPoolInventoryUpdateRule.cs" />
     <Compile Include="IncidentProcessor\Rules\Inventory\SqlAgentJobInventoryUpdateRule.cs" />
     <Compile Include="IncidentProcessor\Rules\Inventory\DiskInventoryUpdateRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\CpuThresholdRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\DiskInfoThresholdRule.cs" />
     <Compile Include="IncidentProcessor\Rules\HostPlugin\PhysicalMemoryThresholdRule.cs" />
     <Compile Include="IncidentProcessor\Rules\Inventory\DatabaseInventoryUpdateRule.cs" />
+    <Compile Include="IncidentProcessor\Rules\Inventory\WebSiteInventoryUpdateRule.cs" />
     <Compile Include="IncidentProcessor\Rules\MsClusterPlugin\ClusterGroupSwitchedRule.cs" />
     <Compile Include="IncidentProcessor\Rules\MsClusterPlugin\ClusterGroupStatusRule.cs" />
+    <Compile Include="IncidentProcessor\Rules\SharePointPlugin\ApplicationPoolRule.cs" />
+    <Compile Include="IncidentProcessor\Rules\SharePointPlugin\WebSiteRule.cs" />
     <Compile Include="IncidentProcessor\Rules\SqlServerPlugin\DatabaseServerBlockingRule.cs" />
     <Compile Include="IncidentProcessor\Rules\SqlServerPlugin\LongRunningProcessRule.cs" />
     <Compile Include="IncidentProcessor\Rules\SqlServerPlugin\PerfMetricsTransactionsPerSecRule.cs" />

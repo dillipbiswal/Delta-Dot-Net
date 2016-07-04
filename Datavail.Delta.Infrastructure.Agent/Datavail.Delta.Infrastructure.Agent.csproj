@@ -166,8 +166,9 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentScheduler">
-      <HintPath>..\packages\FluentScheduler.1.0.7\lib\FluentScheduler.dll</HintPath>
+    <Reference Include="FluentScheduler, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b76503528a14ebd1, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentScheduler.4.1.1\lib\net40\FluentScheduler.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.1.2.11\lib\net40-full\log4net.dll</HintPath>
@@ -213,6 +214,7 @@
     <Compile Include="Models\AssemblyDownloadModel.cs" />
     <Compile Include="Models\AssemblyListModel.cs" />
     <Compile Include="Models\ConfigModel.cs" />
+    <Compile Include="OnDemandUpdater\OnDemandUpdateRunner.cs" />
     <Compile Include="Queues\Atomic.cs" />
     <Compile Include="Queues\Constants.cs" />
     <Compile Include="Queues\DataQueuer.cs" />
@@ -243,12 +245,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="IPlugin.cs" />
     <Compile Include="Schedules\Scheduler.cs" />
     <Compile Include="Schedules\ScheduleRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlRunner\ISqlRunner.cs" />
     <Compile Include="SqlRunner\SqlServerRunner.cs" />
+    <Compile Include="Updater\IPlugin.cs" />
     <Compile Include="Updater\UpdateRunner.cs" />
   </ItemGroup>
   <ItemGroup>

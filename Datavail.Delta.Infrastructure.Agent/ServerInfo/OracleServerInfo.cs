@@ -4,7 +4,7 @@ using Datavail.Delta.Infrastructure.Agent.SqlRunner;
 
 namespace Datavail.Delta.Infrastructure.Agent.ServerInfo
 {
-    
+
     public class OracleServerInfo : IDatabaseServerInfo
     {
         private readonly ISqlRunner _sqlRunner;
@@ -14,10 +14,10 @@ namespace Datavail.Delta.Infrastructure.Agent.ServerInfo
         public string ProductVersion { get; set; }
         public string ProductLevel { get; set; }
         public string ProductEdition { get; set; }
-        
+
         //Specific
         private string _connectionString;
-        
+
 
         public OracleServerInfo(string connectionString)
         {
@@ -41,7 +41,7 @@ namespace Datavail.Delta.Infrastructure.Agent.ServerInfo
         {
             _logger.LogDebug(String.Format("OracleServerInfo requested using connectionstring: {0} ",
                                             _connectionString));
-            
+
         }
     }
 }

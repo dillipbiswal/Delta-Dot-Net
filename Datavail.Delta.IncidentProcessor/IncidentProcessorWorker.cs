@@ -138,13 +138,13 @@ namespace Datavail.Delta.IncidentProcessor
                                         rules.Where(r => r.IsMatch() && !IsInMaintenanceMode(r)).Select(
                                             rule =>
                                             new OpenIncidentMessage
-                                                {
-                                                    Body = rule.IncidentMesage,
-                                                    MetricInstanceId = rule.MetricInstance.Id,
-                                                    Priority = rule.IncidentPriority,
-                                                    Summary = rule.IncidentSummary,
-                                                    AdditionalData = rule.AdditionalData
-                                                }))
+                                            {
+                                                Body = rule.IncidentMesage,
+                                                MetricInstanceId = rule.MetricInstance.Id,
+                                                Priority = rule.IncidentPriority,
+                                                Summary = rule.IncidentSummary,
+                                                AdditionalData = rule.AdditionalData
+                                            }))
                                 {
                                     _openIncidentQueue.AddMessage(openIncidentMessage);
                                 }
@@ -155,7 +155,7 @@ namespace Datavail.Delta.IncidentProcessor
                         else
                         {
                             Trace.WriteLine(string.Format("No messages in queue. Thread {0} sleeping for 3 seconds.", Thread.CurrentThread.ManagedThreadId));
-                            Thread.Sleep(TimeSpan.FromSeconds(5));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                         }
 
                     }

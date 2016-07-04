@@ -66,9 +66,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiUri.cs" />
     <Compile Include="Cluster.cs" />
+    <Compile Include="OnDemandConfigBuilder.cs" />
+    <Compile Include="OnDemandMetricInstance.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="Specifications\ActiveMetricInstancesForServerSpecification.cs" />
+    <Compile Include="Specifications\ActiveOnDemandMetricInstancesForServerSpec.cs" />
     <Compile Include="SqlAgentJob.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseInstance.cs" />
@@ -104,6 +108,7 @@
     <Compile Include="Specifications\ServersByTenantIdSpecification.cs" />
     <Compile Include="Tenant.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="WebsiteData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Diagrams\Instance.cd" />

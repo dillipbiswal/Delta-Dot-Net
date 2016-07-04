@@ -32,6 +32,8 @@ namespace Datavail.Delta.Agent.Plugin.LogWatcher
         private string _clusterGroupName;
         private bool _runningOnCluster = false;
 
+        private string _output;
+
         //Specific
         private string _fileToWatch;
         private readonly List<string> _matchExpressions = new List<string>();
@@ -81,6 +83,13 @@ namespace Datavail.Delta.Agent.Plugin.LogWatcher
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("LogWatcherPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
 
         }
@@ -147,7 +156,7 @@ namespace Datavail.Delta.Agent.Plugin.LogWatcher
                 }
 
                 var fileStream = new FileStream(_fileToWatch, FileMode.Open, FileAccess.Read,
-                                                FileShare.ReadWrite | FileShare.Delete,1024, true);
+                                                FileShare.ReadWrite | FileShare.Delete, 1024, true);
                 fileStream.Seek(Math.Max(0, fileStream.Length - historyCount), SeekOrigin.Begin);
                 var encoding = GetFileEncoding(_fileToWatch);
                 fileReader = new StreamReader(fileStream, encoding);
@@ -184,9 +193,27 @@ namespace Datavail.Delta.Agent.Plugin.LogWatcher
             catch (Exception ex)
             {
                 if (_fileToWatch != null)
+                {
                     _logger.LogUnhandledException("Unhandled Exception in LogWatcher (" + _fileToWatch + ")", ex);
+                    try
+                    {
+                        _output = _logger.BuildErrorOutput("LogWatcherPlugin", "SetupLogWatcher: " + _fileToWatch, _metricInstance, ex.ToString());
+                        _dataQueuer.Queue(_output);
+                    }
+                    catch { }
+
+                }
                 else
+                {
                     _logger.LogUnhandledException("Unhandled Exception in LogWatcher", ex);
+                    try
+                    {
+                        _output = _logger.BuildErrorOutput("LogWatcherPlugin", "SetupLogWatcher", _metricInstance, ex.ToString());
+                        _dataQueuer.Queue(_output);
+                    }
+                    catch { }
+
+                }
             }
             finally
             {

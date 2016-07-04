@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml.Linq;
 using Datavail.Delta.Agent.Plugin.SqlServer2008.Infrastructure;
@@ -91,6 +92,17 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("SqlServer2008.DatabaseServerBlockingPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
+            }
+            finally
+            {
+                _output = null;
             }
 
         }
@@ -101,6 +113,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             var xmlData = XElement.Parse(data);
 
             _connectionString = crypto.DecryptString(xmlData.Attribute("ConnectionString").Value);
+            _connectionString = _connectionString + " Pooling=false;";
             _instanceName = xmlData.Attribute("InstanceName").Value;
 
             if (xmlData.Attribute("ClusterGroupName") != null)
@@ -128,7 +141,7 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sbSql.Append("CREATE table #CheckBlockerDbcc (EventType varchar(255), Parameters varchar(255), EventInfo varchar(255))   ");
 
             sbSql.Append("IF EXISTS ( ");
-            sbSql.Append("select * from tempdb.dbo.sysobjects o ");
+            sbSql.Append("select * from tempdb.dbo.sysobjects o (nolock) ");
             sbSql.Append("where o.xtype in ('U')  ");
             sbSql.Append("and o.id = object_id(N'tempdb..#BlockingTable') ");
             sbSql.Append(") ");
@@ -166,10 +179,10 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sbSql.Append("				end) - s2.stmt_start) / 2)  ");
             sbSql.Append("		 FROM sys.dm_exec_sql_text(s2.sql_handle)) Blocking_command ");
 
-            sbSql.Append("FROM sys.dm_tran_locks as t1         ");
-            sbSql.Append("INNER JOIN sys.dm_os_waiting_tasks as t2 ON t1.lock_owner_address = t2.resource_address         ");
-            sbSql.Append("INNER JOIN master..sysprocesses s1 ON s1.SPID = t1.request_session_id ");
-            sbSql.Append("INNER JOIN master..sysprocesses s2 ON s2.SPID = t2.blocking_session_id ");
+            sbSql.Append("FROM sys.dm_tran_locks as t1  (nolock)       ");
+            sbSql.Append("INNER JOIN sys.dm_os_waiting_tasks as t2 (nolock) ON t1.lock_owner_address = t2.resource_address         ");
+            sbSql.Append("INNER JOIN master..sysprocesses s1 (nolock) ON s1.SPID = t1.request_session_id ");
+            sbSql.Append("INNER JOIN master..sysprocesses s2 (nolock) ON s2.SPID = t2.blocking_session_id ");
             sbSql.Append("where wait_duration_ms > (@sec * 1000)         ");
             sbSql.Append("and db_name(t1.resource_database_id) not in ('distribution')         ");
             sbSql.Append("and t1.request_session_id > 50         ");
@@ -195,35 +208,39 @@ namespace Datavail.Delta.Agent.Plugin.SqlServer2008
             sbSql.Append("drop table #CheckBlockerDbcc ");
             sbSql.Append("select * from  #BlockingTable ");
 
-            var result = _sqlRunner.RunSql(_connectionString, sbSql.ToString());
-            var hasRows = false;
-            var xml = BuildExecuteOutput();
-
-            if (result.FieldCount > 0)
+            using (var conn = new SqlConnection(_connectionString))
             {
-                while (result.Read())
+                var result = SqlHelper.GetDataReader(conn, sbSql.ToString());
+                var hasRows = false;
+                var xml = BuildExecuteOutput();
+
+                if (result.FieldCount > 0)
                 {
-                    hasRows = true;
+                    while (result.Read())
+                    {
+                        hasRows = true;
 
-                    var db = result["db"].ToString();
-                    var requestSessionId = result["request_session_id"].ToString();
-                    var requestSessionCommand = result["request_session_command"].ToString();
-                    var waitingDurationSec = result["waiting_duration_sec"].ToString();
-                    var blockingId = result["blocking_id"].ToString();
-                    var blockingCommand = result["blocking_command"].ToString();
+                        var db = result["db"].ToString();
+                        var requestSessionId = result["request_session_id"].ToString();
+                        var requestSessionCommand = result["request_session_command"].ToString();
+                        var waitingDurationSec = result["waiting_duration_sec"].ToString();
+                        var blockingId = result["blocking_id"].ToString();
+                        var blockingCommand = result["blocking_command"].ToString();
 
-                    resultCode = "0";
-                    resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
+                        resultCode = "0";
+                        resultMessage = "Blocking information returned for metricinstance " + _metricInstance;
 
-                    xml.Root.Add(BuildExecuteOutputNode(db, requestSessionId, requestSessionCommand, waitingDurationSec, blockingId, blockingCommand, resultCode, resultMessage));
+                        xml.Root.Add(BuildExecuteOutputNode(db, requestSessionId, requestSessionCommand, waitingDurationSec, blockingId, blockingCommand, resultCode, resultMessage));
+                    }
                 }
-            }
 
-            if (hasRows)
-            {
-                _output = xml.ToString();
+                if (hasRows)
+                {
+                    _output = xml.ToString();
+                }
+                conn.Dispose();
+                conn.Close();
             }
-
         }
 
         private XElement BuildExecuteOutputNode(string db, string requestSessionId, string requestSessionCommand, string waitingDurationSec,

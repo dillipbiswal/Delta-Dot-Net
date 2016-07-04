@@ -19,8 +19,8 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
         private const string ServiceDeskMatchCountMessage = "The Delta monitoring application has detected that the file {0} contains {1} (metricInstanceId: {2}). This has occurred {3} times in the last {4} minutes.\n\nAgent Timestamp (UTC): {9}\nMatch Value: {5}\nMetric Threshold: {6}\nServer: {7}\nIp Address: {8}\n";
         private const string ServiceDeskSummary = "P{0}/{1}/Log File {2} matched {3}";
 
-        public LogWatcherMatchStatus( IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
-            : base( incidentService, dataCollection, serverService)
+        public LogWatcherMatchStatus(IIncidentService incidentService, XDocument dataCollection, IServerService serverService)
+            : base(incidentService, dataCollection, serverService)
         {
             RuleName = "Log Watcher Status Match";
             XmlMatchString = "LogWatcherPluginOutput";
@@ -36,13 +36,20 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
             var matchFound = false;
             var incidentDetailMesages = new List<string>();
 
+            //const string timeStampSpidRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} spid[0-9?]{0,5} {1,7}";
             const string timeStampRegEx = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.[0-9]{1,2} [a-zA-Z0-9_-]{3,14} {1,7}";
             var data = string.Empty;
+
+            /*if (Regex.IsMatch(_matchingLine, timeStampSpidRegEx))
+            {
+                data = Regex.Replace(_matchingLine, timeStampSpidRegEx, string.Empty);
+            }*/
 
             if (Regex.IsMatch(_matchingLine, timeStampRegEx))
             {
                 data = Regex.Replace(_matchingLine, timeStampRegEx, string.Empty);
             }
+
 
             AdditionalData = string.Format("<AdditionalData><LastMatchingLine>{0}</LastMatchingLine></AdditionalData>", data);
 
@@ -152,14 +159,14 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
 
         protected override string FormatMatchServiceDeskMessage(MetricThreshold metricThreshold)
         {
-            var message = string.Format(ServiceDeskMatchMessage, _fileName, _matchingLine, MetricInstanceId, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
+            var message = string.Format(ServiceDeskMatchMessage, _fileName, _matchingLine, MetricInstanceId, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
         protected override string FormatMatchCountServiceDeskMessage(int count, MetricThreshold metricThreshold)
         {
             _matchingExpression = metricThreshold.MatchValue;
-            var message = string.Format(ServiceDeskMatchCountMessage, _fileName, _matchingLine, MetricInstanceId, count, metricThreshold.TimePeriod, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress,Timestamp);
+            var message = string.Format(ServiceDeskMatchCountMessage, _fileName, _matchingLine, MetricInstanceId, count, metricThreshold.TimePeriod, metricThreshold.MatchValue, metricThreshold.Id, Hostname, IpAddress, Timestamp);
             return message;
         }
 
@@ -172,11 +179,11 @@ namespace Datavail.Delta.Application.IncidentProcessor.Rules.HostPlugin
         protected override void ParseDataCollection(XDocument dataCollection)
         {
             Guard.IsNotNull(dataCollection.Root.Attribute("matchingLine"), "matchingLine");
-            
+
             _matchingLine = dataCollection.Root.Attribute("matchingLine").Value;
 
-            if(dataCollection.Root.Attribute("fileName") != null)
+            if (dataCollection.Root.Attribute("fileName") != null)
                 _fileName = dataCollection.Root.Attribute("fileName").Value;
-        }   
+        }
     }
 }

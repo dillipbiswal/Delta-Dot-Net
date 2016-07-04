@@ -8,7 +8,7 @@ namespace Datavail.Delta.Infrastructure.Util
         {
             get
             {
-                return new DateTime(1970, 1, 1, 0, 0, 0);    
+                return new DateTime(1970, 1, 1, 0, 0, 0);
             }
         }
     }

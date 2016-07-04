@@ -26,8 +26,11 @@ namespace Datavail.Delta.Domain
         public virtual IList<MetricInstance> MetricInstances { get; set; }
         public virtual IList<ServerGroup> ServerGroups { get; set; }
         public virtual Status Status { get; set; }
+        public virtual AgentError AgentError { get; set; }
         public virtual Tenant Tenant { get; set; }
         public virtual Cluster VirtualServerParent { get; set; }
+        public string ConfigStatus { get; set; }
+        public DateTime LastConfigBuild { get; set; }
         #endregion
 
         #region ctor

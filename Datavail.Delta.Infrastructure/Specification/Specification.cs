@@ -22,7 +22,7 @@ namespace Datavail.Delta.Infrastructure.Specification
         public Specification<TEntity> And(Expression<Func<TEntity, bool>> predicate)
         {
             return new Specification<TEntity>(Predicate.And(predicate));
-        }    
+        }
 
         public Specification<TEntity> Or(Specification<TEntity> specification)
         {

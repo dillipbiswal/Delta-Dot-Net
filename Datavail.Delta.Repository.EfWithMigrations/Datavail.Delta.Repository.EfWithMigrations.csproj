@@ -92,6 +92,8 @@
     <Compile Include="Migrations\201205141547562_AddAdditionalDataPropToIncidentHistory.Designer.cs">
       <DependentUpon>201205141547562_AddAdditionalDataPropToIncidentHistory.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603101109244_AddMultipleQueueAndAgentErrorTables.cs" />
+    <Compile Include="Migrations\201606091409522_AddWebsiteData.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerRepository.cs" />

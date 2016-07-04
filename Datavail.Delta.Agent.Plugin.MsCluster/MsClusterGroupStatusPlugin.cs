@@ -74,6 +74,13 @@ namespace Datavail.Delta.Agent.Plugin.MsCluster
             catch (Exception ex)
             {
                 _logger.LogUnhandledException("Unhandled Exception", ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("MsClusterGroupStatusPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
 
         }

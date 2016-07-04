@@ -72,6 +72,13 @@ namespace Datavail.Delta.Agent.Plugin.Host
             catch (Exception ex)
             {
                 _logger.LogUnhandledException(string.Format("Unhandled Exception while running ServiceStatusPlugin::Execute({0},{1},{2})", metricInstance, label, data), ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("ServiceStatusPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
 

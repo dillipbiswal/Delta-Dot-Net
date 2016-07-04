@@ -13,7 +13,7 @@ namespace Datavail.Delta.Agent.Plugin.Host
         private readonly ISystemInfo _systemInfo;
         private readonly IDataQueuer _dataQueuer;
         private readonly IDeltaLogger _logger;
-        
+
         private Guid _metricInstance;
         private string _label;
 
@@ -28,9 +28,9 @@ namespace Datavail.Delta.Agent.Plugin.Host
             }
             else
             {
-                _dataQueuer = new DotNetDataQueuer();    
+                _dataQueuer = new DotNetDataQueuer();
             }
-            
+
             _systemInfo = new SystemInfo();
             _logger = new DeltaLogger();
         }
@@ -61,6 +61,13 @@ namespace Datavail.Delta.Agent.Plugin.Host
             catch (Exception ex)
             {
                 _logger.LogUnhandledException(string.Format("Unhandled Exception while running CpuPlugin::Execute({0},{1},{2})", metricInstance, label, data), ex);
+                try
+                {
+                    _output = _logger.BuildErrorOutput("CpuPlugin", "Execute", _metricInstance, ex.ToString());
+                    _dataQueuer.Queue(_output);
+                }
+                catch { }
+
             }
         }
 
