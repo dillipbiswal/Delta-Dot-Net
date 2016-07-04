@@ -1,0 +1,30 @@
+﻿@model ApiUriWindowSumaryModel
+<div id="apiuriwindow-summary-container" class='content-container' style="overflow: auto">
+    <h3>@Model.ParentName</h3>
+    @{
+        Html.RenderPartial("DeltaTable", Model.ApiUriWindowTable);
+    }
+</div>
+<script type="text/javascript">
+    $("#@Model.TabListId").bind('tabresize', function () {
+        resizeChildToParent("#apiuriwindow-summary-container", 0);
+        var apiuriWindowTableId = "@Model.ApiUriWindowTable.Id";
+
+        //Set the width
+        var parentContainerLeft = $("#apiuriwindow-summary-container").offset().left;
+        var parentContainerRight = parentContainerLeft + $("#apiuriwindow-summary-container").width();
+        var tableLeft = $("#" + apiuriWindowTableId).offset().left;
+        var tableWidth = parentContainerRight - tableLeft;
+
+        $("#" + apiuriWindowTableId).jqGrid("setGridWidth", tableWidth);
+
+        //Set the height
+        var parentContainerTop = $("#apiuriwindow-summary-container").offset().top;
+        var parentContainerBottom = parentContainerTop + $("#apiuriwindow-summary-container").height();
+        var tableTop = $("#" + apiuriWindowTableId).offset().top;
+        var tableHeight = (parentContainerBottom - tableTop);
+        var pagerHeight = $("#" + apiuriWindowTableId + "-pager").height();
+
+        $("#" + apiuriWindowTableId).jqGrid("setGridHeight", (tableHeight - pagerHeight) - 10);
+    });
+</script>

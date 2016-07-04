@@ -6,33 +6,33 @@ using StructureMap;
 
 namespace Datavail.Delta.Cloud.Mvc.Infrastructure
 {
-	public class StructureMapDependencyResolver : IDependencyResolver
-	{
-		private readonly IContainer _container;
+    public class StructureMapDependencyResolver : IDependencyResolver
+    {
+        private readonly IContainer _container;
 
-		public StructureMapDependencyResolver(IContainer container)
-		{
-			_container = container;
-		}
+        public StructureMapDependencyResolver(IContainer container)
+        {
+            _container = container;
+        }
 
-		public object GetService(Type serviceType)
-		{
-			if (serviceType == null) return null;
-			try
-			{
-				return serviceType.IsAbstract || serviceType.IsInterface
-						 ? _container.TryGetInstance(serviceType)
-						 : _container.GetInstance(serviceType);
-			}
-			catch(Exception)
-			{
-				return null;
-			}
-		}
+        public object GetService(Type serviceType)
+        {
+            if (serviceType == null) return null;
+            try
+            {
+                return serviceType.IsAbstract || serviceType.IsInterface
+                         ? _container.TryGetInstance(serviceType)
+                         : _container.GetInstance(serviceType);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
 
-		public IEnumerable<object> GetServices(Type serviceType)
-		{
-			return _container.GetAllInstances(serviceType).Cast<object>();
-		}
-	}
+        public IEnumerable<object> GetServices(Type serviceType)
+        {
+            return _container.GetAllInstances(serviceType).Cast<object>();
+        }
+    }
 }

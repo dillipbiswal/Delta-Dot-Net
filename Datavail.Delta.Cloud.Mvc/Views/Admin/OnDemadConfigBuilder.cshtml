@@ -1,0 +1,36 @@
+﻿<div id="OnDemadConfigBuilderMain-container" class="container_12 leading main-content-page">
+    <div class="container-table grid_12">
+        @*   <div id="OnDemadConfigBuilder-container" class='content-container'>
+            @{
+    //Html.RenderPartial("DeltaTable", Model.UsersTable);
+            }
+              </div>*@
+         <br />
+            <br />
+            <br />
+            <span style="font-size: large;">Please press submit button to run config builder now:
+            </span>
+            <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnSubmit" role="button" aria-disabled="false" onclick="ClickSubmit();"><span class="ui-button-text">Submit</span></button>
+        <br /><br />
+         <span id="msg" style="font-size: medium;"></span>
+
+    </div>
+</div>
+<script type="text/javascript" lang="javascript">
+
+    function ClickSubmit() {
+        $.ajax({
+            type: "POST",
+            url: "/Admin/OnDemadConfigBuilder",
+            //  data: car,
+            datatype: "html",
+            success: function (message) {
+                if (message) {
+                    $('#msg').text(message); // display the error message in the span tag
+                } else {
+                    window.location.href = '/Admin/OnDemadConfigBuilder' // redirect to another page
+                }
+            }
+        });
+    }
+</script>

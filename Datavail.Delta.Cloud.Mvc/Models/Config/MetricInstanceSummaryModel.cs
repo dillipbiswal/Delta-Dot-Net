@@ -21,7 +21,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
             ViewName = "MetricInstanceSummary";
         }
 
-         public MetricInstanceSummaryModel()
+        public MetricInstanceSummaryModel()
         {
             ViewName = "MetricInstanceSummary";
         }

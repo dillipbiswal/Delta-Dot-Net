@@ -294,7 +294,9 @@ body.login {
     height: inherit;
 }
 
-#content-header
+
+/*start for Prod*/
+.content-header-p
 {
     height: 42px;
     background: rgba(0, 0, 0, 0.25) url(/Content/images/logo_white.jpg) no-repeat scroll 10px 5px; 
@@ -308,11 +310,133 @@ body.login {
     box-sizing: border-box;
 }
 
-#content-header > header > h1 {
+.content-header-p > header > h1 {
 	line-height: 46px;
 	margin: 0;
     display: inline;
 }
+
+.content-header-p .user-info {
+    background: #555;
+    background: rgba(0,0,0,0.6);
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    color: #FFF;
+    height: 42px;
+    padding: 0 10px;
+    padding-top: 10px;
+    background-image: url('/Content/images/trans_to_white_gradient.png'); 
+    background-repeat:repeat-x;
+    font-size: 12px;
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box;
+}
+/*end for Prod*/
+/*start for test*/
+.content-header-t
+{
+    height: 42px;
+    background: #009900 url(/Content/images/logo.png) no-repeat scroll 10px 5px; 
+    padding: 0px; 
+    border-radius: 10px; 
+    border: 1px solid rgba(0, 0, 0, 0.5); 
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.5), inset 0px 1px rgba(255,255,255,0.3), inset 0px 10px rgba(255,255,255,0.1), inset 0px 10px 20px rgba(255,255,255,0.3), inset 0px -15px 30px rgba(0,0,0,0.3);
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box;
+}
+
+.content-header-t > header > h1 {
+	line-height: 46px;
+	margin: 0;
+    display: inline;
+}
+
+.content-header-t .user-info {
+    background: #555;
+    background: rgba(0,0,0,0.6);
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    color: #FFF;
+    height: 42px;
+    padding: 0 10px;
+    padding-top: 10px;
+    background-image: url('/Content/images/trans_to_white_gradient.png'); 
+    background-repeat:repeat-x;
+    font-size: 12px;
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box;
+}
+/*end for test*/
+/*start for dev*/
+.content-header-d
+{
+    height: 42px;
+    background: #009299 url(/Content/images/logo.png) no-repeat scroll 10px 5px; 
+    padding: 0px; 
+    border-radius: 10px; 
+    border: 1px solid rgba(0, 0, 0, 0.5); 
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.5), inset 0px 1px rgba(255,255,255,0.3), inset 0px 10px rgba(255,255,255,0.1), inset 0px 10px 20px rgba(255,255,255,0.3), inset 0px -15px 30px rgba(0,0,0,0.3);
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box;
+}
+
+.content-header-d > header > h1 {
+	line-height: 46px;
+	margin: 0;
+    display: inline;
+}
+
+.content-header-d .user-info {
+    background: #555;
+    background: rgba(0,0,0,0.6);
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    color: #FFF;
+    height: 42px;
+    padding: 0 10px;
+    padding-top: 10px;
+    background-image: url('/Content/images/trans_to_white_gradient.png'); 
+    background-repeat:repeat-x;
+    font-size: 12px;
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box;
+}
+/*end for dev*/
+/*start indicate for version */
+.versioncolor {
+  
+    text-decoration-color:white;
+    height: 41px;
+    width: 400px;
+    padding: 0 10px;
+    padding-top: 8px;
+    background-repeat: repeat-x;
+    font-size: 12px;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.versioncolor h3 {
+ 
+ text-align: center;
+ color: white;
+ 
+}
+/*end indicate for version */
 
 #wrapper > header > h1 a {
     color: #111;
@@ -333,24 +457,7 @@ body.login {
     float: left;
 }
 
-#content-header .user-info {
-    background: #555;
-    background: rgba(0,0,0,0.6);
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
-    color: #FFF;
-    height: 42px;
-    padding: 0 10px;
-    padding-top: 10px;
-    background-image: url('/Content/images/trans_to_white_gradient.png'); 
-    background-repeat:repeat-x;
-    font-size: 12px;
-    -moz-box-sizing: border-box; 
-    -ms-box-sizing: border-box; 
-    -webkit-box-sizing: border-box; 
-    box-sizing: border-box;
-}
+
 
 #wrapper > header > nav .user-info a {
     color: #FFF;

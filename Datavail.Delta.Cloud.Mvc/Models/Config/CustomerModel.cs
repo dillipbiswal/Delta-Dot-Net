@@ -21,19 +21,24 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         [UIHint("FilteredStatusDropDown")]
         public Status Status { get; set; }
 
+        [Required]
+        [UIHint("FilteredAgentErrorDropDown")]
+        public AgentError AgentError { get; set; }
+
         public string Oper { get; set; }
 
         public CustomerModel()
         {
             Id = Guid.Empty;
             Status = Status.Active;
+            AgentError = AgentError.Enabled;
         }
 
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<Customer, CustomerModel>()
                 .ForMember(f => f.Status, opt => opt.MapFrom(f => f.Status));
-            
+
             configuration.CreateMap<CustomerModel, Customer>()
                 .ForMember(m => m.Status, opt => opt.MapFrom(f => (Status)f.Status))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));

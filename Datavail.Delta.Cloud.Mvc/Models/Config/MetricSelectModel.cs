@@ -10,10 +10,10 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
 {
     public class MetricSelectModel
     {
-        [Display(Name="Metric")]
+        [Display(Name = "Metric")]
         public SelectList MetricId { get; set; }
 
-        [HiddenInput(DisplayValue=false)]
+        [HiddenInput(DisplayValue = false)]
         public string MetricSelectFormAction { get; set; }
 
         public MetricSelectModel(IEnumerable<Metric> metrics)

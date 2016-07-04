@@ -5,17 +5,17 @@ using StructureMap.Configuration.DSL;
 
 namespace Datavail.Delta.Cloud.Mvc.Infrastructure
 {
-	public class ModelMetadataRegistry : Registry
-	{
-		public ModelMetadataRegistry()
-		{
-			For<ModelMetadataProvider>().Use<SolidModelMetadataProvider>();
+    public class ModelMetadataRegistry : Registry
+    {
+        public ModelMetadataRegistry()
+        {
+            For<ModelMetadataProvider>().Use<SolidModelMetadataProvider>();
 
-			Scan(scan =>
-			     	{
-			     		scan.TheCallingAssembly();
-			     		scan.AddAllTypesOf<IModelMetadataFilter>();
-			     	});
-		}
-	}
+            Scan(scan =>
+            {
+                scan.TheCallingAssembly();
+                scan.AddAllTypesOf<IModelMetadataFilter>();
+            });
+        }
+    }
 }

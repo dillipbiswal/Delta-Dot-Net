@@ -75,6 +75,7 @@
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.3\lib\StructureMap.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web.DynamicData" />
@@ -116,6 +117,7 @@
     <Reference Include="System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +126,7 @@
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\DeltaController.cs" />
+    <Compile Include="Controllers\FAQController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -170,6 +173,9 @@
     <Compile Include="Models\Config\AddServerModel.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Config\ApiUriWindowModel.cs" />
+    <Compile Include="Models\Config\ApiUriWindowSumaryModel.cs" />
+    <Compile Include="Models\Config\CheckInsModel.cs" />
     <Compile Include="Models\Config\MaintenanceDetailModel.cs" />
     <Compile Include="Models\Config\MaintenancePageModel.cs" />
     <Compile Include="Models\Config\MaintenanceWindowModel.cs">
@@ -220,6 +226,8 @@
     <Content Include="Content\css\device\wide-mobile.css" />
     <Content Include="Content\css\docs.css" />
     <Content Include="Content\css\dropdown_style.css" />
+    <Content Include="Content\css\FAQfont-awesome.css" />
+    <Content Include="Content\css\FAQMain2.css" />
     <Content Include="Content\css\forms.css" />
     <Content Include="Content\css\grids.css" />
     <Content Include="Content\css\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -640,6 +648,8 @@
     <Content Include="Content\css\images\page_white_paste.png" />
     <Content Include="Content\images\prev.gif" />
     <Content Include="Content\images\red-indicator.gif" />
+    <Content Include="Content\images\RemoveClusterServers.png" />
+    <Content Include="Content\images\RemoveSqlInstance.png" />
     <Content Include="Content\images\search.png" />
     <Content Include="Content\images\server-groups.png" />
     <Content Include="Content\images\server.png" />
@@ -1015,6 +1025,7 @@
     <Content Include="Content\themes\base\jquery.ui.tabs.css" />
     <Content Include="Content\themes\base\jquery.ui.theme.css" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\apiuritables.js" />
     <Content Include="Scripts\jquery-ui-1.8.17.custom.min.js" />
     <Content Include="Scripts\global.js" />
     <Content Include="Scripts\hoverIntent.js" />
@@ -1260,6 +1271,17 @@
     <Content Include="Views\Shared\EditorTemplates\AddRoles.cshtml" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Delta UI Test Deploy Profile.pubxml" />
+    <Content Include="Views\Admin\OnDemadConfigBuilder.cshtml" />
+    <Content Include="Views\Config\ApiUriDetails.cshtml" />
+    <Content Include="Views\Config\ApiUris.cshtml" />
+    <Content Include="Views\Config\ApiUriWindowEdit.cshtml" />
+    <Content Include="Views\Config\ApiUriWindowSummary.cshtml" />
+    <Content Include="Views\Config\DefaultEdit.cshtml" />
+    <Content Include="Views\Config\OnDemandMetricInstanceData.cshtml" />
+    <Content Include="Views\Config\ServerCheckIn.cshtml" />
+    <Content Include="Views\Config\ServerLastConfigBuild.cshtml" />
+    <Content Include="Views\FAQ\FAQ.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\FilteredAgentErrorDropDown.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

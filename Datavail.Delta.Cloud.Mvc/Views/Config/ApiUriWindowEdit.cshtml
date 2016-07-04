@@ -1,0 +1,99 @@
+﻿@model ApiUriWindowModel
+      
+<div id="apiuriwindowedit-container">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.CustomerId)
+        <table>
+            <tr>
+                <td class="form-label">
+                    PlugIn Name:
+                </td>
+                <td class="form-data">        
+                    @if(Model.Id== Guid.Empty) 
+                    {
+                        @Html.DropDownListFor(x => x.PlugInName, new SelectList(Model.Pluginlist.OrderBy(x => x.AdapterClass), "AdapterClass", "AdapterClass")) 
+                        
+                    }           
+                    @if(Model.Id!= Guid.Empty) 
+                    {
+                         @Html.TextBoxFor(x => x.PlugInName, new { @readonly = "readonly" })  
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="form-label">
+                    API URI Address:
+                </td>
+                <td class="form-data">
+                    @Html.TextBoxFor(x => x.URIAddress, new { @class = "required", @readonly = "readonly"})
+                </td>
+            </tr>
+           
+            <tr>
+                <td class="form-label">
+                    Host Name:
+                </td>
+                <td class="form-data">
+
+                    @if(Model.Id== Guid.Empty) 
+                    {
+                         @Html.DropDownListFor(x => x.AgentServerId, new SelectList(Model.HostNamelist.OrderBy(x => x.Hostname), "Id", "Hostname"))                          
+                    }           
+                    @if(Model.Id!= Guid.Empty) 
+                    {
+                         @Html.HiddenFor(x => x.AgentServerId)
+                         @Html.TextBoxFor(x=>x.HostName, new { @readonly = "readonly" })  
+                    }                                                   
+                    
+                </td>
+            
+            </tr>
+            @if ((Model.Id == Guid.Empty))
+            {
+            <tr>
+                <td >
+                  
+                </td>
+                <td class="form-label">
+                      @Html.CheckBoxFor(x=>x.FlagApplyToAll)Apply to All Servers
+                </td>
+            </tr>
+            }
+
+        </table>
+    }
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+
+       
+
+        $("form", "#apiuriwindowedit-container").validate({
+            errorContainer: $("#form-errors-container", "#apiuriwindowedit-container"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#apiuriwindowedit-container")),
+            wrapper: 'li',
+            rules: {
+                URIAddress: {
+                    required: true,
+                    url: true
+                }
+                }
+            ,
+            messages: {
+                URIAddress: {
+                    required: "Please supply an API URI Address",
+                    url: "Please Supply a Valid API URI Address"
+                }
+            }
+        });
+    });
+
+</script>

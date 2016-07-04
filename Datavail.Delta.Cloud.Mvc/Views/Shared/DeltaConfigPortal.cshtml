@@ -3,6 +3,7 @@
     ViewBag.Title = Model.Title;
 }
 <script type="text/javascript" src="@Url.Content("~/Scripts/tables/tables.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/apiuritables.js")"></script>
 <div id="wrapper">
     <div id="content-header">
         <div class="fl">
@@ -15,6 +16,16 @@
         <div class="user-info fr">
             @Model.LoginMessage
         </div>
+        <div class=" versioncolor fr">
+            <h3 id="versiontext"></h3>
+        </div>
+        @{
+            string connectString = System.Configuration.ConfigurationManager.ConnectionStrings["DeltaDbContext"].ToString();
+            System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectString);
+            // Retrieve the DataSource property.    
+            string DataSource = builder.DataSource;             
+            @Html.Hidden("deltaversion", DataSource, new { @id = "deltaversion", @class = ".deltaversion" });
+        }
     </div>
     <div id="content">
         @{
@@ -25,3 +36,26 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+
+        if ($('#deltaversion').val().toUpperCase() == "DEN3DD41SQL01") {//For dev
+            $(".versioncolor").show();
+            $('#content-header').removeClass('content-header-p content-header-t');
+            $('#content-header').addClass('content-header-d');
+
+            $('#versiontext').text("***Delta Dev Environment***");
+        }
+        else if ($('#deltaversion').val().toUpperCase() == "DEN3TD41SQL01") {//for test
+
+            $('#versiontext').text("***Delta Test Environment***");
+            $('#content-header').removeClass('content-header-p content-header-d');
+            $('#content-header').addClass('content-header-t');
+        }
+        else {
+            $(".versioncolor").show();
+            $('#content-header').removeClass('content-header-d content-header-t');
+            $('#content-header').addClass('content-header-p');
+        }
+    });
+</script>

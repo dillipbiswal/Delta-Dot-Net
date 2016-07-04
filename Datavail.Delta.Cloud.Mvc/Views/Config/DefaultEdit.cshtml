@@ -1,0 +1,49 @@
+﻿@model ServerGroupModel
+<div id="servergroupedit-form">
+    @using (Html.BeginForm())
+{
+    <div id="form-errors-container">
+        <ul></ul>
+    </div>
+    @Html.HiddenFor(x => x.Id)
+    @Html.HiddenFor(x => x.ParentId)
+    <table>       
+         <tr>
+                <td class="form-label">
+                    Agent Error
+                </td>
+                <td class="form-data">
+                    @Html.EditorFor(x => x.AgentError)
+                </td>
+            </tr>
+    </table>
+}
+</div>
+
+@*<script type="text/javascript">
+    $(function () {
+        $("form", "#servergroupedit-form").validate({
+            errorContainer: $("#form-errors-container", "#servergroupedit-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#servergroupedit-form")),
+            wrapper: 'li',
+            rules: {
+                Name: {
+                    required: true
+                },
+                Priority: {
+                    required: true,
+                    number: true,
+                    range: [0, 9999]
+                }
+            },
+            messages: {
+                Name: "Please supply a Server Group name",
+                Priority: {
+                    required: "Please supply a Server Group Priority",
+                    number: "Priority must be an integer greater than 0",
+                    range: "Priority must be between 0 and 9999"
+                }
+            }
+        });
+    });
+</script>*@

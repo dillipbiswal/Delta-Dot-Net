@@ -27,15 +27,18 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         public int? Interval { get; set; }
         public string Oper { get; set; }
 
-        public string Time { 
-            get { 
-                return _Time; 
-            } 
-            set {
+        public string Time
+        {
+            get
+            {
+                return _Time;
+            }
+            set
+            {
                 _Time = value;
                 Hour = Int32.Parse(_Time.Split(':')[0]);
                 Minute = Int32.Parse(_Time.Split(':')[1]);
-            } 
+            }
         }
         private string _Time;
 

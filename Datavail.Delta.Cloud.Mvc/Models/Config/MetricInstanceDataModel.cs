@@ -12,9 +12,9 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
 {
     public class MetricInstanceDataModel
     {
-        [HiddenInput(DisplayValue=false)]
+        [HiddenInput(DisplayValue = false)]
         public Guid MetricInstanceId { get; set; }
-        
+
         [HiddenInput(DisplayValue = false)]
         public Guid MetricId { get; set; }
 

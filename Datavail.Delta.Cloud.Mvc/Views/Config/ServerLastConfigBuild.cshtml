@@ -1,0 +1,40 @@
+﻿@model ServerModel
+<div id="serverLastConfigBuild-form">
+    @using (Html.BeginForm())
+    {
+        <div id="form-errors-container">
+            <ul>
+            </ul>
+        </div>
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.LastCheckIn)
+        @Html.HiddenFor(x => x.IsVirtual)
+        @Html.HiddenFor( x => x.ClusterId)
+        <table>            
+            
+             <tr>
+                @*<td class="form-label">
+                    Last uptime : 
+                </td>
+                <td class="form-data">
+                    @Model.LastCheckIn
+                    @Html.HiddenFor(x => x.IpAddress)
+                </td>*@
+                 <td>
+                     @Html.Raw(@ViewBag.Result)
+                 </td>
+            </tr>
+            
+        </table>
+    }
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("form", "#serverLastConfigBuild-form").validate({
+            errorContainer: $("#form-errors-container", "#serverLastConfigBuild-form"),
+            errorLabelContainer: $("ul", $("#form-errors-container", "#serverLastConfigBuild-form")),
+            wrapper: 'li'           
+        });
+    });
+</script>

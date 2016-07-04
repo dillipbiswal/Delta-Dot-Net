@@ -21,7 +21,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         [HttpGet]
         public ActionResult LogOn()
         {
-            
+
             return View();
         }
 

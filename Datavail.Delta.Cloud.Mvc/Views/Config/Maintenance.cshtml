@@ -74,7 +74,7 @@
             if (previousCustomer == null) {
                 previousCustomer = "00000000-0000-0000-0000-000000000000";
             }
-            
+
             $("#search-hierarchy").data("id", previousCustomer);
             initializeTree(previousCustomer);
         });
@@ -95,14 +95,14 @@
         }
 
         function initializeTree(customerid) {
-            
+
             $("#hierarchy-select-message").hide();
             $("#maintenance-hierarchy").jstree("destroy");
             $("#search-hierarchy").data("id", customerid);
             $('#maintenance-hierarchy').bind("loaded.jstree", function (event, data) {
                 $('#maintenance-hierarchy').jstree('select_node', 'ul > li:first');
                 var customerId = $("ul > li[rel='Customer']", "#maintenance-hierarchy").attr('id')
-                $.cookie("customer-tree", customerId, {expires: 10});
+                $.cookie("customer-tree", customerId, { expires: 10 });
             }).bind("refresh.jstree", function (event, data) {
                 $("#hierarchy-container").removeClass("loading");
             }).bind("select_node.jstree", function (event, data) {
@@ -119,7 +119,8 @@
                         "type": "POST",
                         "dataType": "text json",
                         "data": function (n) {
-                            return JSON.stringify({ id: n.attr ? n.attr("id") : customerid,
+                            return JSON.stringify({
+                                id: n.attr ? n.attr("id") : customerid,
                                 type: n.attr ? n.attr("rel") : "None"
                             });
                         },
@@ -302,7 +303,7 @@
                 if (currrentrequest != null) {
                     currrentrequest.abort();
                 }
-                
+
                 showTabsOverlay();
                 $("#maintenance-details").children().not("#tabs-overlay").remove();
 
@@ -384,6 +385,21 @@
                             getDeleteForm("Config/ServerGroupDelete?servergroupid=" + nodeId, "Delete Server Group", "Delete the selected group:  " + nodeName + "?", 425, function () {
                                 showTabsOverlay();
                                 initializeTree($("#search-hierarchy").data("id"));
+                            });
+                        },
+                        icon: ""
+                    }
+                }
+            }
+
+            if (nodeName == "Default") {
+                items = {
+                    editItem: {
+                        label: "Edit",
+                        action: function () {
+                            getEditForm("Config/DefaultEdit?servergroupid=" + nodeId + "&parentId=" + nodeParentId, "Edit " + nodeName, 425, function () {
+                                $("#hierarchy-container").addClass("loading");
+                                $("#maintenance-hierarchy").jstree("refresh");
                             });
                         },
                         icon: ""
@@ -478,6 +494,26 @@
                     },
                     icon: ""
                 },
+                CheckInItem: {
+                    label: "Last Uptime Details",
+                    action: function () {
+                        getDisplayForm("Config/ServerCheckin?serverid=" + nodeId, "Uptime Details", nodeId, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                LastConfigBuildItem: {
+                    label: "Last Config Build Details",
+                    action: function () {
+                        getDisplayForm("Config/ServerLastConfigBuild?serverid=" + nodeId, "Config Build Details", nodeId, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
                 deleteItem: {
                     label: "Remove",
                     action: function () {
@@ -491,8 +527,7 @@
             }
 
             //Prevent removal from the default group
-            if(nodeParentName == 'Default')
-            {
+            if (nodeParentName == 'Default') {
                 delete items.deleteItem;
             }
 
@@ -505,14 +540,14 @@
 
             var items = {
                 addServerItem: {
-                        label: "Add/Remove Servers",
-                        action: function () {
-                            getEditForm("Config/AddServerGroupServers?servergroupid=" + nodeParentId, "Edit " + nodeName, 540, function () {
-                                $("#hierarchy-container").addClass("loading");
-                                $("#maintenance-hierarchy").jstree("refresh");
-                            });
-                        },
-                        icon: ""
+                    label: "Add/Remove Servers",
+                    action: function () {
+                        getEditForm("Config/AddServerGroupServers?servergroupid=" + nodeParentId, "Edit " + nodeName, 540, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
                 }
             };
 
@@ -529,6 +564,26 @@
                     label: "Edit",
                     action: function () {
                         getEditForm("Config/ServerEdit?serverid=" + nodeId + "&clusterid=" + nodeParentId, "Edit " + nodeName, 425, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                CheckInItem: {
+                    label: "Last uptime Details",
+                    action: function () {
+                        getDisplayForm("Config/ServerCheckin?serverid=" + nodeId, "Uptime Details", nodeId, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
+                },
+                LastConfigBuildItem: {
+                    label: "Last Config Build Details",
+                    action: function () {
+                        getDisplayForm("Config/ServerLastConfigBuild?serverid=" + nodeId, "Config Build Details", nodeId, function () {
                             $("#hierarchy-container").addClass("loading");
                             $("#maintenance-hierarchy").jstree("refresh");
                         });
@@ -554,7 +609,7 @@
             var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
 
             var items = {
-                 addServerItem: {
+                addServerItem: {
                     label: "Add/Remove Nodes",
                     action: function () {
                         getEditForm("Config/AddClusterNodes?clusterid=" + nodeParentId, "Edit " + nodeName, 540, function () {
@@ -573,7 +628,7 @@
             var nodeParentId = $.jstree._reference(node)._get_parent(node).attr('id');
 
             var items = {
-                 addVirtualServerItem: {
+                addVirtualServerItem: {
                     label: "Add Virtual Server",
                     action: function () {
                         getEditForm("Config/ServerEdit?clusterid=" + nodeParentId, "Add Virtual Server", 425, function () {
@@ -694,12 +749,10 @@
             var nodeParentType = $.jstree._reference(node)._get_parent(node).parents("li").attr('rel');
             var metricParentType = "Server";
 
-            if(nodeParentType == "DatabaseInstance")
-            {
+            if (nodeParentType == "DatabaseInstance") {
                 metricParentType = "Instance";
             }
-            else if(nodeParentType == "Database")
-            {
+            else if (nodeParentType == "Database") {
                 metricParentType = "Database"
             }
 
@@ -723,6 +776,16 @@
                         });
                     },
                     icon: ""
+                },
+                RunNowItem: {
+                    label: "Run Now",
+                    action: function () {
+                        metricInstanceEdit("Config/GetOnDemandMetricInstanceData?parentId=" + nodeParentId + "&metricinstanceid=" + nodeId + "&parenttype=" + metricParentType, function () {
+                            $("#hierarchy-container").addClass("loading");
+                            $("#maintenance-hierarchy").jstree("refresh");
+                        });
+                    },
+                    icon: ""
                 }
             }
             return items;
@@ -739,8 +802,7 @@
             else if (nodeParentType == "Database") {
                 metricParentType = "Database"
             }
-            else if (nodeParentType == "VirtualServer")
-            {
+            else if (nodeParentType == "VirtualServer") {
                 metricParentType = "VirtualServer";
             }
 
@@ -754,7 +816,7 @@
                             $("#metricinstances-table").trigger("reloadGrid");
                         },
                         function () {
-                            alert("Error Creating Metric Instance!!"); 
+                            alert("Error Creating Metric Instance!!");
                         });
                     },
                     icon: ""
@@ -762,6 +824,154 @@
             };
 
             return items;
+        }
+
+        function getDisplayForm(url, dialogTitle, nodeId, formWidth, callback) {
+            var container = "<div id='Displayform'></div>";
+            //debugger;
+
+            //Create the dialog
+            if ($("#Displayform").html() === null) {
+                $('body').append(container);
+            }
+            else {
+                $("#Displayform").empty();
+            }
+
+            showContentPageOverlay();
+
+            //Make the AJAX call
+            $.ajax({
+                url: url,
+                cache: false,
+                success: function (data) {
+                    $("#Displayform").html(data);
+                    $("#Displayform").dialog({
+                        autoopen: true,
+                        modal: true,
+                        draggable: false,
+                        resizable: false,
+                        title: dialogTitle,
+                        show: {
+                            effect: 'slide',
+                            complete: function () {
+                                setTimeout(function () {
+                                    try {
+                                        $(':input:visible', "#Displayform form")[0].focus();
+                                    } catch (e) {
+                                    }
+                                }, 40);
+                            }
+                        },
+                        open: function (event, ui) {
+                            $('body').css('overflow', 'hidden');
+                            $('.ui-widget-overlay').css('width', '100%');
+                        },
+                        close: function (event, ui) {
+                            $('body').css('overflow', 'auto');
+                        },
+                        width: 650,
+                        height: "auto",
+                        hide: { effect: "fade", duration: 750 },
+                        buttons: {
+                            //"Show Details": function () {
+                            //    //debugger;
+                            //    ShowDetails("Config/ServerCheckInDetails?serverid=" + nodeId, "uptime Record(s) list", 425, function () {
+                            //        $("#hierarchy-container").addClass("loading");
+                            //        $("#maintenance-hierarchy").jstree("refresh");
+                            //    });
+                            //    $(this).dialog("close");
+                            //    $("#Displayform").remove();
+                            //},
+
+                            "Close": function () {
+                                $(this).dialog("close");
+                                $("#Displayform").remove();
+                            }
+                        }
+                    });
+                    hideContentPageOverlay();
+
+                },
+                error: function () {
+                    alert("Error retrieving data!!");
+                },
+                type: 'GET'
+            });
+
+        }
+
+        function ShowDetails(url, dialogTitle, formWidth, callback) {
+            var container = "<div id='Displayform1'><table id='list' class='scroll' cellpadding='0 cellspacing='0'></table><div id='pager' class='scroll' style='text-align:center;'></div></div>";
+            //debugger;
+            //Create the dialog
+            if ($("#Displayform1").html() === null) {
+                $('body').append(container);
+            }
+            else {
+                $("#Displayform1").empty();
+            }
+
+            showContentPageOverlay();
+
+            $('#list').jqGrid({
+                //caption: "Check in Details",
+                url: url,
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                colNames: ['Server Last uptime'],
+                colModel: [
+                      { name: 'InsertTimestamp', index: 'InsertTimestamp', align: 'left' }
+                ],
+                pager: jQuery('#pager'),
+                rowNum: 10,
+                rowList: [5, 10, 20, 50],
+                sortname: 'InsertTimestamp',
+                sortorder: "desc",
+                viewrecords: true,
+                loadonce: true,
+                width: 400
+            });
+
+            //$("#Displayform1").dialog("close");
+
+            $("#Displayform1").dialog({
+                autoopen: true,
+                modal: true,
+                draggable: false,
+                resizable: false,
+                title: dialogTitle,
+                show: {
+                    effect: 'slide',
+                    complete: function () {
+                        setTimeout(function () {
+                            try {
+                                $(':input:visible', "#Displayform1 form")[0].focus();
+                            } catch (e) {
+                            }
+                        }, 40);
+                    }
+                },
+                open: function (event, ui) {
+                    $('body').css('overflow', 'hidden');
+                    $('.ui-widget-overlay').css('width', '100%');
+                },
+                close: function (event, ui) {
+                    $('body').css('overflow', 'auto');
+                },
+                width: formWidth,
+                height: "auto",
+                hide: { effect: "fade", duration: 750 },
+                buttons: [{
+                    text: "Close",
+                    click: function () {
+                        $("#Displayform1").dialog("close");
+                        $("#Displayform1").remove();
+                    }
+                }]
+            });
+            hideContentPageOverlay();
         }
 
     </script>

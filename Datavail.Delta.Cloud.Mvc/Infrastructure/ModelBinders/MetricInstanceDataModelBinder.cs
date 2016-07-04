@@ -12,7 +12,7 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure.ModelBinders
         public object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var metricInstanceModelBinder = new MetricInstanceDataModel();
-            
+
 
             return metricInstanceModelBinder;
         }

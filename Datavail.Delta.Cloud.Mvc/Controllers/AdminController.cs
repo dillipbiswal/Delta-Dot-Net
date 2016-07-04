@@ -14,10 +14,12 @@ using Datavail.Delta.Cloud.Mvc.Utility;
 using Datavail.Delta.Cloud.Mvc.Models;
 using AutoMapper;
 using System.Text;
+using System.Configuration;
+using System.Net;
 
 namespace Datavail.Delta.Cloud.Mvc.Controllers
 {
-    [Authorize(Roles=Constants.DELTAADMIN)]
+    [Authorize(Roles = Constants.DELTAADMIN)]
     public class AdminController : DeltaController
     {
         #region "private variables"
@@ -36,6 +38,69 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
             var usersPageModel = InitializeUserMaintenanceModel();
 
             return View(usersPageModel);
+        }
+        [HttpGet]
+        public ActionResult OnDemadConfigBuilder()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult OnDemadConfigBuilder(int? id)
+        {
+            string result = RunConfigBuilder();
+            return Json(result);
+        }
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+        public string RunConfigBuilder()
+        {
+            String msgReturn = "";
+            if (!(_serverService.GetStatusOnDemandConfigBuilder("Y")))
+            {
+
+                if (_serverService.SaveOnDemandConfigBuilder(System.DateTime.Now, System.DateTime.Now, User.Identity.Name, "Y"))
+                {
+                    msgReturn = "On Demand Config Builder Submitted Successfully at " + System.DateTime.Now.ToString();
+                }
+                else
+                {
+                    msgReturn = "There was an error On Demand Config Builder Submission";
+                }
+            }
+            else
+            {
+                msgReturn = "On Demand Config Builder Already Running.";
+            }
+            //string strfilename = "OnDemand_" + Convert.ToDateTime(System.DateTime.Now).ToString("ddMMMyyyy_H-M") + ".txt";
+            //String dest_path = @ConfigurationManager.AppSettings["OnDemandSharePath"] + strfilename;
+            //string UName = "";
+            //string PWD = "";
+            //UName = ConfigurationManager.AppSettings["OnDemandUName"];
+            //PWD = ConfigurationManager.AppSettings["OnDemandPassword"];
+
+            //try
+            //{
+            //    WebRequest reqObj = WebRequest.Create(dest_path);
+
+            //    reqObj.Method = WebRequestMethods.Ftp.UploadFile;
+            //    reqObj.Credentials = new NetworkCredential(UName, PWD);
+            //    string strdatetime = System.DateTime.Now.ToString();
+            //    byte[] buffer = System.Text.Encoding.UTF8.GetBytes("On Demand Config Builder ran at " + strdatetime);
+            //    using (var reqStream = reqObj.GetRequestStream())
+            //    {
+            //        reqStream.Write(buffer, 0, buffer.Length);
+            //    }
+            //    msgReturn = "Sucessfully Submitted at " + strdatetime + " ...";
+            //}
+            //catch (Exception exp)
+            //{
+            //    msgReturn = "Unsucessful...";
+            //}
+            return msgReturn;
         }
 
         #region "Users"
@@ -119,7 +184,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             return Json(new { success = true });
         }
-      
+
         [HttpGet]
         public JsonResult UsersTable(string sidx, string sord, int page, int rows,
                                             bool _search, string searchField, string searchOper, string searchString)
@@ -178,7 +243,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         #endregion
 
         #region "Metrics"
-        
+
         #endregion
 
         #region "private methods"

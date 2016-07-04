@@ -9,7 +9,7 @@
 //    {
 //        private readonly IRepository<Issue> _repository;
 //        private readonly CurrentUser _user;
-		
+
 //        public IssueSecurityDecorator(IRepository<Issue> repository, CurrentUser user)
 //        {
 //            _repository = repository;

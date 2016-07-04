@@ -18,7 +18,9 @@ using Datavail.Delta.Domain.Specifications;
 using System.Net;
 using Datavail.Delta.Cloud.Mvc.Infrastructure;
 using Datavail.Delta.Application;
-
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 namespace Datavail.Delta.Cloud.Mvc.Controllers
 {
     [Authorize(Roles = Constants.DELTAUSER)]
@@ -481,10 +483,10 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
             var potentialServers = _serverService.GetUnknownServers(customer.Tenant.Id).Concat(selectedServers).OrderBy(s => s.Hostname).ToList();
             var potentialServersSelectListItems = from s in potentialServers
                                                   select new SelectListItem
-                                                      {
-                                                          Value = s.Id.ToString(),
-                                                          Text = string.Format("{0} ({1})", s.Hostname, string.IsNullOrEmpty(s.IpAddress) ? "n/a" : s.IpAddress)
-                                                      };
+                                                  {
+                                                      Value = s.Id.ToString(),
+                                                      Text = string.Format("{0} ({1})", s.Hostname, string.IsNullOrEmpty(s.IpAddress) ? "n/a" : s.IpAddress)
+                                                  };
             var addServerModel = new AddServerModel(potentialServers, potentialServersSelectListItems, selectedServers.Select(x => x.Id), customer.Id);
 
             addServerModel.SelectedServersHeader = "Customer Servers    ";
@@ -553,7 +555,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                                                       Text = string.Format("{0} ({1})", s.Hostname, string.IsNullOrEmpty(s.IpAddress) ? "n/a" : s.IpAddress)
                                                   };
             var addServerModel = new AddServerModel(potentialServers, potentialServersSelectListItems, selectedServers.Select(x => x.Id), cluster.Id);
-            
+
             addServerModel.SelectedServersHeader = "Nodes & Virtual Servers";
             addServerModel.PotentialServersHeader = "Customer Servers";
             addServerModel.UnavailableMessage = "There are no servers available for this cluster";
@@ -676,6 +678,196 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             return Json(new { success = true });
         }
+        [HttpGet]
+        public ActionResult ServerCheckIn(Guid? serverId, Guid? clusterId)
+        {
+            if (serverId != null)
+            {
+                //Edit
+                var message = GetCheckInMessage(serverId);
+                ViewBag.Result = message;
+                var server = _serverService.GetByKey<Server>(serverId.Value);
+                if (message == "")
+                {
+                    ViewBag.Result = "<b>Last Uptime :</b>" + server.LastCheckIn.ToString();
+                }
+
+                Mapper.CreateMap<Server, ServerModel>();
+                var serverModel = Mapper.Map<Server, ServerModel>(server);
+                return View(serverModel);
+            }
+
+            return View(new ServerModel { IsVirtual = true, ClusterId = clusterId.GetValueOrDefault() });
+        }
+        [HttpPost]
+        public JsonResult ServerCheckin(ServerModel serverModel)
+        {
+
+            //  _kernel.Bind<IQueue<CheckInMessage>>().To<SqlQueue<CheckInMessage>>().WithConstructorArgument("queueTableName", QueueNames.CheckInQueue);
+
+            return Json(new { success = true });
+        }
+        [HttpGet]
+        public JsonResult ServerCheckInDetails(Guid? serverId, Guid? clusterId)
+        {
+            return Json(null, JsonRequestBehavior.AllowGet);
+            //List<CheckInsModel> CheckInsList = new List<CheckInsModel>();
+
+            //var jsonData = new
+            //{
+            //    total = 1,
+            //    page = 1,
+            //    records = CheckInsList = GetCheckInMessage(serverId),
+            //    rows = (
+            //      from ch in CheckInsList.ToList()
+            //      select new
+            //      {
+            //          id = ch.InsertTimestamp,
+            //          cell = new string[] {   
+            //   ch.InsertTimestamp.ToString() 
+            //}
+            //      }).ToArray()
+            //};
+            //return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public string GetCheckInMessage(Guid? serverId)
+        {
+            //int day = Convert.ToInt32(ConfigurationManager.AppSettings["NoOfDays"].ToString());
+            string _connectionString;
+            string returnMsg = "";
+            var commandText = "GetCheckInStatus";
+            var messages = new List<CheckInsModel>();
+            _connectionString = ConfigurationManager.ConnectionStrings["QueuesConnectionString"].ConnectionString;
+            using (var connection = new SqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                DataSet ds = new DataSet();
+                command.CommandText = commandText;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@ServerId", serverId));
+                //command.Parameters.Add(new SqlParameter("@NoOfDays", day));
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    try
+                    {
+                        while (reader.Read())
+                        {
+                            var id = (int)reader["MessageId"];
+                            var msg = (string)reader["msg"];
+                            DateTime insertTimestamp = (DateTime)reader["InsertTimestamp"];
+                            string minutediff = (string)reader["min_diff"];
+                            int hourdiff = (int)reader["Hour_diff"];
+                            if (msg == "Agent Started")
+                            {
+                                returnMsg = "Agent started at <b>" + insertTimestamp.ToString() + "</b> and has been running for <b>" + hourdiff + "</b> hours <b>" + minutediff + "</b> minutes.";
+                            }
+                            else
+                            {
+                                returnMsg = "Agent is not currently running";
+                            }
+                            break;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        if (ex.Message.Contains("deadlocked"))
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
+                    }
+                    connection.Close();
+                    return returnMsg;
+                }
+            }
+            return null;
+        }
+
+        //
+
+        [HttpGet]
+        public ActionResult ServerLastConfigBuild(Guid? serverId, Guid? clusterId)
+        {
+            if (serverId != null)
+            {
+                //Edit
+                //var message = GetServerLastConfigBuildMessage(serverId);
+                var server = _serverService.GetByKey<Server>(serverId.Value);
+                var message = "Agent Last Config Build at <b>" + server.LastConfigBuild.ToString() + "</b>";// and has not build for <b>" + hourdiff + "</b> hours <b>" + minutediff + "</b> minutes.";
+                ViewBag.Result = message;
+                if (message == "")
+                {
+                    ViewBag.Result = "";
+                }
+
+                Mapper.CreateMap<Server, ServerModel>();
+                var serverModel = Mapper.Map<Server, ServerModel>(server);
+                return View(serverModel);
+            }
+
+            return View(new ServerModel { IsVirtual = true, ClusterId = clusterId.GetValueOrDefault() });
+        }
+        [HttpPost]
+        public JsonResult ServerLastConfigBuild(ServerModel serverModel)
+        {
+            return Json(new { success = true });
+        }
+
+        public string GetServerLastConfigBuildMessage(Guid? serverId)
+        {
+            string returnMsg = "";
+
+            string _connectionString;
+            var commandText = "GetServerLastConfigBuildStatus";
+            var messages = new List<CheckInsModel>();
+            _connectionString = ConfigurationManager.ConnectionStrings["QueuesConnectionString"].ConnectionString;
+            using (var connection = new SqlConnection(_connectionString))
+            using (var command = connection.CreateCommand())
+            {
+                DataSet ds = new DataSet();
+                command.CommandText = commandText;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@ServerId", serverId));
+                //command.Parameters.Add(new SqlParameter("@NoOfDays", day));
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    try
+                    {
+                        while (reader.Read())
+                        {
+                            DateTime LastConfigBuildDt = (DateTime)reader["LastConfigBuild"];
+                            string minutediff = (string)reader["min_diff"];
+                            int hourdiff = (int)reader["Hour_diff"];
+                            returnMsg = "Agent Last Config Build at <b>" + LastConfigBuildDt.ToString() + "</b>";// and has not build for <b>" + hourdiff + "</b> hours <b>" + minutediff + "</b> minutes.";
+                            break;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        if (ex.Message.Contains("deadlocked"))
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
+                    }
+                    connection.Close();
+                    return returnMsg;
+                }
+            }
+            return null;
+        }
+
+        //
 
         [HttpPost]
         public JsonResult ActivateServer(List<ServerActivationModel> activationData)
@@ -825,6 +1017,64 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
 
             return Json(new { success = true });
         }
+
+
+        [HttpPost]
+        public JsonResult DefaultEdit(ServerGroupModel serverGroupModel)
+        {
+            var errorMessages = new StringBuilder();
+            var serverErrors = new List<string>();
+
+            Mapper.CreateMap<ServerGroupModel, ServerGroup>();
+            var serverGroup = Mapper.Map<ServerGroupModel, ServerGroup>(serverGroupModel);
+
+            if (_serverService.SaveCustomerServerGroup(ref serverGroup, serverGroupModel.ParentId))
+            {
+            }
+
+            ////Validate
+            //if (!_serverService.ValidateServerGroup(serverGroup, serverGroupModel.ParentId, out serverErrors))
+            //{
+            //    foreach (var error in serverErrors)
+            //    {
+            //        ModelState.AddModelError("Validation", error);
+            //    }
+            //}
+            //else
+            //{
+            //    if (!_serverService.SaveCustomerServerGroup(ref serverGroup, serverGroupModel.ParentId))
+            //    {
+            //        ModelState.AddModelError("Validation", "The server encountered and error during Save");
+            //    }
+            //}
+
+            //if (!ModelState.IsValid)
+            //{
+            //    return Json(new { success = false, errors = GetErrors(ModelState).ToArray() });
+            //}
+
+            return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public ActionResult DefaultEdit(Guid? serverGroupId, Guid? parentId)
+        {
+            if (serverGroupId != null)
+            {
+                //Edit
+                var serverGroup = _serverService.GetByKey<ServerGroup>(serverGroupId.Value);
+
+                Mapper.CreateMap<ServerGroup, ServerGroupModel>();
+                var serverGroupModel = Mapper.Map<ServerGroup, ServerGroupModel>(serverGroup);
+
+                serverGroupModel.ParentId = serverGroup.Parent.Id;
+
+                return View(serverGroupModel);
+            }
+
+            return View(new ServerGroupModel { ParentId = parentId.GetValueOrDefault() });
+        }
+
         #endregion
 
         #region "Cluster Actions"
@@ -1794,6 +2044,373 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
         }
         #endregion
 
+        #region APIURI
+
+        [Authorize(Roles = "DeltaAdmin")]
+        public ActionResult ApiUris()
+        {
+            var apiuriPageModel = InitializeApiUriPageModel();
+
+            if (Request.IsAjaxRequest())
+            {
+                return View(apiuriPageModel);
+            }
+
+            var configPortalModel = InitializeConfigPortalModel(apiuriPageModel);
+
+            return View("DeltaConfigPortal", configPortalModel);
+        }
+
+        private HierarchyModel InitializeApiUriPageModel()
+        {
+            var apiuriPageModel = new HierarchyModel();
+
+            apiuriPageModel.MainMenuItemId = Constants.CONFIGMENUITEMID;
+            apiuriPageModel.PageHeader = "Customers";
+            apiuriPageModel.ContentPageView = "ApiUris";
+            apiuriPageModel.SelectMessage = "Please Select a Customer...";
+            apiuriPageModel.SearchPlaceholder = "Search Customers...";
+            apiuriPageModel.IsSearchEnabled = true;
+
+            return apiuriPageModel;
+        }
+
+        public ActionResult ApiUriDetails(Guid itemId, Constants.ItemHierarchyType type)
+        {
+            var apiuriDetailModel = new ItemDetailModel("apiuri-details-tabs");
+            Thread.Sleep(5000);
+
+            switch (type)
+            {
+                case Constants.ItemHierarchyType.Customer:
+                    var customerName = _serverService.GetByKey<Customer>(itemId).Name;
+                    apiuriDetailModel.Details.TabList.Add(InitializeApiUriWindowSumaryModel(ApiUriWindowParentType.Customer, itemId, customerName));
+                    break;
+
+                case Constants.ItemHierarchyType.ClusterNode:
+                    var serverName = _serverService.GetByKey<Server>(itemId).Hostname;
+                    apiuriDetailModel.Details.TabList.Add(InitializeApiUriWindowSumaryModel(ApiUriWindowParentType.Server, itemId, serverName));
+                    break;
+                case Constants.ItemHierarchyType.ServerGroup:
+                    var serverGroupName = _serverService.GetByKey<Server>(itemId).Hostname;
+                    apiuriDetailModel.Details.TabList.Add(InitializeApiUriWindowSumaryModel(ApiUriWindowParentType.Server, itemId, serverGroupName));
+                    break;
+                default:
+                    break;
+            }
+
+            return View(apiuriDetailModel);
+        }
+
+        private ApiUriWindowSumaryModel InitializeApiUriWindowSumaryModel(ApiUriWindowParentType parentType, Guid parentId, string parentName)
+        {
+            var apiuriWindowSummaryModel = new ApiUriWindowSumaryModel(parentType, parentId, parentName);
+            apiuriWindowSummaryModel.TabListName = "APIURI Windows";
+            apiuriWindowSummaryModel.TabListId = "apiuriwindow-tab";
+            apiuriWindowSummaryModel.ApiUriWindowTable = GetTableModel(Constants.TableType.ApiUriWindow, parentId, false, false, true);
+            apiuriWindowSummaryModel.ApiUriWindowTable.EditUrl += "?parenttype=" + parentType.ToString();
+            apiuriWindowSummaryModel.ApiUriWindowTable.IsSearchEnabled = false;
+
+            //Toolbar
+            apiuriWindowSummaryModel.ApiUriWindowTable.ToolbarItems.Add(new ToolbarItemModel
+            {
+
+                ToolbarItemId = "add-apiuriwindow-button",
+                ToolbarItemIconUrl = "~/Content/images/navicons-small/171.png",
+                ToolbarItemUrl = "Config/ApiUriWindowEdit?parentid=" + parentId.ToString(),
+                ToolbarItemTitle = "Add APIURI Window",
+                ToolbarItemAction = "",
+                ToolbarItemClass = "small-button add-button"
+            });
+
+            return apiuriWindowSummaryModel;
+        }
+
+        [HttpGet]
+        public ActionResult ApiUriWindowEdit(Guid? ParentID, Guid? apiuriId)
+        {
+            var apiuriModel = new ApiUriWindowModel();
+            Guid cust = new Guid(ParentID.ToString());
+            bool IsCustomer = _serverService.HasApiUriCustomerId(cust);
+
+            if (IsCustomer)
+            {
+                var customer = _serverService.GetByKey<Customer>(cust);
+                apiuriModel.CustomerId = new Guid(ParentID.ToString());
+                apiuriModel.HostNamelist = customer.Servers.Where(x => x.Status != Status.Deleted).OrderBy(s => s.Hostname).ToList();
+
+            }
+            else
+            {
+                var cust1 = _serverService.GetByKey<Server>(cust).Customer.Id;
+                var customer1 = _serverService.GetByKey<Customer>(cust1);
+                apiuriModel.HostNamelist = customer1.Servers.Where(x => x.Status != Status.Deleted).OrderBy(s => s.Hostname).ToList();
+                apiuriModel.AgentServerId = cust.ToString();  // Selected Server is populated in Drop down
+                apiuriModel.CustomerId = cust1;
+
+            }
+
+            if (apiuriId != null)
+            {
+                //Edit
+                var apiuri = _serverService.GetByKey<ApiUri>(apiuriId.Value);
+                Mapper.CreateMap<ApiUri, ApiUriWindowModel>();
+                apiuriModel = Mapper.Map<ApiUri, ApiUriWindowModel>(apiuri);
+                var customer1 = _serverService.GetByKey<Customer>(apiuriModel.CustomerId);
+                apiuriModel.HostNamelist = customer1.Servers.Where(x => x.Status != Status.Deleted).OrderBy(s => s.Hostname).ToList();
+                var metric1 = _serverService.GetMetrics();
+                apiuriModel.HostName = GetHostName(apiuriModel.AgentServerId);
+                apiuriModel.Pluginlist = metric1.GroupBy(x => x.AdapterClass).Select(x => x.FirstOrDefault()).ToList();
+                return View(apiuriModel);
+            }
+            var metric = _serverService.GetMetrics();
+            apiuriModel.Pluginlist = metric.GroupBy(x => x.AdapterClass).Select(x => x.FirstOrDefault()).ToList();
+            return View(apiuriModel);
+        }
+
+        [HttpGet]
+        public JsonResult ApiUriWindowsTable(string sidx, string sord, int page, int rows,
+                                            bool _search, string searchField, string searchOper, string searchString, Guid parentId)
+        {
+
+            string aserverid;
+            aserverid = parentId.ToString();
+            IEnumerable<ApiUri> apiuri = null;
+            Specification<ApiUri> criteria = null;
+            bool IsCustomer = _serverService.HasApiUriCustomerId(parentId);
+
+            if (IsCustomer)
+            {
+                criteria = new Specification<ApiUri>(x => x.CustomerId.Equals(parentId));
+            }
+            else
+            {
+                criteria = new Specification<ApiUri>(x => x.AgentServerId.Equals(aserverid));
+            }
+
+            var totalRecords = _serverService.GetPagedEntities<ApiUri>(page, rows, criteria, x => "", out apiuri);
+            var totalPages = (int)Math.Ceiling((float)totalRecords / (float)rows);
+
+            var result = new
+            {
+                total = totalPages,
+                page = page,
+                records = totalRecords,
+                rows = apiuri.Select(x => new { x.Id, x.PlugInName, x.URIAddress, x.AgentServerId, x.CustomerId })
+                            .ToList()
+                            .Select(x => new
+                            {
+                                agentServerId = x.AgentServerId.ToString(),
+                                cell = new string[] {
+                            GetActionItems(new List<ActionModel> {
+                                new ActionModel {   
+                                    Id =x.Id.ToString(), 
+                                    Title="Edit ApiUri", 
+                                    Class = "edit-row-button",                                    
+                                    Url = "Config/ApiUriWindowEdit?parentid=" + parentId.ToString()+"&apiuriId=" + x.Id.ToString(),
+                                    Icon=Constants.EDITICON, 
+                                    Alt="Edit"},
+                                new ActionModel { 
+                                    Id =x.Id.ToString(), 
+                                    Title="Delete ApiUri",                                    
+                                    Url = "Config/ApiUriWindowDelete?apiuriId=" + x.Id.ToString(),
+                                    Class = "delete-row-button", 
+                                    Icon=Constants.DELETEICON, 
+                                    Alt="Delete"},
+                            }),
+                            x.PlugInName.ToString(),
+                            x.URIAddress.ToString(),
+                            GetHostName(x.AgentServerId.ToString()),                            
+                            x.CustomerId.ToString()
+                           
+                        }
+                            })
+                            .ToArray(),
+            };
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public string GetHostName(string agentserverid)
+        {
+            Guid aserverid = new Guid(agentserverid);
+            string hostname;
+
+            bool IsCustomer = _serverService.HasApiUriCustomerId(aserverid);
+
+            if (IsCustomer)
+            {
+                hostname = agentserverid;
+            }
+            else
+            {
+                hostname = _serverService.Find<Server>(new Specification<Server>(x => x.Id == aserverid)).First().Hostname;
+            }
+
+            return hostname;
+        }
+
+        [HttpPost]
+        public JsonResult ApiUriWindowEdit(ApiUriWindowModel apiuriwindowModel)
+        {
+            var errorMessages = new StringBuilder();
+            var serverErrors = new List<string>();
+
+            Mapper.CreateMap<ApiUriWindowModel, ApiUri>();
+            var apiuri = Mapper.Map<ApiUriWindowModel, ApiUri>(apiuriwindowModel);
+
+            //Validate
+            if (apiuriwindowModel.FlagApplyToAll == false)
+            {
+                if (!_serverService.ValidateApiUri(apiuri, out serverErrors))
+                {
+                    foreach (var error in serverErrors)
+                    {
+                        ModelState.AddModelError("Validation", error);
+                    }
+                }
+            }
+            if (apiuriwindowModel.FlagApplyToAll == true)
+            {
+                SaveAPIURIToAll(apiuri.CustomerId, apiuri.PlugInName, apiuri.URIAddress, apiuriwindowModel);
+            }
+            else
+            {
+                if (!_serverService.SaveApiUri(ref apiuri))
+                {
+                    ModelState.AddModelError("Validation", "The server encountered and error during Save");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, errors = GetErrors(ModelState).ToArray() });
+            }
+            return Json(new { success = true });
+        }
+
+        private bool SaveAPIURIToAll(Guid CustomerId, string PlugInName, string URIAddress, ApiUriWindowModel apiuriwindowModel)
+        {
+            var customer = CustomerId.Equals(Guid.Empty) ? _serverService.Find<Customer>(new Specification<Customer>(x => x.Status != Status.Deleted)).OrderBy(x => x.Name).First() : _serverService.GetByKey<Customer>(CustomerId);
+            if (customer != null && customer.Status != Status.Deleted)
+            {
+                //Get the servers
+                var serverslist = customer.Servers.Where(x => x.Status != Status.Deleted).Select(x => x.Id).ToList();
+                foreach (var instance in serverslist)
+                {
+                    //var apiuriwindowModel = new ApiUriWindowModel();
+                    string agentserver_id = instance.ToString();
+                    var apiuris = _serverService.Find<ApiUri>(new Specification<ApiUri>(x => x.CustomerId == CustomerId && x.PlugInName == PlugInName && x.AgentServerId == agentserver_id)).FirstOrDefault();
+                    if (apiuris != null)
+                    {
+                        Guid api_id = Guid.Parse(apiuris.Id.ToString());
+                        if (URIAddress != apiuris.URIAddress)
+                        {
+                            _serverService.UpdateApiUri(api_id, URIAddress);
+                        }
+                    }
+                    else
+                    {
+                        apiuriwindowModel.Id = Guid.Empty;
+                        apiuriwindowModel.AgentServerId = instance.ToString();
+                        apiuriwindowModel.CustomerId = CustomerId;
+                        apiuriwindowModel.PlugInName = PlugInName;
+                        apiuriwindowModel.URIAddress = URIAddress;
+                        Mapper.CreateMap<ApiUriWindowModel, ApiUri>();
+                        var apiuri = Mapper.Map<ApiUriWindowModel, ApiUri>(apiuriwindowModel);
+
+                        if (!_serverService.SaveApiUri(ref apiuri))
+                        {
+                            ModelState.AddModelError("Validation", "The server encountered and error during Save");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        [HttpPost]
+        public JsonResult ApiUriWindowDelete(Guid apiuriId)
+        {
+            var Ids = new List<Guid>();
+            Ids.Add(apiuriId);
+
+            if (!_serverService.DeleteApiUris(Ids))
+            {
+                return Json(new { success = false, errors = new string[] { "The ApiUri Could Not Be Deleted!!" } });
+            }
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult ApiUriCustomerHierarchy(Guid id, Constants.ItemHierarchyType type)
+        {
+            object items = new { };
+            switch (type)
+            {
+                case Constants.ItemHierarchyType.None:
+                    Customer customer = null;
+
+                    customer = id.Equals(Guid.Empty) ? _serverService.Find<Customer>(new Specification<Customer>(x => x.Status != Status.Deleted)).OrderBy(x => x.Name).First() : _serverService.GetByKey<Customer>(id);
+
+                    if (customer != null && customer.Status != Status.Deleted)
+                    {
+                        //Get the server groups                         
+                        var serverGroups = customer.Servers.Where(x => x.Status != Status.Deleted).Select(x => new
+                        {
+                            data = x.Hostname,
+                            attr = new
+                            {
+                                id = x.Id.ToString(),
+                                rel = Constants.ItemHierarchyType.ServerGroup.ToString(),
+                                @class = x.Status == Status.InMaintenance ? "in-maintenance" : string.Empty,
+                                name = x.Hostname
+                            },
+                            state = "leaf"
+                        }).ToList();
+
+
+                        var serverGroupFolder = new
+                        {
+                            data = "Servers",
+                            attr = new
+                            {
+                                id = Constants.SERVERGROUPFOLDERID.ToString(),
+                                rel = Constants.ItemHierarchyType.ServerGroupFolder.ToString(),
+                                name = "Server Groups"
+                            },
+                            children = new[] { serverGroups.OrderBy(x => x.data) },
+                            state = serverGroups.Count > 0 ? "open" : "leaf"
+                        };
+
+                        var customerItems = new
+                        {
+                            data = customer.Name,
+                            attr = new
+                            {
+                                id = customer.Id.ToString(),
+                                rel = Constants.ItemHierarchyType.Customer.ToString(),
+                                @class = customer.Status == Status.InMaintenance ? "in-maintenance" : string.Empty,
+                                name = customer.Name
+                            },
+                            children = new[] { serverGroupFolder },
+                            state = "open"
+                        };
+
+                        items = customerItems;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return Json(items);
+        }
+
+        #endregion APIURI
+
         #region "Private Methods"
         private MaintenanceWindowSumaryModel InitializeMaintenanceWindowSumaryModel(MaintenanceWindowParentType parentType, Guid parentId, string parentName)
         {
@@ -2265,5 +2882,107 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
             return metricData;
         }
         #endregion
+
+        public ActionResult GetOnDemandMetricInstanceData(Guid metricInstanceId, Guid parentId, MetricInstanceParentType parentType)
+        {
+            var formAction = "/Config/SaveOnDemandMetricData?parentid=" + parentId + "&parenttype=" + parentType.ToString();
+            var metricInstanceDataModel = InitializeOnDemandMetricInstanceDataModel(Guid.Empty, parentId, metricInstanceId, formAction);
+
+            return View("OnDemandMetricInstanceData", metricInstanceDataModel);
+        }
+        private MetricInstanceDataModel InitializeOnDemandMetricInstanceDataModel(Guid metricId, Guid parentId, Guid metricInstanceId, string formAction)
+        {
+            var metricInstanceDataModel = new MetricInstanceDataModel();
+            metricInstanceDataModel.MetricInstanceParentId = parentId;
+            metricInstanceDataModel.MetricInstanceDataFormAction = formAction;
+
+            MetricData metricData = null;
+
+            //For add new metric instance
+            if (metricInstanceId == Guid.Empty)
+            {
+                metricData = _serverService.GetMetricData(metricId, parentId);
+                metricInstanceDataModel.MetricId = metricId;
+                metricInstanceDataModel.MetricInstanceId = Guid.Empty;
+                metricInstanceDataModel.MetricInstanceParentId = parentId;
+                metricInstanceDataModel.Status = Status.Active;
+            }
+            else
+            {
+                var metricInstance = _serverService.GetMetricInstance(metricInstanceId, parentId, out metricData);
+                metricInstanceDataModel.MetricInstanceId = metricInstance.Id;
+                metricInstanceDataModel.MetricId = metricInstance.Metric.Id;
+                metricInstanceDataModel.MetricInstanceParentId = parentId;
+                metricInstanceDataModel.Status = metricInstance.Status;
+            }
+
+            foreach (var item in metricData.Data)
+            {
+                var dataItem = new MetricDataItemModel();
+                dataItem.ItemId = item.DisplayName.Replace(" ", "-");
+                dataItem.DisplayName = item.DisplayName;
+                dataItem.Value = item.Value;
+                dataItem.TagName = item.TagName;
+                dataItem.IsRequired = item.IsRequired;
+
+                if (item.ValueOptions != null && item.ValueOptions.Count() > 0)
+                {
+                    dataItem.ValueOptions = item.ValueOptions;
+                    dataItem.SelectedValueOption = item.SelectedValueOption;
+                    dataItem.IsRequired = item.IsRequired;
+                    dataItem.RenderType = Constants.MetricDataRenderType.SelectList;
+                }
+
+                if (item.MultipleValues)
+                {
+                    dataItem.RenderType = Constants.MetricDataRenderType.MultipleValues;
+                }
+
+                if (item.Children != null)
+                {
+                    var index = 0;
+                    foreach (var child in item.Children)
+                    {
+                        dataItem.Children.Add(new MetricDataItemModel
+                        {
+                            ItemId = dataItem.ItemId + "_" + index.ToString(),
+                            DisplayName = child.DisplayName,
+                            RenderType = Constants.MetricDataRenderType.Text,
+                            SelectedValueOption = string.Empty,
+                            TagName = child.TagName,
+                            Value = child.Value,
+                            Children = null
+                        });
+                        index++;
+                    }
+                }
+
+                metricInstanceDataModel.DataItems.Add(dataItem);
+            }
+
+            return metricInstanceDataModel;
+        }
+
+        [HttpPost]
+        public ActionResult SaveOnDemandMetricData(FormCollection formcollection, Guid parentId, MetricInstanceParentType parentType)
+        {
+
+            var metricId = Guid.Parse(formcollection.GetValue("MetricId").AttemptedValue.ToString());
+            var metricInstanceId = Guid.Parse(formcollection.GetValue("MetricInstanceId").AttemptedValue.ToString());
+            var status = (Status)Enum.Parse(typeof(Status), formcollection.GetValue("Status").AttemptedValue);
+            //var metricData = ExtractMetricDataFromModel(metricInstanceModel);
+
+            if (_serverService.SaveOnDemandMetricInstance(metricInstanceId, metricId, parentId, status, parentType))
+            {
+                ViewBag.Result = "On Demand metric instance was Submitted successfully";
+            }
+            else
+            {
+                ViewBag.Result = "There was an error On Demand metric instance Submission";
+            }
+
+            return View("AddMetricInstanceResult");
+        }
+
     }
 }

@@ -29,7 +29,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
 
         public ThresholdComparisonFunction ThresholdComparisonFunction { get; set; }
         public ThresholdValueType ThresholdValueType { get; set; }
-        
+
         public MetricThresholdType MetricThresholdType { get; set; }
 
         [Required]

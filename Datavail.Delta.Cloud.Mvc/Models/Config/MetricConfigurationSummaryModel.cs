@@ -17,7 +17,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         public MetricConfigurationParentType ParentType { get; set; }
 
         public Guid ParentId { get; set; }
-        
+
         public MetricConfigurationModel MetricConfig { get; set; }
 
         public string ParentName { get; set; }

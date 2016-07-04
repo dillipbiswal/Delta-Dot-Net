@@ -66,7 +66,7 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     }
                 };
 
-                if (User.IsInRole(Constants.DELTAADMIN))
+                if (User.IsInRole(Constants.DELTAADMIN) && User.IsInRole(Constants.DELTADDOPS))
                 {
                     configurationMenuItem.ChildItems.Add(new MainMenuItem
                     {
@@ -75,6 +75,20 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         ItemIconUrl = "Content/images/navicons/149.png",
                         ItemTitle = "Metrics",
                         ItemAlt = "Metrics",
+                        ItemId = Constants.CONFIGMENUITEMID,
+                        IsTopLevelItem = false
+                    });
+                }
+
+                if (User.IsInRole(Constants.DELTAADMIN))
+                {
+                    configurationMenuItem.ChildItems.Add(new MainMenuItem
+                    {
+                        Class = "mainmenu-item",
+                        ItemUrl = "Config/ApiUris",
+                        ItemIconUrl = "Content/images/navicons/149.png",
+                        ItemTitle = "APIURIS",
+                        ItemAlt = "APIURIS",
                         ItemId = Constants.CONFIGMENUITEMID,
                         IsTopLevelItem = false
                     });
@@ -107,7 +121,34 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         IsTopLevelItem = false
                     }
                 };
+                adminMenuItem.ChildItems.Add(new MainMenuItem
+                {
+                    Class = "mainmenu-item testcls",
+                    ItemUrl = "Admin/OnDemadConfigBuilder",
+                    ItemIconUrl = "Content/images/navicons/149.png",
+                    ItemTitle = "On Demand Config Builder",
+                    ItemAlt = "On Demand Config Builder",
+                    ItemId = Constants.ADMINMENUITEMID,
+                    IsTopLevelItem = false
+                });
+
                 configPortalModel.MainMenuItems.Add(adminMenuItem);
+            }
+
+
+            if (User.IsInRole(Constants.DELTAUSER))
+            {
+                var faqMenuItem = new MainMenuItem
+                {
+                    Class = "mainmenu-item",
+                    ItemUrl = "FAQ/FAQ",
+                    ItemIconUrl = "Content/images/navicons/149.png",
+                    ItemTitle = "FAQ",
+                    ItemAlt = "FAQ",
+                    ItemId = Constants.FAQMENUITEMID,
+                };
+
+                configPortalModel.MainMenuItems.Add(faqMenuItem);
             }
 
             //Set the current Tab based on the supplied model
@@ -494,6 +535,27 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                         Url = "Config/MaintenanceWindowsTable?parentId=" + parentId,
                     };
                     break;
+                case Constants.TableType.ApiUriWindow:
+                    tableModel = new TableModel
+                    {
+                        Id = "apiuriwindow-table",
+                        Caption = "APIURI Windows",
+                        ColumnModel = columnData[1],
+                        ColumnNames = columnData[0],
+                        EditUrl = "Config/ApiUriWindowEdit/",
+                        EmptyRecords = "No ApiUri to view",
+                        GridComplete = "apiuriWindowsGridComplete",
+                        HoverRows = "false",
+                        MultiKey = "ctrlKey",
+                        MultiSelect = "false",
+                        NavGridOptions = "{ edit: false, add: false,del: false, search: false}",
+                        Pager = "apiuriwindow-table-pager",
+                        RecordText = "APIURIS {0} - {1} of {2}",
+                        TableAddOptions = "{addCaption: 'Add APIURI Window', width: 400, afterShowForm: beforeShowApiUriWindows}",
+                        TableEditOptions = "{}",
+                        Url = "Config/ApiUriWindowsTable?parentId=" + parentId,
+                    };
+                    break;
             }
 
             tableModel.IsTabTable = isTabTable;
@@ -606,6 +668,12 @@ namespace Datavail.Delta.Cloud.Mvc.Controllers
                     columns = "{ name: 'begindate', index: 'begindate', hidden: true, width: 200, editable: true, edittype: 'text', editrules: { required: true }, search: true }," +
                                 "{ name: 'enddate', index: 'enddate', hidden: true, width: 200, editable: true, edittype: 'text', editrules: { required: true }, search: true }," +
                                 "{ name: 'description', index: 'description', width: 800, editable: false, search: true },";
+                    break;
+                case Constants.TableType.ApiUriWindow:
+                    columnNames = "['', 'PlugIn Name ', 'URI Address ', 'Host Name', '']";
+                    columns = "{ name: 'plugInName', index: 'plugInName', hidden: false, width: 200, editable: true, edittype: 'text', editrules: { required: true }, search: true }," +
+                                "{ name: 'uRIAddress', index: 'uRIAddress', hidden: false, width: 250, editable: true, edittype: 'text', editrules: { required: true }, search: true }," +
+                                "{ name: 'agentServerId', index: 'agentServerId', hidden: false, width: 400, editable: true, search: true },";
                     break;
             }
 

@@ -2,10 +2,10 @@
 
 namespace Datavail.Delta.Cloud.Mvc.Infrastructure
 {
-	public class SecurityRegistry : Registry
-	{
-		public SecurityRegistry()
-		{
+    public class SecurityRegistry : Registry
+    {
+        public SecurityRegistry()
+        {
             //For<CurrentUser>().Add<CurrentUser>();
 
             //For(typeof(IRepository<Project>))
@@ -13,6 +13,6 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure
 
             //For(typeof(IRepository<Issue>))
             //    .EnrichWith((ctx, obj) => new IssueSecurityDecorator((IRepository<Issue>)obj, ctx.GetInstance<CurrentUser>()));
-		}
-	}
+        }
+    }
 }

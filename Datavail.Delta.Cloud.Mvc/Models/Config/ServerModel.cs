@@ -24,6 +24,10 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         [UIHint("FilteredStatusDropDown")]
         public Status Status { get; set; }
 
+        [Required]
+        [UIHint("FilteredAgentErrorDropDown")]
+        public AgentError AgentError { get; set; }
+
         public string Oper { get; set; }
 
         public string AgentVersion { get; set; }
@@ -40,15 +44,18 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
             Status = Status.Active;
             IsVirtual = false;
             IpAddress = string.Empty;
+            AgentError = AgentError.Enabled;
         }
 
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<Server, ServerModel>()
-                .ForMember(f => f.Status, opt => opt.MapFrom(f => f.Status));
+                .ForMember(f => f.Status, opt => opt.MapFrom(f => f.Status))
+                .ForMember(x => x.AgentError, opt => opt.MapFrom(x => x.AgentError));
 
             configuration.CreateMap<ServerModel, Server>()
                 .ForMember(m => m.Status, opt => opt.MapFrom(f => (Status)f.Status))
+                .ForMember(y => y.AgentError, opt => opt.MapFrom(y => (AgentError)y.AgentError))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }
     }

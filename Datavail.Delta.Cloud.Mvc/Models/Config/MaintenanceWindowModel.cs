@@ -17,18 +17,22 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
 
         [Required]
         public DateTime BeginDate { get; set; }
-        
+
         [Required]
         public DateTime EndDate { get; set; }
-        
-        public MaintenanceWindowParentType ParentType {get; set;}
+
+        public MaintenanceWindowParentType ParentType { get; set; }
 
         public string Oper { get; set; }
 
         public MaintenanceWindowModel()
         {
-            BeginDate = DateTime.Parse(DateTime.Now.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
-            EndDate = DateTime.Parse(DateTime.Now.ToLocalTime().AddHours(1).ToString("MM/dd/yyyy hh:mm tt"));
+            //BeginDate = DateTime.Parse(DateTime.Now.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
+            //EndDate = DateTime.Parse(DateTime.Now.ToLocalTime().AddHours(1).ToString("MM/dd/yyyy hh:mm tt"));
+
+            BeginDate = DateTime.Now;
+            EndDate = DateTime.Now.AddHours(1);
+
             Id = Guid.Empty;
         }
 

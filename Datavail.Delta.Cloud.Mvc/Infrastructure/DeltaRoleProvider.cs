@@ -23,7 +23,7 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure
 
         public DeltaRoleProvider()
             : this(DependencyResolver.Current.GetService<IRepository>())
-    { }
+        { }
 
         public DeltaRoleProvider(IRepository repository)
         {
@@ -80,7 +80,7 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure
                     roles = user.Roles.Select(x => x.Name).ToArray();
                 }
 
-                return roles;    
+                return roles;
             }
         }
 

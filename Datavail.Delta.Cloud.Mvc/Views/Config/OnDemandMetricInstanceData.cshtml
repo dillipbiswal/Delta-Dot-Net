@@ -1,0 +1,23 @@
+﻿@model Datavail.Delta.Cloud.Mvc.Models.Config.MetricInstanceDataModel
+
+<form action="@Model.MetricInstanceDataFormAction" method="post" id="metric-data-form">
+    
+    <div id="form-errors-container">
+        <ul></ul>
+    </div>
+
+    @Html.HiddenFor(x => x.MetricInstanceId)
+    @Html.HiddenFor(x => x.MetricId)
+    @Html.HiddenFor(x => x.Status)
+    @Html.HiddenFor(x => x.DataItems)
+    <table style="width: 100%">
+    <tr>
+        <td class="form-label">Please Press Submit Button to Run Now. </td>
+        @*<td class="form-data"> @Html.EditorFor(x => x.Status)</td>*@
+    </tr>
+    
+    @*@Html.EditorFor(x => x.DataItems)*@
+
+    </table>
+</form>
+    

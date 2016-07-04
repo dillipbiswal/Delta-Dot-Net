@@ -57,7 +57,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
 
             configuration.CreateMap<DatabaseInstanceModel, DatabaseInstance>()
                 .ForMember(m => m.Status, opt => opt.MapFrom(f => (Status)f.Status))
-                .ForMember(m => m.DatabaseVersion, opt => opt.MapFrom( f => (DatabaseVersion)f.DatabaseVersion))
+                .ForMember(m => m.DatabaseVersion, opt => opt.MapFrom(f => (DatabaseVersion)f.DatabaseVersion))
                 .ForAllMembers(opt => opt.Condition(f => f.SourceValue != null));
         }
     }

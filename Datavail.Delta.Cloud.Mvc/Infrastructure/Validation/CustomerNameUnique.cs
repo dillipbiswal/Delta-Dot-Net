@@ -7,7 +7,7 @@ using Datavail.Delta.Application.Interface;
 
 namespace Datavail.Delta.Cloud.Mvc.Infrastructure.Validation
 {
-    public sealed class CustomerNameUnique : ValidationAttribute  
+    public sealed class CustomerNameUnique : ValidationAttribute
     {
         private IServerService _serverService;
 

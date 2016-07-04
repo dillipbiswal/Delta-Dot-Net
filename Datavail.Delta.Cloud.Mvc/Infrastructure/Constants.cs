@@ -64,7 +64,8 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure
             MetricThresholds = 12,
             Schedules = 13,
             MetricConfig = 14,
-            MaintWindow = 15
+            MaintWindow = 15,
+            ApiUriWindow = 16
         }
 
         public enum MetricDataRenderType
@@ -122,12 +123,14 @@ namespace Datavail.Delta.Cloud.Mvc.Infrastructure
         #region "menu"
         public const string CONFIGMENUITEMID = "mainmenu-config";
         public const string ADMINMENUITEMID = "mainmenu-admin";
+        public const string FAQMENUITEMID = "mainmenu-faq";
         #endregion
 
         #region "Roles"
         public const string DELTAADMIN = "DeltaAdmin";
         public const string DELTAUSER = "DeltaUser";
         public const string DELTREADONLY = "DeltaReadOnly";
+        public const string DELTADDOPS = "DDOPSTeam";
         #endregion
     }
 }

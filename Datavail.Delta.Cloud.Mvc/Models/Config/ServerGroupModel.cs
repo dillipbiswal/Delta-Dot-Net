@@ -26,6 +26,10 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         [UIHint("FilteredStatusDropDown")]
         public Status Status { get; set; }
 
+        [Required]
+        [UIHint("FilteredAgentErrorDropDown")]
+        public AgentError AgentError { get; set; }
+
         public string Oper { get; set; }
 
         public ServerGroupModel()
@@ -33,6 +37,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
             Id = Guid.Empty;
             Priority = 0;
             Status = Status.Active;
+            AgentError = AgentError.Enabled;
         }
 
         void IHaveCustomMappings.CreateMappings(IConfiguration configuration)

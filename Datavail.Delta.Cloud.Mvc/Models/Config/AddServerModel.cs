@@ -11,7 +11,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
     {
         public Guid ParentId { get; set; }
         public IEnumerable<Server> PotentialServers { get; set; }
-        public IEnumerable<SelectListItem> PotentialServersSelectListItems { get; set; } 
+        public IEnumerable<SelectListItem> PotentialServersSelectListItems { get; set; }
         public IEnumerable<Guid> SelectedServerIds { get; set; }
         public string SelectedServersHeader { get; set; }
         public string PotentialServersHeader { get; set; }
