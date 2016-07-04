@@ -100,7 +100,7 @@ namespace Datavail.Delta.RestServices.Controllers
             }
         }
         #endregion
-        
+
         #region UPDATE
         [PUT("/v41/tenants/{tenantId}/customers/{id}")]
         public HttpResponseMessage Put(Guid tenantId, Guid id, [FromBody]CustomerModel model)

@@ -26,10 +26,12 @@ namespace Datavail.Delta.RestServices.Controllers
         private readonly IQueue<DataCollectionArchiveMessage> _archiveQueue;
         private readonly IQueue<DataCollectionMessage> _incidentProcessorQueue;
         private readonly IQueue<DataCollectionTestMessage> _testQueue;
+        private readonly IQueue<DataCollectionInventoryMessage> _inventoryQueue;
+        private readonly IQueue<DataCollectionAgentErrorMessage> _agentErrorQueue;
         #endregion
 
         #region Constructor
-        public ServerController(IQueue<CheckInMessage> checkInQueue, IQueue<DataCollectionArchiveMessage> archiveQueue, IQueue<DataCollectionMessage> incidentProcessorQueue, IQueue<DataCollectionTestMessage> testQueue, IDeltaLogger deltaLogger, IServerService serverService, IServerRepository serverRepository, IRepository repository)
+        public ServerController(IQueue<CheckInMessage> checkInQueue, IQueue<DataCollectionArchiveMessage> archiveQueue, IQueue<DataCollectionMessage> incidentProcessorQueue, IQueue<DataCollectionTestMessage> testQueue, IDeltaLogger deltaLogger, IServerService serverService, IServerRepository serverRepository, IRepository repository, IQueue<DataCollectionInventoryMessage> inventoryQueue, IQueue<DataCollectionAgentErrorMessage> agentErrorQueue)
         {
             _repository = repository;
             _serverRepository = serverRepository;
@@ -40,7 +42,8 @@ namespace Datavail.Delta.RestServices.Controllers
             _archiveQueue = archiveQueue;
             _incidentProcessorQueue = incidentProcessorQueue;
             _testQueue = testQueue;
-            
+            _inventoryQueue = inventoryQueue;
+            _agentErrorQueue = agentErrorQueue;
         }
         #endregion
 
@@ -70,11 +73,11 @@ namespace Datavail.Delta.RestServices.Controllers
             {
                 var config = _serverService.GetConfig(id);
                 var model = new ConfigModel
-                    {
-                        Configuration = config,
-                        GeneratingServer = Environment.MachineName,
-                        Timestamp = DateTime.UtcNow
-                    };
+                {
+                    Configuration = config,
+                    GeneratingServer = Environment.MachineName,
+                    Timestamp = DateTime.UtcNow
+                };
 
                 return Request.CreateResponse(HttpStatusCode.OK, model);
             }
@@ -82,6 +85,67 @@ namespace Datavail.Delta.RestServices.Controllers
             {
                 _logger.LogUnhandledException("Error in GetConfig (" + id + ")", ex);
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage GetOnDemandConfig(Guid id)
+        {
+            try
+            {
+                var config = _serverService.GetOnDemandConfig(id);
+                var model = new ConfigModel
+                {
+                    Configuration = config,
+                    GeneratingServer = Environment.MachineName,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                return Request.CreateResponse(HttpStatusCode.OK, model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Error in GetOnDemandConfig (" + id + ")", ex);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public HttpResponseMessage PostOnDemandMetricStatus(Guid id)
+        {
+            try
+            {
+                var ondemandmetric = _serverService.SaveDemandConfig(id);
+                if (ondemandmetric)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, string.Empty);
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error while saving");
+                }
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Error in POST /ondemandmetrics/" + "(" + id + ")", ex);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public HttpResponseMessage PostAgentStartStopStatus(Guid id, string msg)
+        {
+            try
+            {
+                _testQueue.AddData("[CheckInsStatus]", id, msg);
+                return Request.CreateResponse(HttpStatusCode.OK, string.Empty);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Error in POST /PostAgentStartStopStatus/" + "(" + id + ")", ex);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
 
@@ -117,18 +181,47 @@ namespace Datavail.Delta.RestServices.Controllers
         {
             try
             {
-                if(string.IsNullOrEmpty(dataModel.Data))
+                if (string.IsNullOrEmpty(dataModel.Data))
                 {
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Contents cannot be empty");
                 }
 
                 var ignoreExpression = WebConfigurationManager.AppSettings["PluginDataIgnoreExpression"] ?? "^a";
                 var testDivertExpression = WebConfigurationManager.AppSettings["PluginDataDivertToTestQueueExpression"] ?? "^a";
+                var IsInventory = Convert.ToBoolean(WebConfigurationManager.AppSettings["InventoryPost"]);
+                var IsAgentError = Convert.ToBoolean(WebConfigurationManager.AppSettings["AgentErrorPost"]);
 
                 if (!Regex.IsMatch(dataModel.Data, ignoreExpression))
                 {
-                    var msg = new DataCollectionMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
-                    _incidentProcessorQueue.AddMessage(msg);
+                    //var msg = new DataCollectionMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                    //_incidentProcessorQueue.AddMessage(msg);
+
+                    if (dataModel.Data.ToLower().Contains("inventory"))
+                    {
+                        if (IsInventory)
+                        {
+                            var InvetoryMsg = new DataCollectionInventoryMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                            _inventoryQueue.AddMessage(InvetoryMsg);
+                        }
+                        else
+                        {
+                            var msg = new DataCollectionMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                            _incidentProcessorQueue.AddMessage(msg);
+                        }
+                    }
+                    else
+                    {
+                        if (dataModel.Data.ToLower().Contains("agenterroroutput"))
+                        {
+                            var AgentErrorMsg = new DataCollectionAgentErrorMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                            _agentErrorQueue.AddMessage(AgentErrorMsg);
+                        }
+                        else
+                        {
+                            var msg = new DataCollectionMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                            _incidentProcessorQueue.AddMessage(msg);
+                        }
+                    }
 
                     var archivemsg = new DataCollectionArchiveMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
                     _archiveQueue.AddMessage(archivemsg);
@@ -148,5 +241,50 @@ namespace Datavail.Delta.RestServices.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
+
+
+        [HttpPost]
+        public HttpResponseMessage PostInventoryData(Guid id, PostDataModel dataModel)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dataModel.Data))
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Contents cannot be empty");
+                }
+
+                var ignoreExpression = WebConfigurationManager.AppSettings["PluginDataIgnoreExpression"] ?? "^a";
+                var testDivertExpression = WebConfigurationManager.AppSettings["PluginDataDivertToTestQueueExpression"] ?? "^a";
+                var IsInventory = Convert.ToBoolean(WebConfigurationManager.AppSettings["InventoryPost"]);
+                var IsAgentError = Convert.ToBoolean(WebConfigurationManager.AppSettings["AgentErrorPost"]);
+
+                if (!Regex.IsMatch(dataModel.Data, ignoreExpression))
+                {
+                    //var msg = new DataCollectionMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                    //_incidentProcessorQueue.AddMessage(msg);
+
+                    var InvetoryMsg = new DataCollectionInventoryMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                    _inventoryQueue.AddMessage(InvetoryMsg);
+
+                    var archivemsg = new DataCollectionArchiveMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                    _archiveQueue.AddMessage(archivemsg);
+                }
+
+                if (Regex.IsMatch(dataModel.Data, testDivertExpression))
+                {
+                    var testmsg = new DataCollectionTestMessage { Data = dataModel.Data, Hostname = dataModel.Hostname, IpAddress = dataModel.IpAddress, ServerId = id, TenantId = dataModel.TenantId, Timestamp = dataModel.Timestamp };
+                    _testQueue.AddMessage(testmsg);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUnhandledException("Error in GetAssemblyList(" + id + ")", ex);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+
     }
 }

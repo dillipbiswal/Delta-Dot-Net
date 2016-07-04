@@ -102,6 +102,14 @@ namespace Datavail.Delta.RestServices.Controllers
                     label = "Disk Inventory";
                     xml = new XElement("DiskInventoryPluginInput");
                     break;
+                case "WebSiteInventoryPlugin":
+                    label = "Web Site Inventory";
+                    xml = new XElement("WebSiteInventoryPluginInput");
+                    break;
+                case "ApplicationPoolInventoryPlugin":
+                    label = "Application Pool Inventory";
+                    xml = new XElement("ApplicationPoolInventoryPluginInput");
+                    break;
                 case "RamPlugin":
                     label = "RAM Status";
                     xml = new XElement("RamPluginInput");
@@ -271,6 +279,23 @@ namespace Datavail.Delta.RestServices.Controllers
                     xml = new XElement("DiskPlugin");
                     xml.Add(new XAttribute("Path", pathMetricData.Value));
                     break;
+                case "WebSitePlugin":
+                    var pathMetricWebsiteData = metricData.Data.FirstOrDefault(x => x.TagName == "Site");
+
+                    pathMetricWebsiteData.Value = pathMetricWebsiteData.Value.ToUpper();
+                    label = "Web Site Status for '" + pathMetricWebsiteData.Value + "'";
+                    xml = new XElement("WebSitePlugin");
+                    xml.Add(new XAttribute("Site", pathMetricWebsiteData.Value));
+                    break;
+                case "ApplicationPoolPlugin":
+                    var pathMetricApPoolData = metricData.Data.FirstOrDefault(x => x.TagName == "Pool");
+
+                    pathMetricApPoolData.Value = pathMetricApPoolData.Value.ToUpper();
+                    label = "Application Pool Status for '" + pathMetricApPoolData.Value + "'";
+                    xml = new XElement("ApplicationPoolPlugin");
+                    xml.Add(new XAttribute("Pool", pathMetricApPoolData.Value));
+                    break;
+
                 case "LogWatcherPlugin":
                     var fileName = metricData.Data.Where(x => x.TagName == "FileNameToWatch").FirstOrDefault().Value;
                     var matchExprData = metricData.Data.FirstOrDefault(x => x.TagName == "MatchExpressions");

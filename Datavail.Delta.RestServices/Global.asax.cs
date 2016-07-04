@@ -28,7 +28,7 @@ namespace Datavail.Delta.RestServices
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             Database.SetInitializer<DeltaDbContext>(null);
-            
+
             GlobalConfig.CustomizeConfig(GlobalConfiguration.Configuration);
         }
     }

@@ -18,7 +18,7 @@ namespace Datavail.Delta.RestServices.Controllers
         {
             _logger = deltaLogger;
         }
-        
+
         [HttpGet]
         public HttpResponseMessage GetAssembly(string name, string version)
         {
@@ -34,7 +34,7 @@ namespace Datavail.Delta.RestServices.Controllers
                 {
                     var bytes = new byte[fs.Length];
                     fs.Read(bytes, 0, Convert.ToInt32(fs.Length));
-                    
+
                     var model = new AssemblyDownloadModel
                     {
                         AssemblyName = name,
