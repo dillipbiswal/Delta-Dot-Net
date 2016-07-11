@@ -33,7 +33,7 @@ namespace Datavail.Delta.Cloud.Mvc.Models.Config
         public string AgentVersion { get; set; }
 
         public DateTime? LastCheckIn { get; set; }
-
+        public DateTime? LastConfigBuild { get; set; }
         public string ClusterGroupName { get; set; }
 
         public bool IsVirtual { get; set; }
